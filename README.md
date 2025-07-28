@@ -84,6 +84,7 @@ This enables:
 
 > No need to add these to `$fillable`.
 
+Note: Ensure your model has those columns
 We can update the column names by implementing the following functions:
 
 ```php
