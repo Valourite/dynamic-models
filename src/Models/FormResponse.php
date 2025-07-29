@@ -30,7 +30,11 @@ final class FormResponse extends Model
     
     const RESPONSE_DATA = 'response_data';
     
-    const PRIMATY_KEY = 'form_response_id';
+    const PRIMARY_KEY = 'form_response_id';
+
+    const MORPH_NAME = 'model';
+
+    const BASE_TABLE_NAME = 'form_responses';
 
     /**
      * =========================
@@ -40,11 +44,9 @@ final class FormResponse extends Model
     
     public $incrementing = true;
 
-    // protected static string $tableName;
+    protected $primaryKey = self::PRIMARY_KEY;
 
     protected $table;
-
-    protected $primaryKey = self::PRIMARY_KEY;
 
     protected $dateFormat = 'Y-m-d';
 
@@ -74,15 +76,23 @@ final class FormResponse extends Model
     ];
 
     /**
-     * =======================
-     *      BOOTED
-     * =======================.
+     * =========================
+     * 		 WITH
+     * ========================
      */
-    public static function booted(): void
-    {
-        self::$table = config('form-builder.table_prefix') . 'forms';
+    protected $with = ['model', 'form'];
 
-        // static::$tableName = config('form-builder.table_prefix') . 'forms';
+    /**
+     * =========================
+     * 		 CONSTRUCTOR
+     * ========================
+     */
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setTable(config('form-builder.table_prefix') . self::BASE_TABLE_NAME);
     }
 
     /*
@@ -98,15 +108,5 @@ final class FormResponse extends Model
     public function model()
     {
         return $this->morphTo();
-    }
-
-    /**
-     * ========================
-     * 		FILAMENT
-     * ========================.
-     */
-    public function getTable()
-    {
-        return config('form-builder.table_prefix') . 'form_responses';
     }
 }

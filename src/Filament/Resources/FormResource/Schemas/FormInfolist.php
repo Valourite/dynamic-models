@@ -6,7 +6,7 @@ use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
-use Valourite\FormBuilder\Filament\Support\Generators\FormSchemaGenerator;
+use Valourite\FormBuilder\Filament\Support\Generators\FormGenerator;
 use Valourite\FormBuilder\Models\Form;
 
 final class FormInfolist
@@ -36,16 +36,8 @@ final class FormInfolist
                 ->schema(function (Get $get) {
                     $record = $get('record');
 
-                    if ( ! $record?->form_content) {
-                        return [];
-                    }
-
-                    $formContent = is_array($record->form_content)
-                        ? $record->form_content
-                        : json_decode($record->form_content, true);
-
                     // we return the schema and allow the user to play with it -> enter values, they wont be saved
-                    return FormSchemaGenerator::formContent($formContent, []);
+                    return FormGenerator::formSchema($record);
                 })
                 ->visible(fn (Get $get) => filled($get('record')?->form_content))
                 ->columnSpanFull()

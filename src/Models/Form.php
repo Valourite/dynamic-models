@@ -41,6 +41,7 @@ final class Form extends Model
    const FORM_VERSION = 'form_version';
 
    const PRIMARY_KEY = 'form_id';
+   const BASE_TABLE_NAME = 'forms';
 
     /**
      * =========================
@@ -48,12 +49,10 @@ final class Form extends Model
      * =========================.
      */
     public $incrementing = true;
-    
-    // protected static string $tableName;
-
-    protected $table;
 
     protected $primaryKey = self::PRIMARY_KEY;
+
+    protected $table;
 
     protected $dateFormat = 'Y-m-d';
 
@@ -90,10 +89,6 @@ final class Form extends Model
      */
     public static function booted(): void
     {
-        self::$table = config('form-builder.table_prefix') . 'forms';
-
-        // static::$tableName = config('form-builder.table_prefix') . 'forms';
-
         // Allow the slug to be generated from the form
         static::creating(function ($model) {
             $model->form_slug = str($model->form_name)->slug();
@@ -103,6 +98,20 @@ final class Form extends Model
             }
         });
     }
+
+    /**
+     * =========================
+     * 		 CONSTRUCTOR
+     * ========================
+     */
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setTable(config('form-builder.table_prefix') . self::BASE_TABLE_NAME);
+    }
+
 
     /*
      * =========================
@@ -124,15 +133,5 @@ final class Form extends Model
     public static function factory(): FormFactory
     {
         return FormFactory::new();
-    }
-
-    /**
-     * ========================
-     * 		FILAMENT
-     * ========================.
-     */
-    public function getTable()
-    {
-        return config('form-builder.table_prefix') . 'forms';
     }
 }

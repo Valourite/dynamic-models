@@ -14,13 +14,11 @@ return new class () extends Migration {
             $table->bigIncrements('form_response_id');
 
             //Reference the id of the form table
-            $table->foreignId('form_id')->constrained(config('form-builder.table_prefix') . 'forms')->onDelete('cascade');
+            $table->foreignId('form_id')->constrained(config('form-builder.table_prefix') . 'forms', 'form_id')->cascadeOnDelete()->cascadeOnUpdate();
 
             //Reference the id of the model
-            $table->foreignId('model_id'); // ID of the model instance
-
-            //Class name of the model
-            $table->string('model_type');
+            //We cannot constrain the foreignId as we do not know the model
+            $table->morphs('model');
 
             // Form response data
             $table->json('response_data');
