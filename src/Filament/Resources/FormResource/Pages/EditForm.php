@@ -25,25 +25,21 @@ final class EditForm extends EditRecord
         $oldContent = json_decode($record->form_content, true);
         $newContent = json_decode($data['form_content'], true);
 
-        $shouldCreateNew = config('form-builder.create_new_record');
-        $hasChanges      = $this->hasFormContentChanged($oldContent, $newContent);
+        $hasChanges = $this->hasFormContentChanged($oldContent, $newContent);
 
-        if ($shouldCreateNew && $hasChanges) {
+        if ($hasChanges) {
             $newForm = $record->replicate([
                 'form_id',
                 'created_at',
                 'updated_at',
             ]);
 
-            // Apply versioning
-            if (config('form-builder.versioning.mode') === 'increment') {
-                $newForm->form_version = $this->incrementVersion(
-                    $record->form_version,
-                    config('form-builder.increment_count', '0.0.1')
-                );
-            }
 
             $newForm->form_content = $newContent;
+            $newForm->form_version = $this->incrementVersion(
+                $record->form_version,
+                config('form-builder.increment_count', '0.0.1')
+            );
             $newForm->save();
 
             // new form has been created, revert the data back to original

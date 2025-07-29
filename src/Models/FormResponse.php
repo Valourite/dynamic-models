@@ -11,13 +11,10 @@ final class FormResponse extends Model
         'model_id',
         'model_type',
         'response_data',
-        'form_schema',
-        'form_version',
     ];
 
     protected $casts = [
         'response_data' => 'json',
-        'form_schema' => 'json',
     ];
 
     public function form()
