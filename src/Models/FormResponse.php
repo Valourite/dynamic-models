@@ -6,11 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 final class FormResponse extends Model
 {
-    protected $fillable = [
-        'form_id',
-        'model_id',
-        'model_type',
-        'response_data',
+        'form_schema',
+        'form_version',
+    protected $casts = [
+        'response_data' => 'json',
+        'form_schema' => 'json',
     ];
 
     protected $casts = [

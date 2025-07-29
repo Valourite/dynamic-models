@@ -43,6 +43,7 @@ abstract class FormBuilderCreateRecord extends CreateRecord
         $record->{$modelClass::getFormResponseColumn()} = json_encode($formResponse);
         $record->{$modelClass::getFormIdColumn()}       = $data['form_id'] ?? null;
         $record->{$modelClass::getFormVersionColumn()}  = $data['form_version'] ?? null;
+        $record->form_schema = $formData;
 
         //unset the form data
         unset($data[$modelClass::getFormContentColumn()], $data[$modelClass::getFormResponseColumn()], $data[$modelClass::getFormIdColumn()], $data[$modelClass::getFormVersionColumn()]);

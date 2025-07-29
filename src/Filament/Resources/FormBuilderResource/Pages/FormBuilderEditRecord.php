@@ -31,6 +31,7 @@ abstract class FormBuilderEditRecord extends EditRecord
 
         $data[$instance->getFormResponseColumn()] = json_encode($formResponse);
         $data[$instance->getFormContentColumn()]  = json_encode($formData);
+        $data['form_schema'] = $formData;
 
         return $data;
     }
