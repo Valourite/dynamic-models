@@ -32,7 +32,6 @@ final class FieldRepeater extends Repeater
                             ->schema([
                                 TextInput::make('name')
                                     ->label('Name')
-                                    ->live(onBlur: true)
                                     ->required()
                                     ->afterStateUpdated(function (Set $set, ?string $state, $context) {
                                         if ($context === 'edit') {
@@ -43,7 +42,6 @@ final class FieldRepeater extends Repeater
 
                                 TextInput::make('label')
                                     ->label('Label')
-                                    ->reactive()
                                     ->helperText('This is the label of the field'),
 
                                 Select::make('type')
