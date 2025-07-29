@@ -1,0 +1,45 @@
+
+# 2025-07-29 10:16:14.389830
++N
+
+# 2025-07-29 10:20:25.071517
++Please review the files, and let me know where I can make changes to improve the performance of this package. The repeater, from the EditRecord is very slow when I try and save a model that has been specified inside the config. 
+
+# 2025-07-29 10:35:07.201489
++Update the Form Resource so that only the fields that need to be reactive are reactive. It a filed does not need to be reactive, then don't set it as reactive or live
+
+# 2025-07-29 10:38:15.242235
++Edit the section repeater and the filed repeater to make them optimised, also remove the live and reactive where it is not needed. 
+
+# 2025-07-29 10:44:13.865938
++Based on the code provided, and what the README says about how data is stored on a modal. What would be a better way of storing data on a model, keep in mind that the data that is being stores is is modal instance specific, meaning that the instance of the model could have different data and even a different form stored on it 
+
+# 2025-07-29 10:44:33.049655
++Y
+
+# 2025-07-29 10:44:43.810567
++/run php artisan make:migration create_form_responses_table
+
+# 2025-07-29 10:44:43.810656
++/run php artisan make:migration create_form_responses_table
+
+# 2025-07-29 10:44:48.627309
++Y
+
+# 2025-07-29 10:44:51.193558
++/run php artisan make:model FormResponse
+
+# 2025-07-29 10:44:51.193664
++/run php artisan make:model FormResponse
+
+# 2025-07-29 10:44:52.988306
++Y
+
+# 2025-07-29 10:59:25.631519
++I need the response to be able to store the schema of the form, so that if the form is updated and the schema changed, if we view the response on a model, we can see what version of the form was used and what schema was used so that the correct schema for that response gets used. Whats the best way of doing that, would it be to copy the form across into the form response or would it be better that when the form gets updated, we create a new record always, ensuring that the form_id that links a form reponse will always include the correct schema as we can never change the schema on a form record. 
+
+# 2025-07-29 11:00:44.839789
++Y
+
+# 2025-07-29 11:04:40.505128
++Okay, you didnt listen to what I asked of you. I want to set it so that every form that gets created will create a record with timestamps, however when that form is updated, we create a new record only if the form schema is updated. This will allow the form response to always link to the form_id without having to copy the form schema, version and such into the form response record. Please update the files to handle this, also update the config to remove any refernces to being able to change how a form is version controlled. Also implement a version control on the form so that we can see the different forms over time. Essentially when a form schema gets updated, we need to make a new record. We do not then need to store the form shcema and the form version inside the form response, just the form_id

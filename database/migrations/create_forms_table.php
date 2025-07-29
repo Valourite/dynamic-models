@@ -29,6 +29,7 @@ return new class () extends Migration {
             $table->tinyInteger('is_active')->default(1);
 
             // Indicates which model this form belongs to
+            //We use this to filter forms when we create a model that needs a form
             $table->string('form_model', 255);
 
             // the content of the form

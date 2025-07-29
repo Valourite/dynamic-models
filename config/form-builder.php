@@ -2,10 +2,14 @@
 
 return [
     /*
+     * Determines the step to increment by
+     */
+    'increment_count' => '0.0.1',
+
+    /*
      * The prefix of the tables for the form builder.
      */
     'table_prefix' => 'form_builder_',
-
 
     /*
      * Should add the form builder resources into a navigational group

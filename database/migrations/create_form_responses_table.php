@@ -10,12 +10,21 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create('form_responses', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('form_id')->constrained('forms')->onDelete('cascade');
+        Schema::create(config('form-builder.table_prefix') . 'form_responses', function (Blueprint $table) {
+            $table->bigIncrements('form_response_id');
+
+            //Reference the id of the form table
+            $table->foreignId('form_id')->constrained(config('form-builder.table_prefix') . 'forms')->onDelete('cascade');
+
+            //Reference the id of the model
             $table->foreignId('model_id'); // ID of the model instance
-            $table->string('model_type'); // Class name of the model
-            $table->json('response_data'); // Form response data
+
+            //Class name of the model
+            $table->string('model_type');
+
+            // Form response data
+            $table->json('response_data');
+            
             $table->timestamps();
         });
     }

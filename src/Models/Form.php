@@ -22,38 +22,34 @@ final class Form extends Model
      *		 CONSTANTS
      * ==========================.
      */
-    public const FORM_ID = 'form_id';
+   const FORM_ID = 'form_id';
 
-    public const FROM_NAME = 'form_name';
+   const FROM_NAME = 'form_name';
 
-    public const FORM_SLUG = 'form_slug';
+   const FORM_SLUG = 'form_slug';
 
-    public const FORM_DESCRIPTION = 'form_description';
+   const FORM_DESCRIPTION = 'form_description';
 
-    public const FORM_CONFIRMATION_MESSAGE = 'form_confirmation_message';
+   const FORM_CONFIRMATION_MESSAGE = 'form_confirmation_message';
 
-    public const IS_ACTIVE = 'is_active';
+   const IS_ACTIVE = 'is_active';
 
-    public const FORM_MODEL = 'form_model';
+   const FORM_MODEL = 'form_model';
 
-    public const FORM_CONTENT = 'form_content';
+   const FORM_CONTENT = 'form_content';
 
-    public const FORM_VERSION = 'form_version';
+   const FORM_VERSION = 'form_version';
 
-    public const CREATED_AT = 'created_at';
-
-    public const UPDATED_AT = 'updated_at';
-
-    public const PRIMARY_KEY = 'form_id';
-
-    public $incrementing = true;
+   const PRIMARY_KEY = 'form_id';
 
     /**
      * =========================
      *		 FIELDS
      * =========================.
      */
-    protected static string $tableName;
+    public $incrementing = true;
+    
+    // protected static string $tableName;
 
     protected $table;
 
@@ -94,9 +90,9 @@ final class Form extends Model
      */
     public static function booted(): void
     {
-        self::$tableName = config('form-builder.table_prefix') . 'forms';
+        self::$table = config('form-builder.table_prefix') . 'forms';
 
-        static::$tableName = config('form-builder.table_prefix') . 'forms';
+        // static::$tableName = config('form-builder.table_prefix') . 'forms';
 
         // Allow the slug to be generated from the form
         static::creating(function ($model) {

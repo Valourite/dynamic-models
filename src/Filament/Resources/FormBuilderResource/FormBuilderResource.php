@@ -146,20 +146,7 @@ abstract class FormBuilderResource extends Resource
         $fields = [];
 
         foreach ($model->getFillable() as $attribute) {
-            if (
-                in_array($attribute, [
-                    $model->getFormIdColumn(),
-                    $model->getFormContentColumn(),
-                    $model->getFormResponseColumn(),
-                    $model->getFormVersionColumn(),
-                    'created_at',
-                    'updated_at',
-                    'form_content',     //included if user did not make change in fillable
-                    'form_response',    //included if user did not make change in fillable
-                    'form_version',     //included if user did not make change in fillable
-                    'form_id',          //included if user did not make change in fillable
-                ])
-            ) {
+            if (in_array($attribute, ['created_at','updated_at'])) {
                 continue;
             }
 
@@ -187,16 +174,6 @@ abstract class FormBuilderResource extends Resource
         $fields = [];
 
         foreach ($model->getFillable() as $attribute) {
-            if (
-                in_array($attribute, [
-                    $model->getFormContentColumn(),
-                    $model->getFormResponseColumn(),
-                    'form_content',     //included if user did not make change in fillable
-                    'form_response',    //included if user did not make change in fillable
-                ])
-            ) {
-                continue;
-            }
 
             $field = TextEntry::make($attribute);
 
