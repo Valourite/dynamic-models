@@ -1,0 +1,39 @@
+---
+name: Documentation Feedback
+description: Suggest improvements, corrections, or additions to documentation
+title: "[Doc] <brief summary of change>"
+labels: [documentation, triage]
+body:
+  - type: textarea
+    id: area
+    attributes:
+      label: Documentation Area
+      description: What part of the documentation are you referring to?
+      placeholder: |
+        Example: "Form Builder > Configuration > Environment Variables"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Confusion
+      description: What is missing, incorrect, or unclear in the docs?
+    validations:
+      required: true
+
+  - type: textarea
+    id: suggestion
+    attributes:
+      label: Suggested Change
+      description: How would you improve it?
+    validations:
+      required: false
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional Notes or Resources
+      description: Provide links or extra context if applicable.
+    validations:
+      required: false

@@ -1,0 +1,31 @@
+---
+name: Question or Support
+description: Ask a question or request clarification about usage, behavior, or setup
+title: "[Question] <your question here>"
+labels: [question, triage]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Describe what you need help with or would like to understand better.
+      placeholder: |
+        Example: "What is the correct way to seed data using this module?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Where are you encountering this? What have you tried?
+    validations:
+      required: false
+
+  - type: textarea
+    id: expectations
+    attributes:
+      label: What were you expecting?
+      description: Share what you thought would happen or what you need it to do.
+    validations:
+      required: false
