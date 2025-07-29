@@ -84,7 +84,6 @@ final class FieldRepeater extends Repeater
 
                                         TextInput::make('value')
                                             ->required()
-                                            ->reactive()
                                             ->label('Option Value'),
                                     ])
                                     ->addActionLabel('Add Option')
