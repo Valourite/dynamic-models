@@ -41,7 +41,6 @@ abstract class FormBuilderResource extends Resource
                     )
                     // ->searchable() searching is annoying
                     ->required()
-                    ->live()
                     ->afterStateUpdated(function ($state, callable $set) use ($instance) {
                         $form = Form::find($state);
                         if ($form) {
@@ -60,7 +59,6 @@ abstract class FormBuilderResource extends Resource
                         $get($instance->getFormResponseColumn()) ?? []
                     ))
                     ->visible(fn (callable $get) => filled($get($instance->getFormContentColumn())))
-                    ->reactive()
                     ->columnSpanFull(),
 
                 Hidden::make($instance->getFormResponseColumn())->dehydrated()->default([]),
