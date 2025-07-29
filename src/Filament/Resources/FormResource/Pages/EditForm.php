@@ -22,8 +22,8 @@ final class EditForm extends EditRecord
     protected function mutateFormDataBeforeSave(array $data): array
     {
         $record     = $this->getRecord();
-        $oldContent = is_array($record->form_content) ? $record->form_content : json_decode($record->form_content, true);
-        $newContent = is_array($data['form_content']) ? $data['form_content'] : json_decode($data['form_content'], true);
+        $oldContent = json_decode($record->form_content, true);
+        $newContent = json_decode($data['form_content'], true);
 
         $shouldCreateNew = config('form-builder.create_new_record');
         $hasChanges      = $this->hasFormContentChanged($oldContent, $newContent);
