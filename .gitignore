@@ -1,2 +1,5 @@
 .aider*
 .aider.*
+.aider.conf.yml
+.aider.input.history
+.aider.chat.history.md
