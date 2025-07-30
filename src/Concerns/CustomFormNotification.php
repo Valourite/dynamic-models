@@ -5,12 +5,13 @@ namespace Valourite\FormBuilder\Concerns;
 use Filament\Notifications\Notification;
 
 /**
- * This trait will be used to display a custom notification on create
+ * This trait will be used to display a custom notification on create.
  */
 trait CustomFormNotification
 {
     /**
-     * Allows a custom notification to be used when the model is created and form filled
+     * Allows a custom notification to be used when the model is created and form filled.
+     *
      * @return Notification
      */
     protected function getCreatedNotification(): ?Notification
@@ -23,7 +24,8 @@ trait CustomFormNotification
     }
 
     /**
-     * Allows a custom notification to be used when the model is saved and form filled
+     * Allows a custom notification to be used when the model is saved and form filled.
+     *
      * @return Notification
      */
     protected function getSavedNotification(): ?Notification

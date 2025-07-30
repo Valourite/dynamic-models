@@ -5,15 +5,14 @@ namespace Valourite\FormBuilder\Filament\Support\Injectors;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Group;
-use Filament\Schemas\Components\Utilities\Get;
 use Illuminate\Database\Eloquent\Model;
 use Valourite\FormBuilder\Filament\Support\Generators\FormGenerator;
 use Valourite\FormBuilder\Models\Form;
 
 /**
- * The user will use this class to inject the form schema into their form schema
+ * The user will use this class to inject the form schema into their form schema.
  */
-class FormSchemaInjector
+final class FormSchemaInjector
 {
     public static function make(): array
     {
@@ -23,7 +22,6 @@ class FormSchemaInjector
                 ->label('Form')
                 ->live()
                 ->options(function ($model) {
-                    
                     return Form::query()
                         ->where(Form::FORM_MODEL, $model)
                         ->where(Form::IS_ACTIVE, true)
@@ -39,13 +37,13 @@ class FormSchemaInjector
             Group::make()
                 ->schema(function (callable $get) {
                     $formId = $get(Form::FORM_ID);
-                    if (!filled($formId)) {
+                    if ( ! filled($formId)) {
                         return []; // return empty schema if no form selected
                     }
 
                     return FormGenerator::formSchema($formId);
                 })
-                ->visible(fn(callable $get) => filled($get(Form::FORM_ID)))
+                ->visible(fn (callable $get) => filled($get(Form::FORM_ID)))
                 ->columnSpanFull(),
         ];
     }

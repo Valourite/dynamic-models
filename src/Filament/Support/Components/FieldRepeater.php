@@ -8,9 +8,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 use Valourite\FormBuilder\Filament\Enums\FieldType;
 use Valourite\FormBuilder\Filament\Support\Helpers\FieldHelper;
@@ -54,7 +52,7 @@ final class FieldRepeater extends Repeater
                                 ->label('Type')
                                 ->options(
                                     collect(FieldType::cases())
-                                        ->mapWithKeys(fn($type) => [
+                                        ->mapWithKeys(fn ($type) => [
                                             $type->value => Str::title($type->name),
                                         ])
                                 )
@@ -95,7 +93,7 @@ final class FieldRepeater extends Repeater
                                 ->addActionLabel('Add Option')
                                 ->minItems(1)
                                 ->visible(
-                                    fn($get) => $get('type') === FieldType::SELECT->value ||
+                                    fn ($get) => $get('type') === FieldType::SELECT->value ||
                                     $get('type') === FieldType::RADIO->value
                                 )
                                 ->columnSpanFull(),

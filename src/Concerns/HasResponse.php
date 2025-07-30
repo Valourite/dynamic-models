@@ -8,7 +8,8 @@ use Valourite\FormBuilder\Models\FormResponse;
 trait HasResponse
 {
     /**
-     * Returns the form response that is linked to this model
+     * Returns the form response that is linked to this model.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphOne
      */
     public function response()
@@ -17,7 +18,8 @@ trait HasResponse
     }
 
     /**
-     * Returns the form this model uses through the form response
+     * Returns the form this model uses through the form response.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
      */
     public function form(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
@@ -34,7 +36,7 @@ trait HasResponse
 
     protected static function booted(): void
     {
-        /**
+        /*
          * Deletes all responses attached to the model
          */
         static::deleting(function ($model) {

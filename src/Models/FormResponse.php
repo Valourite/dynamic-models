@@ -19,29 +19,27 @@ final class FormResponse extends Model
      *		 CONSTANTS
      * ==========================.
      */
+    public const FORM_RESPONSE_ID = 'form_response_id';
 
-    const FORM_RESPONSE_ID = 'form_response_id';
+    public const FORM_ID = 'form_id';
 
-    const FORM_ID = 'form_id';
-    
-    const MODEL_ID = 'model_id';
-    
-    const MODEL_TYPE = 'model_type';
-    
-    const RESPONSE_DATA = 'response_data';
-    
-    const PRIMARY_KEY = 'form_response_id';
+    public const MODEL_ID = 'model_id';
 
-    const MORPH_NAME = 'model';
+    public const MODEL_TYPE = 'model_type';
 
-    const BASE_TABLE_NAME = 'form_responses';
+    public const RESPONSE_DATA = 'response_data';
+
+    public const PRIMARY_KEY = 'form_response_id';
+
+    public const MORPH_NAME = 'model';
+
+    public const BASE_TABLE_NAME = 'form_responses';
 
     /**
      * =========================
      *		 FIELDS
      * =========================.
      */
-    
     public $incrementing = true;
 
     protected $primaryKey = self::PRIMARY_KEY;
@@ -55,10 +53,9 @@ final class FormResponse extends Model
      *		 CASTS
      * =========================.
      */
-
     protected $casts = [
-        self::FORM_ID => 'int',
-        self::MODEL_ID => 'int',
+        self::FORM_ID       => 'int',
+        self::MODEL_ID      => 'int',
         self::RESPONSE_DATA => 'json',
     ];
 
@@ -67,7 +64,6 @@ final class FormResponse extends Model
      *		 FILLABLE
      * =========================.
      */
-
     protected $fillable = [
         self::FORM_ID,
         self::MODEL_ID,
@@ -78,16 +74,15 @@ final class FormResponse extends Model
     /**
      * =========================
      * 		 WITH
-     * ========================
+     * ========================.
      */
     protected $with = ['model', 'form'];
 
     /**
      * =========================
      * 		 CONSTRUCTOR
-     * ========================
+     * ========================.
      */
-
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);
@@ -102,7 +97,8 @@ final class FormResponse extends Model
      */
 
     /**
-     * Returns the model this response belongs to
+     * Returns the model this response belongs to.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
     public function model()

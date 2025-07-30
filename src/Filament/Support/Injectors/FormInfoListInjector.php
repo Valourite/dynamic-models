@@ -7,27 +7,26 @@ use Filament\Schemas\Components\Utilities\Get;
 use Valourite\FormBuilder\Filament\Support\Generators\FormGenerator;
 
 /**
- * The user will use this class to inject the form infolist schema into their infolist schema
+ * The user will use this class to inject the form infolist schema into their infolist schema.
  */
-class FormInfoListInjector
+final class FormInfoListInjector
 {
     public static function make(): array
     {
         return [
             Group::make()
                 ->schema(function (Get $get) {
-
                     $record = $get('record');
 
                     $response = $record?->response ?? null;
 
-                    if (!$record || is_null($response)) { 
+                    if ( ! $record || null === $response) {
                         return [];
                     }
 
                     return FormGenerator::infolistSchema($response);
                 })
-                ->columnSpanFull()
+                ->columnSpanFull(),
         ];
     }
 }

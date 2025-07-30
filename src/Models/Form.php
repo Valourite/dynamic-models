@@ -22,26 +22,27 @@ final class Form extends Model
      *		 CONSTANTS
      * ==========================.
      */
-   const FORM_ID = 'form_id';
+    public const FORM_ID = 'form_id';
 
-   const FROM_NAME = 'form_name';
+    public const FROM_NAME = 'form_name';
 
-   const FORM_SLUG = 'form_slug';
+    public const FORM_SLUG = 'form_slug';
 
-   const FORM_DESCRIPTION = 'form_description';
+    public const FORM_DESCRIPTION = 'form_description';
 
-   const FORM_CONFIRMATION_MESSAGE = 'form_confirmation_message';
+    public const FORM_CONFIRMATION_MESSAGE = 'form_confirmation_message';
 
-   const IS_ACTIVE = 'is_active';
+    public const IS_ACTIVE = 'is_active';
 
-   const FORM_MODEL = 'form_model';
+    public const FORM_MODEL = 'form_model';
 
-   const FORM_CONTENT = 'form_content';
+    public const FORM_CONTENT = 'form_content';
 
-   const FORM_VERSION = 'form_version';
+    public const FORM_VERSION = 'form_version';
 
-   const PRIMARY_KEY = 'form_id';
-   const BASE_TABLE_NAME = 'forms';
+    public const PRIMARY_KEY = 'form_id';
+
+    public const BASE_TABLE_NAME = 'forms';
 
     /**
      * =========================
@@ -83,6 +84,18 @@ final class Form extends Model
     ];
 
     /**
+     * =========================
+     * 		 CONSTRUCTOR
+     * ========================.
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setTable(config('form-builder.table_prefix') . self::BASE_TABLE_NAME);
+    }
+
+    /**
      * =======================
      *      BOOTED
      * =======================.
@@ -99,19 +112,16 @@ final class Form extends Model
         });
     }
 
-    /**
+    /*
      * =========================
-     * 		 CONSTRUCTOR
-     * ========================
+     *		 FACTORY
+     * =========================
      */
 
-    public function __construct(array $attributes = [])
+    public static function factory(): FormFactory
     {
-        parent::__construct($attributes);
-
-        $this->setTable(config('form-builder.table_prefix') . self::BASE_TABLE_NAME);
+        return FormFactory::new();
     }
-
 
     /*
      * =========================
@@ -122,16 +132,5 @@ final class Form extends Model
     public function responses()
     {
         return $this->hasMany(FormResponse::class, self::PRIMARY_KEY);
-    }
-
-    /*
-     * =========================
-     *		 FACTORY
-     * =========================
-     */
-
-    public static function factory(): FormFactory
-    {
-        return FormFactory::new();
     }
 }

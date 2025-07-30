@@ -6,7 +6,6 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 
 /**
  * This class will be used to inject any reused code into the form.
@@ -19,7 +18,8 @@ final class FieldHelper
             return collect(Heroicon::cases())->mapWithKeys(function (Heroicon $heroicon) {
                 $iconName = $heroicon->value;
                 $iconHtml = \Filament\Support\generate_icon_html($heroicon)->toHtml();
-                $label = "<div class='flex gap-2'>$iconHtml<span>$iconName</span></div>";
+                $label    = "<div class='flex gap-2'>{$iconHtml}<span>{$iconName}</span></div>";
+
                 return [$iconName => $label];
             })->toArray();
         });

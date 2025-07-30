@@ -43,3 +43,15 @@
 
 # 2025-07-29 11:04:40.505128
 +Okay, you didnt listen to what I asked of you. I want to set it so that every form that gets created will create a record with timestamps, however when that form is updated, we create a new record only if the form schema is updated. This will allow the form response to always link to the form_id without having to copy the form schema, version and such into the form response record. Please update the files to handle this, also update the config to remove any refernces to being able to change how a form is version controlled. Also implement a version control on the form so that we can see the different forms over time. Essentially when a form schema gets updated, we need to make a new record. We do not then need to store the form shcema and the form version inside the form response, just the form_id
+
+# 2025-07-30 13:57:28.685710
++Y
+
+# 2025-07-30 13:57:38.378752
++N
+
+# 2025-07-30 13:58:08.680169
++Y
+
+# 2025-07-30 14:00:03.206428
++Based on all the files provided, please update the README.md file to reflect how a user should install and work with this package

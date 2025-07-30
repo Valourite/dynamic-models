@@ -5,7 +5,6 @@ namespace Valourite\FormBuilder\Concerns;
 use Illuminate\Database\Eloquent\Model;
 use Valourite\FormBuilder\Models\Form;
 use Valourite\FormBuilder\Models\FormResponse;
-use function Livewire\store;
 
 trait HandlesFormResponseLifeCycle
 {
@@ -15,8 +14,8 @@ trait HandlesFormResponseLifeCycle
 
         // Reject form-builder fields
         $this->data = collect($this->data)
-            ->reject(fn($_, $key) => 
-                $key === 'form_id' || 
+            ->reject(
+                fn ($_, $key) => $key === 'form_id' ||
                 str_starts_with($key, 'field-')
             )
             ->all();
@@ -37,21 +36,21 @@ trait HandlesFormResponseLifeCycle
 
     protected function createOrUpdateFormResponse(): void
     {
-        if (!method_exists($this->record, 'response') || !method_exists($this->record, 'form')) {
+        if ( ! method_exists($this->record, 'response') || ! method_exists($this->record, 'form')) {
             return;
         }
 
         $formId = $this->formBuilderRawData['form_id'] ?? null;
-        if (!$formId) {
-            return;
-        };
-
-        $form = Form::find($formId);
-        if (!$form) {
+        if ( ! $formId) {
             return;
         }
 
-        $formContent = $form->form_content ?? [];
+        $form = Form::find($formId);
+        if ( ! $form) {
+            return;
+        }
+
+        $formContent  = $form->form_content ?? [];
         $responseData = [];
 
         foreach ($formContent as $section) {
@@ -68,9 +67,9 @@ trait HandlesFormResponseLifeCycle
 
         //We need to fetch the response and update it instead of creating a new one
         $model->response()->updateOrCreate([], [
-            FormResponse::FORM_ID      => $formId,
-            FormResponse::MODEL_TYPE   => get_class($model),
-            FormResponse::MODEL_ID     => $model->getKey(),
+            FormResponse::FORM_ID       => $formId,
+            FormResponse::MODEL_TYPE    => get_class($model),
+            FormResponse::MODEL_ID      => $model->getKey(),
             FormResponse::RESPONSE_DATA => $responseData,
         ]);
     }

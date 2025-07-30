@@ -25,7 +25,7 @@ final class EditForm extends EditRecord
         $record = $this->getRecord();
 
         $recordForm = $record->form_content;
-        $dataForm = $data['form_content'];
+        $dataForm   = $data['form_content'];
 
         $diff = static::hasFormContentChanged($recordForm, $dataForm);
 
@@ -38,12 +38,12 @@ final class EditForm extends EditRecord
                 'updated_at',
             ]);
 
-            $newForm->form_content = $data['form_content'];
-            $newForm->form_description = $data['form_description'];
+            $newForm->form_content              = $data['form_content'];
+            $newForm->form_description          = $data['form_description'];
             $newForm->form_confirmation_message = $data['form_confirmation_message'];
-            $newForm->form_slug = $data['form_slug'];
-            $newForm->is_active = $data['is_active'];
-            $newForm->form_version = $this->incrementVersion(
+            $newForm->form_slug                 = $data['form_slug'];
+            $newForm->is_active                 = $data['is_active'];
+            $newForm->form_version              = $this->incrementVersion(
                 $record->form_version,
                 config('form-builder.increment_count', '0.0.1')
             );
@@ -67,7 +67,7 @@ final class EditForm extends EditRecord
 
     protected function incrementVersion(string $currentVersion, string $increment = '0.0.1'): string
     {
-        [$major, $minor, $patch] = array_map('intval', explode('.', $currentVersion));
+        [$major, $minor, $patch]          = array_map('intval', explode('.', $currentVersion));
         [$incMajor, $incMinor, $incPatch] = array_map('intval', explode('.', $increment));
 
         $newPatch = $patch + $incPatch;
@@ -79,7 +79,7 @@ final class EditForm extends EditRecord
 
     protected function hasFormContentChanged(array $old, array $new): bool
     {
-        $normalize = fn(array $content) => collect($content)
+        $normalize = fn (array $content) => collect($content)
             ->map(function ($section) {
                 // Strip metadata
                 unset($section['title'], $section['prefix_icon']);
@@ -87,9 +87,10 @@ final class EditForm extends EditRecord
                 // Normalize fields
                 $section['Fields'] = collect($section['Fields'] ?? [])
                     ->map(function ($field) {
-                    unset($field['label'], $field['prefix_icon']);
-                    return $field;
-                })
+                        unset($field['label'], $field['prefix_icon']);
+
+                        return $field;
+                    })
                     // Sort fields by custom_id for consistent structure
                     ->sortBy('custom_id')
                     ->values()

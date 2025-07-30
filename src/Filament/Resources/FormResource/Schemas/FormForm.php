@@ -17,7 +17,7 @@ use Valourite\FormBuilder\Models\Form;
 
 final class FormForm
 {
-    protected static ?array $modelOptions = null;
+    private static ?array $modelOptions = null;
 
     public static function configure(Schema $schema): Schema
     {
@@ -29,7 +29,7 @@ final class FormForm
             ->columns(1);
     }
 
-    protected static function formDetailsSection(): Section
+    private static function formDetailsSection(): Section
     {
         return Section::make('Form Details')
             ->columns(2)
@@ -87,7 +87,7 @@ final class FormForm
             ]);
     }
 
-    protected static function formContentSection(): Section
+    private static function formContentSection(): Section
     {
         return Section::make('Form Creation')
             ->columns(1)
@@ -96,7 +96,7 @@ final class FormForm
             ]);
     }
 
-    protected static function getModelOptions(): array
+    private static function getModelOptions(): array
     {
         return static::$modelOptions ??= Cache::remember('form-builder.model-options', now()->addHours(6), function () {
             return collect(config('form-builder.models', []))

@@ -22,7 +22,7 @@ return new class () extends Migration {
 
             // Form response data
             $table->json('response_data');
-            
+
             $table->timestamps();
         });
     }
