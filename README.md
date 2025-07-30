@@ -1,21 +1,35 @@
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/valourite/form-builder.svg?style=flat-square)](https://packagist.org/packages/valourite/form-builder)
+[![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](MIT)
+[![Total Downloads](https://img.shields.io/packagist/dt/valourite/form-builder.svg?style=flat-square)](https://packagist.org/packages/valourite/form-builder)
+
+
 # Form Builder for Filament & Laravel
 
-**Form Builder** is a Laravel package built on top of [Filament v4](https://filamentphp.com), allowing you to visually build and manage dynamic forms from your admin panel.  
-It lets you **attach custom forms to any Eloquent model** in your application with minimal setup.
+**Form Builder** is a Laravel package built on top of [Filament v4](https://filamentphp.com) that allows user to define base models which they can then add information to depending on the form used on model creation.
+- This concept can be seen as `database inheritance`. 
+- The concept is that we can define a base table `User`, then create different forms for different types of users, allowing all user models that get created to `inherit` the base user table required fields as well as having to input newly required fields based on the form the model is attached to. 
+- This allows us to define a single base model, and dynamically create new types for that model.
+
+Key Features:
+
+- **Model-specific forms** - Attach forms to any Eloquent model to define model type
+- **Version control** - New version created automatically when forms are modified
+- **Response storage** - Separate table for form responses with schema versioning
+- **Visual builder** - Repeatable form sections and fields
+- **Type safety** - Strongly typed fields with validation support
 
 ---
 
 ## Features
 
-- Built entirely with Filament v4 components
-- Dynamic form rendering using `form_content` + `form_response`
-- All form fields are stored in a **single JSON column**
-- Visually design sections + fields with nested repeaters
-- Automatically bind values via `custom_id`
-- Smart versioning support (`form_version`)
-- Seamlessly plug into any Eloquent model using a trait
-- Custom Filament resource base for auto-form handling
-- Install via `form-builder:install` command
+- Filament v4 integration - Native UI components and resource management
+- Visual form builder - Create forms with sections, fields, and options
+- Automatic versioning - New form versions created on schema changes
+- Response storage - Dedicated `form_responses` table with JSON data
+- Data integrity - Responses always linked to their form version
+- Field types - Text, number, email, select, radio, date/time, and more
+- Custom IDs - Unique identifiers for form field data binding
+- Relationship management - Connect forms to specific Eloquent models
 
 ---
 
@@ -23,22 +37,21 @@ It lets you **attach custom forms to any Eloquent model** in your application wi
 
 > Requires Laravel 12+ and Filament 4+
 
-### Step 1: Install via Composer
-
+1. Install via Composer:
 ```bash
 composer require dayne-valourite/form-builder
-````
+```
 
-### Step 2: Run the installer
-
+2. Run the installer:
 ```bash
 php artisan form-builder:install
 ```
 
 This will:
-
-* Publish the config file to `config/form-builder.php`
-* Run the required database migrations
+- Publish configuration to `config/form-builder.php`
+- Create database tables:
+  - `forms` (form definitions)
+  - `form_responses` (response data)
 
 ---
 
@@ -62,166 +75,143 @@ public function panel(Panel $panel): Panel
 
 ## Usage
 
-### 1. Setup your Eloquent model
+### 1. Prepare Your Model
 
-Use the `HasFormBuilder` trait:
+Use the `HasResponse` trait:
 
 ```php
-use Valourite\FormBuilder\Concerns\HasFormBuilder;
+use Valourite\FormBuilder\Concerns\HasResponse;
 
 class Client extends Model
 {
-    use HasFormBuilder;
+    use HasResponse;
+    
 }
 ```
-
-This enables:
-
-* `form_id`
-* `form_content`
-* `form_response`
-* `form_version`
-
-> No need to add these to `$fillable`.
-
-Note: Ensure your model has those columns
-We can update the column names by implementing the following functions:
-
-```php
-public static function getFormContentColumn(): string
-
-public static function getFormIdColumn(): string
-
-public static function getFormResponseColumn(): string
-
-public static function getFormVersionColumn(): string
-```
+This will allow your model to link to a response as well as form.
+Note: Only one response can belong to one model as a response is essentially an extension of the model's required fields.
 
 ---
 
-### 2. Create a resource using the base class
+### 2. Create Filament Resources
 
 ```php
-use Valourite\FormBuilder\Filament\Resources\FormBuilderResource;
 
-class ClientResource extends FormBuilderResource
+class ClientInfolist
 {
-    protected static string $model = \App\Models\Client::class;
-
-    /**
-     * Optional: Define your base schema fields
-     * If omitted, these will be auto-generated from `$fillable` and `$casts`
-     */
-    public static function customSchemaFields(): array
+    public static function configure(Schema $schema): Schema
     {
-        return [
-            TextInput::make('name')->required(),
-            TextInput::make('email')->email()->required(),
-        ];
-    }
+        return $schema
+            ->components([
+                // Your existing info fields
+                TextEntry::make('name'),
+                TextEntry::make('email'),
 
-    /**
-     * Optional: Define your base infolist schema fields
-     * If omitted. these will be auto-generated from `$fillable` and `$casts`
-     */
-    public static function customInfolistFields(): array
-    {
-        return [
-            TextEntry::make('name'),
-            TextEntry::make('email'),
-        ];
+                // Add form response display
+                ...FormInfoListInjector::make()
+            ])
     }
 }
+
 ```
+
+```php
+
+class ClientForm
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                // Your existing fields
+                TextInput::make('name')->required(),
+                TextInput::make('email')->email()->required(),
+
+                //inject form schema
+                ...FormSchemaInjector::make()
+            ]);
+    }
+}
+
+```
+
+This allows for the schema for the form to be injected into your models current form schema and infolist schema. 
 
 ---
 
-### 3. Use the base page class
+### 3. Add Traits Into The Create And Edit Page Of Your Resource
 
 ```php
-use Valourite\FormBuilder\Filament\Pages\FormBuilderCreateRecord;
 
-class CreateClient extends FormBuilderCreateRecord
+class CreateClient extends CreateRecord
 {
+    use HandlesFormResponseLifeCycle;
+    use CustomFormNotification;
+
+    protected static string $resource = ClientResource::class;
+}
+```
+
+```php
+
+class EditClient extends EditRecord
+{
+    use HandlesFormResponseLifeCycle;
+    use CustomFormNotification;
+    
     protected static string $resource = ClientResource::class;
 }
 ```
 
 This handles:
 
-* Dynamic rendering of the form schema
 * Saving the form response into `form_response`
 * Linking the correct `form_id`, version, and structure
-
-And inside your Edit page class
-```php
-use Valourite\FormBuilder\Filament\Pages\FormBuilderEditRecord;
-
-class EditClient extends FormBuilderEditRecord
-{
-    protected static string $resource = ClientResource::class;
-}
-```
-
-This handles:
-* Dynamic rendering of the form schema
 * Allowing updates to be made to the form values
+
+We can display a custom message set inside the form by making use of the trait `CustomFormNotification`
 
 ---
 
 ## How It Works
 
-* Selecting a form from the dropdown dynamically renders its fields
-* Values are bound using each field’s `custom_id`
-* Saved response values are stored as `form_response[field_id] => value`
-* `form_content` is stored alongside the record for replay/version safety
+1. **Form Creation**:
+   - Forms are created in the Filament admin with versioned schemas
+   - Each schema change creates a new form with an updated version
+   - All changes to form data unrelated to the form schema will not generate a new form, but rather update the current version
+   - Existing responses remain linked to their original version
+
+2. **Response Handling**:
+   - Responses are stored in `form_responses` table
+   - Each response references the exact form version used
+   - Data stored as JSON with field IDs as keys
+
+3. **Data Integrity**:
+   - Form schema changes don't affect existing responses
+   - Responses will always link to the form they were generated from
+   - Historical data remains viewable with original schema
+   - Version tracking through semantic versioning (major.minor.patch)
 
 ---
 
-## Configuration
+## Testing
 
-In `config/form-builder.php`:
-
-```php
-return [
-    'models' => [
-        App\Models\Client::class,
-        App\Models\Project::class,
-    ],
-
-    'versioning' => [
-        'mode' => 'increment', // or 'clone'
-        'auto_increment' => true,
-    ],
-];
-```
-
----
-
-## Testing & Contributing
-
-Pull requests, issues, and improvements are welcome!
-
-To test form saving logic:
-
-```php
-$this->assertDatabaseHas('clients', [
-    'form_response' => json_encode([...]),
-]);
-```
+No tests have been written as of yet
 
 ---
 
 ## 🚧 Roadmap
 
-* [x] Attach forms to any model
-* [x] Store form definitions in DB
-* [x] Save submissions as JSON
-* [x] Versioning support (increment/clone)
-* [ ] Better handling of form creation without page extending
-* [ ] More Fields
-* [ ] Multi-page/wizard forms
-
+* [x] Core form builder implementation
+* [x] Version control system
+* [x] Response storage system
+* [x] Filament v4 integration
+* [ ] Extract form response json data in seperate key:value table
+* [ ] File upload field support
+* [ ] More customization on fields and sections
+* [ ] Implementing prefix and suffix icons with colour handling
+* [ ] Multi-page form wizard
+* [ ] Advanced validation rules
 
 ---
 

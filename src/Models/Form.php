@@ -40,24 +40,20 @@ final class Form extends Model
 
     public const FORM_VERSION = 'form_version';
 
-    public const CREATED_AT = 'created_at';
-
-    public const UPDATED_AT = 'updated_at';
-
     public const PRIMARY_KEY = 'form_id';
 
-    public $incrementing = true;
+    public const BASE_TABLE_NAME = 'forms';
 
     /**
      * =========================
      *		 FIELDS
      * =========================.
      */
-    protected static string $tableName;
-
-    protected $table;
+    public $incrementing = true;
 
     protected $primaryKey = self::PRIMARY_KEY;
+
+    protected $table;
 
     protected $dateFormat = 'Y-m-d';
 
@@ -88,16 +84,24 @@ final class Form extends Model
     ];
 
     /**
+     * =========================
+     * 		 CONSTRUCTOR
+     * ========================.
+     */
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->setTable(config('form-builder.table_prefix') . self::BASE_TABLE_NAME);
+    }
+
+    /**
      * =======================
      *      BOOTED
      * =======================.
      */
     public static function booted(): void
     {
-        self::$tableName = config('form-builder.table_prefix') . 'forms';
-
-        static::$tableName = config('form-builder.table_prefix') . 'forms';
-
         // Allow the slug to be generated from the form
         static::creating(function ($model) {
             $model->form_slug = str($model->form_name)->slug();
@@ -110,14 +114,6 @@ final class Form extends Model
 
     /*
      * =========================
-     *		 RELATIONS
-     * =========================
-     */
-
-    // -------------------------
-
-    /*
-     * =========================
      *		 FACTORY
      * =========================
      */
@@ -127,13 +123,14 @@ final class Form extends Model
         return FormFactory::new();
     }
 
-    /**
-     * ========================
-     * 		FILAMENT
-     * ========================.
+    /*
+     * =========================
+     *		 RELATIONS
+     * =========================
      */
-    public function getTable()
+
+    public function responses()
     {
-        return config('form-builder.table_prefix') . 'forms';
+        return $this->hasMany(FormResponse::class, self::PRIMARY_KEY);
     }
 }

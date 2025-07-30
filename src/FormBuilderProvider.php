@@ -22,6 +22,13 @@ final class FormBuilderProvider extends PackageServiceProvider
             ->hasViews()
             ->hasCommands($this->getCommands())
             ->hasMigrations($this->getMigrations());
+
+        // Cache configuration
+        $this->app->singleton('form-builder.config', function () {
+            return cache()->rememberForever('form-builder.config', function () {
+                return config('form-builder');
+            });
+        });
     }
 
     public function getMigrations()

@@ -5,31 +5,30 @@ namespace Valourite\FormBuilder\Filament\Support\Helpers;
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Support\Icons\Heroicon;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Cache;
 
 /**
  * This class will be used to inject any reused code into the form.
  */
 final class FieldHelper
 {
-    public static function select()
+    public static function select(): Select
     {
-        /**
-         * Credit thanks to Charlie Etienne
-         * https://github.com/CharlieEtienne
-         */
+        $options = Cache::remember('form-builder.heroicon-options', now()->addHours(6), function () {
+            return collect(Heroicon::cases())->mapWithKeys(function (Heroicon $heroicon) {
+                $iconName = $heroicon->value;
+                $iconHtml = \Filament\Support\generate_icon_html($heroicon)->toHtml();
+                $label    = "<div class='flex gap-2'>{$iconHtml}<span>{$iconName}</span></div>";
+
+                return [$iconName => $label];
+            })->toArray();
+        });
+
         return Select::make('prefix_icon')
-                ->options(
-                    collect(Heroicon::cases())->mapWithKeys(function (Heroicon $heroicon) {
-                        $iconName = $heroicon->value;
-                        $iconHtml = \Filament\Support\generate_icon_html($heroicon)->toHtml();
-                        $label = "<div class='flex gap-2'>$iconHtml<span>$iconName</span></div>";
-                        return [$iconName => $label];
-                    })->toArray()
-                )
-                ->searchable()
-                ->preload()
-                ->allowHtml()
+            ->options($options)
+            ->searchable()
+            ->preload()
+            ->allowHtml()
             ->helperText('Choose a Heroicon to prefix the field.');
     }
 
