@@ -1,21 +1,25 @@
 # Form Builder for Filament & Laravel
 
-**Form Builder** is a Laravel package built on top of [Filament v4](https://filamentphp.com), allowing you to visually build and manage dynamic forms from your admin panel.  
-It lets you **attach custom forms to any Eloquent model** in your application with minimal setup.
+**Form Builder** is a Laravel package built on top of [Filament v4](https://filamentphp.com) that enables visual creation and management of versioned forms. Key features:
+
+- **Model-specific forms** - Attach forms to any Eloquent model
+- **Version control** - New version created automatically when forms are modified
+- **Response storage** - Separate table for form responses with schema versioning
+- **Visual builder** - Drag-and-drop form construction with sections and fields
+- **Type safety** - Strongly typed fields with validation support
 
 ---
 
 ## Features
 
-- Built entirely with Filament v4 components
-- Dynamic form rendering using `form_content` + `form_response`
-- All form fields are stored in a **single JSON column**
-- Visually design sections + fields with nested repeaters
-- Automatically bind values via `custom_id`
-- Smart versioning support (`form_version`)
-- Seamlessly plug into any Eloquent model using a trait
-- Custom Filament resource base for auto-form handling
-- Install via `form-builder:install` command
+- 🧩 Filament v4 integration - Native UI components and resource management
+- 📝 Visual form builder - Create forms with sections, fields, and options
+- 🔄 Automatic versioning - New form versions created on schema changes
+- 📦 Response storage - Dedicated `form_responses` table with JSON data
+- 🔒 Data integrity - Responses always linked to their form version
+- ⚙️ Field types - Text, number, email, select, radio, date/time, and more
+- 🏷️ Custom IDs - Unique identifiers for form field data binding
+- 📊 Relationship management - Connect forms to specific Eloquent models
 
 ---
 
@@ -23,22 +27,21 @@ It lets you **attach custom forms to any Eloquent model** in your application wi
 
 > Requires Laravel 12+ and Filament 4+
 
-### Step 1: Install via Composer
-
+1. Install via Composer:
 ```bash
 composer require dayne-valourite/form-builder
-````
+```
 
-### Step 2: Run the installer
-
+2. Run the installer:
 ```bash
 php artisan form-builder:install
 ```
 
 This will:
-
-* Publish the config file to `config/form-builder.php`
-* Run the required database migrations
+- Publish configuration to `config/form-builder.php`
+- Create database tables:
+  - `form_builder_forms` (form definitions)
+  - `form_builder_form_responses` (response data)
 
 ---
 
@@ -62,74 +65,60 @@ public function panel(Panel $panel): Panel
 
 ## Usage
 
-### 1. Setup your Eloquent model
+### 1. Prepare Your Model
 
-Use the `HasFormBuilder` trait:
+Use the `HasResponse` trait and relationship:
 
 ```php
-use Valourite\FormBuilder\Concerns\HasFormBuilder;
+use Valourite\FormBuilder\Concerns\HasResponse;
 
 class Client extends Model
 {
-    use HasFormBuilder;
+    use HasResponse;
+    
+    public function formResponses()
+    {
+        return $this->morphMany(FormResponse::class, 'model');
+    }
 }
-```
-
-This enables:
-
-* `form_id`
-* `form_content`
-* `form_response`
-* `form_version`
-
-> No need to add these to `$fillable`.
-
-Note: Ensure your model has those columns
-We can update the column names by implementing the following functions:
-
-```php
-public static function getFormContentColumn(): string
-
-public static function getFormIdColumn(): string
-
-public static function getFormResponseColumn(): string
-
-public static function getFormVersionColumn(): string
 ```
 
 ---
 
-### 2. Create a resource using the base class
+### 2. Create Filament Resource
 
 ```php
-use Valourite\FormBuilder\Filament\Resources\FormBuilderResource;
+use Valourite\FormBuilder\Filament\Support\Injectors\FormSchemaInjector;
+use Valourite\FormBuilder\Filament\Support\Injectors\FormInfoListInjector;
 
-class ClientResource extends FormBuilderResource
+class ClientResource extends Resource
 {
-    protected static string $model = \App\Models\Client::class;
-
-    /**
-     * Optional: Define your base schema fields
-     * If omitted, these will be auto-generated from `$fillable` and `$casts`
-     */
-    public static function customSchemaFields(): array
+    // ...
+    
+    public static function form(Schema $schema): Schema
     {
-        return [
-            TextInput::make('name')->required(),
-            TextInput::make('email')->email()->required(),
-        ];
+        return $schema
+            ->components([
+                // Your existing fields
+                TextInput::make('name')->required(),
+                TextInput::make('email')->email()->required(),
+                
+                // Add form builder integration
+                ...FormSchemaInjector::make()
+            ]);
     }
 
-    /**
-     * Optional: Define your base infolist schema fields
-     * If omitted. these will be auto-generated from `$fillable` and `$casts`
-     */
-    public static function customInfolistFields(): array
+    public static function infolist(Schema $schema): Schema
     {
-        return [
-            TextEntry::make('name'),
-            TextEntry::make('email'),
-        ];
+        return $schema
+            ->components([
+                // Your existing info fields
+                TextEntry::make('name'),
+                TextEntry::make('email'),
+                
+                // Add form response display
+                ...FormInfoListInjector::make()
+            ]);
     }
 }
 ```
@@ -171,56 +160,79 @@ This handles:
 
 ## How It Works
 
-* Selecting a form from the dropdown dynamically renders its fields
-* Values are bound using each field’s `custom_id`
-* Saved response values are stored as `form_response[field_id] => value`
-* `form_content` is stored alongside the record for replay/version safety
+1. **Form Creation**:
+   - Forms are created in the Filament admin with versioned schemas
+   - Each schema change creates a new form version
+   - Existing responses remain linked to their original version
+
+2. **Response Handling**:
+   - Responses are stored in `form_responses` table
+   - Each response references the exact form version used
+   - Data stored as JSON with field IDs as keys
+
+3. **Data Integrity**:
+   - Form schema changes don't affect existing responses
+   - Historical data remains viewable with original schema
+   - Version tracking through semantic versioning (major.minor.patch)
 
 ---
 
 ## Configuration
 
-In `config/form-builder.php`:
+Configure in `config/form-builder.php`:
 
 ```php
 return [
-    'models' => [
-        App\Models\Client::class,
-        App\Models\Project::class,
+    'table_prefix' => 'form_builder_', // Database table prefix
+    'models' => [ // Models that can have forms
+        \App\Models\Client::class,
+        \App\Models\Project::class,
     ],
-
-    'versioning' => [
-        'mode' => 'increment', // or 'clone'
-        'auto_increment' => true,
-    ],
+    'increment_count' => '0.0.1', // Version increment step
+    'grouped' => true, // Show in Filament navigation group
+    'group' => 'Form Builder' // Navigation group name
 ];
 ```
 
 ---
 
-## Testing & Contributing
+## Testing
 
-Pull requests, issues, and improvements are welcome!
-
-To test form saving logic:
+Example test case:
 
 ```php
-$this->assertDatabaseHas('clients', [
-    'form_response' => json_encode([...]),
-]);
+public function test_form_submission()
+{
+    $client = Client::factory()->create();
+    $form = Form::where('form_model', Client::class)->first();
+    
+    $response = $this->post(route('form.submit'), [
+        'form_id' => $form->form_id,
+        'field_1' => 'Test value',
+        'field_2' => 'other@example.com'
+    ]);
+    
+    $this->assertDatabaseHas('form_builder_form_responses', [
+        'model_id' => $client->id,
+        'model_type' => Client::class,
+        'form_id' => $form->form_id
+    ]);
+}
 ```
 
 ---
 
 ## 🚧 Roadmap
 
-* [x] Attach forms to any model
-* [x] Store form definitions in DB
-* [x] Save submissions as JSON
-* [x] Versioning support (increment/clone)
-* [ ] Better handling of form creation without page extending
-* [ ] More Fields
-* [ ] Multi-page/wizard forms
+* [x] Core form builder implementation
+* [x] Version control system
+* [x] Response storage system
+* [x] Filament v4 integration
+* [ ] File upload field support
+* [ ] Multi-page form wizard
+* [ ] Advanced validation rules
+* [ ] Form export/import
+* [ ] Response data export
 
 
 ---
