@@ -1,29 +1,15 @@
 ☐ Add more fields
-☐ Extract custom code into own createModel page, as well as inject schema for form selector into model creation schema
 ☐ Maybe store the user that has filled the form in? --> the users can do that on their own for the default model columns
-☐ How do we handle a form that gets updated and then a model viewed, do we update the form_content and then display the new form?
-☐ Cache the form components that gets generated so we can reuse inside the generator?
 ☐ Neaten up the infolist to make use of created_at and updated_at in a better spot
---> If users see a nice infolist, they might not want to redo it
 
-☐ It makes logical sense to rename Form to FormBuilder and FormBuilder to Form, as we extend FormBuilder currently which is weird, we should extend
-☐ form and then let formBuilder be the resource?
-
-☐ Extract common code, like meta components
-☐ Model to appear and indicate to the user that the form has been updated and ask them if they want to use the new version or not
 ☐ Add more options into the meta data to be saved
 ☐ File Upload needs to be coded in
-
-☐ Change form_id to id
 
 ☐ Meta data
 --> prefix
 --> suffix
 --> prefix icon colour
 
-☐ Form custom submit message not working --> We're pulling from an empty instance
-☐ Form display not working when we use a custom field name
-
-☐ When the label updates, the selected value from type is reset
-
 ☐ Update the icon select to make use of icons inline and not floating above text
+
+☐ Redo the workflows to make use of workflows for packages

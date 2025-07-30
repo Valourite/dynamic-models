@@ -15,6 +15,8 @@ use Valourite\FormBuilder\Models\FormResponse;
 final class FormGenerator
 {
 
+    protected static array $componentCache = [];
+
     /**
      * Generates the form schema that can be appended to the models form
      * @param int|\Valourite\FormBuilder\Models\Form $form
@@ -23,9 +25,7 @@ final class FormGenerator
     public static function formSchema(int|Form $form): array
     {
         $form = $form instanceof Form ? $form : Form::findOrFail($form);
-
-        //Get the form content
-        $formContent = $form->form_content;
+        $formContent = $form->form_content ?? [];
 
         $components = [];
 
@@ -33,63 +33,43 @@ final class FormGenerator
             $fields = [];
 
             foreach ($section['Fields'] ?? [] as $field) {
-                //dd($field);
+                $fieldID = $field['custom_id'] ?? null;
+                if (!$fieldID)
+                    continue;
 
-                $fieldID = $field['custom_id'];
-
-                $name = $field['name'];
-
+                $name = $field['name'] ?? $fieldID;
                 $label = $field['label'] ?? Str::title($name);
-
-                $type = $field['type'];
-
+                $type = $field['type'] ?? 'text';
                 $required = $field['required'] ?? false;
-
                 $prefixIcon = $field['prefix_icon'] ?? null;
 
-                $heroIcon = $prefixIcon ? Heroicon::from($prefixIcon) : null;
-
-                // we need to pass through a unique identifier
-                $component = FieldRenderer::render($type, $fieldID);
+                // Cache FieldRenderer result per field key per request
+                $component = static::getRenderedFieldComponent($type, $fieldID);
 
                 $component
                     ->label($label)
                     ->required($required)
-                    ->afterStateHydrated(function (Component $component, $state) use ($fieldID) {
-                        $record = $component->getLivewire()?->record ?? null;
-                        $response = $record?->response ?? null;
+                    ->afterStateHydrated(fn(Component $component, $state) => static::hydrateResponseState($component, $fieldID));
 
-                        if (!$record || !$response) {
-                            return;
-                        }
+                if ($prefixIcon && static::hasMethod($component, 'prefixIcon')) {
+                    $component->prefixIcon(Heroicon::from($prefixIcon));
 
-                        $data = $response->response_data ?? [];
-                        $component->state($data[$fieldID] ?? null);
-                    });
-
-                if (self::hasMethod($component, 'prefixIcon')) {
-                    $component->prefixIcon($heroIcon);
-
-                    // colour wont work as we need to convert it to tailwind
-                    if (self::hasMethod($component, 'prefixIconColor')) {
+                    if (static::hasMethod($component, 'prefixIconColor')) {
                         $component->prefixIconColor('white');
                     }
                 }
 
-                if (self::hasMethod($component, 'options')) {
-                    if (isset($field['options']) && $field['options'] != null) {
-                        $component->options(
-                            collect($field['options'])->mapWithKeys(fn($opt) => [
-                                $opt['value'] => Str::title(str_replace('_', ' ', $opt['label'])),
-                            ])->toArray()
-                        );
-                    }
+                if (static::hasMethod($component, 'options') && !empty($field['options'])) {
+                    $component->options(
+                        collect($field['options'])->mapWithKeys(fn($opt) => [
+                            $opt['value'] => Str::title(str_replace('_', ' ', $opt['label']))
+                        ])->toArray()
+                    );
                 }
 
                 $fields[] = $component;
             }
 
-            // create the section
             if (!empty($fields)) {
                 $components[] = Section::make($section['title'] ?? 'Section')
                     ->schema($fields)
@@ -122,17 +102,15 @@ final class FormGenerator
 
             foreach ($section['Fields'] ?? [] as $field) {
                 $fieldId = $field['custom_id'] ?? null;
-                $label = $field['label'] ?? $field['name'] ?? 'Field';
-
-                if (!$fieldId) {
+                if (!$fieldId)
                     continue;
-                }
 
+                $label = $field['label'] ?? $field['name'] ?? 'Field';
                 $value = $responseData[$fieldId] ?? '-';
 
                 $value = match ($field['type']) {
                     'boolean' => $value ? 'Yes' : 'No',
-                    'date' => \Carbon\Carbon::parse($value)->format('Y-m-d'),
+                    'date' => static::formatDate($value),
                     default => $value,
                 };
 
@@ -150,10 +128,35 @@ final class FormGenerator
 
         return $entries;
     }
+    
+    protected static function formatDate($value): string
+    {
+        try {
+            return \Carbon\Carbon::parse($value)->format('Y-m-d');
+        } catch (\Throwable) {
+            return '-';
+        }
+    }
 
 
     private static function hasMethod(Component $component, string $method): bool
     {
         return method_exists($component, $method);
+    }
+
+    protected static function getRenderedFieldComponent(string $type, string $fieldID): Component
+    {
+        $cacheKey = "{$type}:{$fieldID}";
+        return static::$componentCache[$cacheKey] ??= FieldRenderer::render($type, $fieldID);
+    }
+
+    protected static function hydrateResponseState(Component $component, string $fieldID): void
+    {
+        $record = $component->getLivewire()?->record;
+        $response = $record?->response;
+
+        if ($response?->response_data) {
+            $component->state($response->response_data[$fieldID] ?? null);
+        }
     }
 }

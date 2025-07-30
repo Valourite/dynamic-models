@@ -16,25 +16,39 @@ use Valourite\FormBuilder\Filament\Enums\FieldType;
 
 final class FieldRenderer
 {
+    /** @var array<string, Closure> */
+    protected static array $renderMap = [];
+
     public static function render(string $type, ?string $fieldID = null): Component
     {
-        $type = FieldType::from(mb_strtolower($type));
+        $type = mb_strtolower($type);
 
-        return match ($type) {
-            FieldType::TEXT     => TextInput::make($fieldID),
-            FieldType::NUMBER   => TextInput::make($fieldID)->numeric(),
-            FieldType::PASSWORD => TextInput::make($fieldID)->password()->revealable(),
-            FieldType::EMAIL    => TextInput::make($fieldID)->email(),
-            FieldType::TEXTAREA => Textarea::make($fieldID),
-            FieldType::SELECT   => Select::make($fieldID),
-            FieldType::RADIO    => Radio::make($fieldID),
-            FieldType::CHECKBOX => Checkbox::make($fieldID),
-            FieldType::DATE     => DatePicker::make($fieldID),
-            FieldType::TIME     => TimePicker::make($fieldID),
-            FieldType::DATETIME => DateTimePicker::make($fieldID),
-            //removed for now as we do not have any upload logic
-            //FieldType::FILE     => FileUpload::make($fieldID),
-            default => TextInput::make($fieldID),
-        };
+        if (empty(static::$renderMap)) {
+            static::buildRenderMap();
+        }
+
+        $renderer = static::$renderMap[$type] ?? static::$renderMap['default'];
+
+        return $renderer($fieldID);
+    }
+
+    protected static function buildRenderMap(): void
+    {
+        static::$renderMap = [
+            'text'     => fn($id) => TextInput::make($id),
+            'number'   => fn($id) => TextInput::make($id)->numeric(),
+            'password' => fn($id) => TextInput::make($id)->password()->revealable(),
+            'email'    => fn($id) => TextInput::make($id)->email(),
+            'textarea' => fn($id) => Textarea::make($id),
+            'select'   => fn($id) => Select::make($id),
+            'radio'    => fn($id) => Radio::make($id),
+            'checkbox' => fn($id) => Checkbox::make($id),
+            'date'     => fn($id) => DatePicker::make($id),
+            'time'     => fn($id) => TimePicker::make($id),
+            'datetime' => fn($id) => DateTimePicker::make($id),
+            // 'file'  => fn($id) => FileUpload::make($id), // TODO: implement
+            'default'  => fn($id) => TextInput::make($id),
+        ];
     }
 }
+

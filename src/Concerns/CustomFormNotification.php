@@ -15,11 +15,11 @@ trait CustomFormNotification
      */
     protected function getCreatedNotification(): ?Notification
     {
-        $form = $this->record->form ?? null;
+        $confirmationMessage = $this->record->form->form_confirmation_message ?? null;
 
         return Notification::make()
             ->success()
-            ->title($form ? $form->form_confirmation_message : 'Form submitted successfully!');
+            ->title($confirmationMessage ?? 'Form submitted successfully!');
     }
 
     /**
@@ -28,10 +28,10 @@ trait CustomFormNotification
      */
     protected function getSavedNotification(): ?Notification
     {
-        $form = $this->record->form ?? null;
+        $confirmationMessage = $this->record->form->form_confirmation_message ?? null;
 
         return Notification::make()
             ->success()
-            ->title($form ? $form->form_confirmation_message : 'Form submitted successfully!');
+            ->title($confirmationMessage ?? 'Form submitted successfully!');
     }
 }

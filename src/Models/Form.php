@@ -121,7 +121,7 @@ final class Form extends Model
 
     public function responses()
     {
-        return $this->hasMany(FormResponse::class);
+        return $this->hasMany(FormResponse::class, self::PRIMARY_KEY);
     }
 
     /*

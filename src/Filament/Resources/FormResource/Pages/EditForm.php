@@ -6,6 +6,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Valourite\FormBuilder\Filament\Resources\FormResource\FormResource;
+use Valourite\FormBuilder\Models\Form;
 
 final class EditForm extends EditRecord
 {
@@ -19,24 +20,29 @@ final class EditForm extends EditRecord
         ];
     }
 
-    //TODO: optimize this
     protected function mutateFormDataBeforeSave(array $data): array
     {
-        $record     = $this->getRecord();
-        $oldContent = json_decode($record->form_content, true);
-        $newContent = json_decode($data['form_content'], true);
+        $record = $this->getRecord();
 
-        $hasChanges = $this->hasFormContentChanged($oldContent, $newContent);
+        $recordForm = $record->form_content;
+        $dataForm = $data['form_content'];
 
-        if ($hasChanges) {
+        $diff = static::hasFormContentChanged($recordForm, $dataForm);
+
+        //We need to compare to arrays to see if they're identical
+        if ($diff) {
             $newForm = $record->replicate([
-                'form_id',
+                Form::FORM_ID,
+                Form::FORM_MODEL,
                 'created_at',
                 'updated_at',
             ]);
 
-
-            $newForm->form_content = $newContent;
+            $newForm->form_content = $data['form_content'];
+            $newForm->form_description = $data['form_description'];
+            $newForm->form_confirmation_message = $data['form_confirmation_message'];
+            $newForm->form_slug = $data['form_slug'];
+            $newForm->is_active = $data['is_active'];
             $newForm->form_version = $this->incrementVersion(
                 $record->form_version,
                 config('form-builder.increment_count', '0.0.1')
@@ -44,47 +50,24 @@ final class EditForm extends EditRecord
             $newForm->save();
 
             // new form has been created, revert the data back to original
-            $data['form_content'] = $oldContent;
+            $data['form_content'] = $record->form_content;
 
             // //redirect to the new form view page
             // return redirect(FormResource::getUrl('edit', ['record' => $newForm]));
-        } elseif ($hasChanges) {
+        } else {
             // increment form version
             $data['form_version'] = $this->incrementVersion(
                 $record->form_version,
                 config('form-builder.increment_count', '0.0.1')
             );
-        } else {
-            // unset as there are not changes
-            unset($data['form_content']);
         }
 
         return $data;
     }
 
-    protected function hasFormContentChanged(array $old, array $new): bool
-    {
-        // Strip metadata keys that shouldn't trigger a new version
-        $normalize = fn (array $content) => array_map(function ($section) {
-            unset($section['title'], $section['icon'], $section['colour']);
-
-            if (isset($section['Fields'])) {
-                $section['Fields'] = array_map(function ($field) {
-                    unset($field['label'], $field['icon'], $field['colour']);
-
-                    return $field;
-                }, $section['Fields']);
-            }
-
-            return $section;
-        }, $content);
-
-        return $normalize($old) !== $normalize($new);
-    }
-
     protected function incrementVersion(string $currentVersion, string $increment = '0.0.1'): string
     {
-        [$major, $minor, $patch]          = array_map('intval', explode('.', $currentVersion));
+        [$major, $minor, $patch] = array_map('intval', explode('.', $currentVersion));
         [$incMajor, $incMinor, $incPatch] = array_map('intval', explode('.', $increment));
 
         $newPatch = $patch + $incPatch;
@@ -92,5 +75,33 @@ final class EditForm extends EditRecord
         $newMajor = $major + $incMajor;
 
         return "{$newMajor}.{$newMinor}.{$newPatch}";
+    }
+
+    protected function hasFormContentChanged(array $old, array $new): bool
+    {
+        $normalize = fn(array $content) => collect($content)
+            ->map(function ($section) {
+                // Strip metadata
+                unset($section['title'], $section['prefix_icon']);
+
+                // Normalize fields
+                $section['Fields'] = collect($section['Fields'] ?? [])
+                    ->map(function ($field) {
+                    unset($field['label'], $field['prefix_icon']);
+                    return $field;
+                })
+                    // Sort fields by custom_id for consistent structure
+                    ->sortBy('custom_id')
+                    ->values()
+                    ->toArray();
+
+                return $section;
+            })
+            // Sort sections by custom_id for consistent comparison
+            ->sortBy('custom_id')
+            ->values()
+            ->toArray();
+
+        return md5(json_encode($normalize($old))) !== md5(json_encode($normalize($new)));
     }
 }
