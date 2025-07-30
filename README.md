@@ -3,16 +3,16 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/dayne-valourite/form-builder.svg?style=flat-square)](https://packagist.org/packages/valourite/form-builder)
 
 
-# Form Builder for Filament & Laravel
+# Dynamic Models for Filament & Laravel
 
-**Form Builder** is a Laravel package built on top of [Filament v4](https://filamentphp.com) that allows user to define base models which they can then add information to depending on the form used on model creation.
+**Dynamic Models** is a Laravel package built on top of [Filament v4](https://filamentphp.com) that allows user to define base models which they can then add information to depending on the form used on model creation.
 - This concept can be seen as `database inheritance`. 
 - The concept is that we can define a base table `User`, then create different forms for different types of users, allowing all user models that get created to `inherit` the base user table required fields as well as having to input newly required fields based on the form the model is attached to. 
 - This allows us to define a single base model, and dynamically create new types for that model.
 
 Key Features:
 
-- **Model-specific forms** - Attach forms to any Eloquent model to define model type
+- **Dynamic Model Creation** - Allow the same model to host different values on different instances
 - **Version control** - New version created automatically when forms are modified
 - **Response storage** - Separate table for form responses with schema versioning
 - **Visual builder** - Repeatable form sections and fields
@@ -23,13 +23,12 @@ Key Features:
 ## Features
 
 - Filament v4 integration - Native UI components and resource management
-- Visual form builder - Create forms with sections, fields, and options
+- Visual dynamic model builder - Create forms with sections, fields, and options for dynamic models
 - Automatic versioning - New form versions created on schema changes
 - Response storage - Dedicated `form_responses` table with JSON data
 - Data integrity - Responses always linked to their form version
 - Field types - Text, number, email, select, radio, date/time, and more
 - Custom IDs - Unique identifiers for form field data binding
-- Relationship management - Connect forms to specific Eloquent models
 
 ---
 
