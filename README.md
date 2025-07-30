@@ -1,6 +1,6 @@
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/valourite/form-builder.svg?style=flat-square)](https://packagist.org/packages/valourite/form-builder)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/dayne-valourite/form-builder.svg?style=flat-square)](https://packagist.org/packages/valourite/form-builder)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](MIT)
-[![Total Downloads](https://img.shields.io/packagist/dt/valourite/form-builder.svg?style=flat-square)](https://packagist.org/packages/valourite/form-builder)
+[![Total Downloads](https://img.shields.io/packagist/dt/dayne-valourite/form-builder.svg?style=flat-square)](https://packagist.org/packages/valourite/form-builder)
 
 
 # Form Builder for Filament & Laravel
