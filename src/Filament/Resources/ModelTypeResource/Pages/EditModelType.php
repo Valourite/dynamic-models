@@ -24,6 +24,8 @@ final class EditModelType extends EditRecord
     {
         $record = $this->getRecord();
 
+        // dd($data);
+
         $recordForm = $record->model_type_schema;
         $dataForm   = $data['model_type_schema'];
 
@@ -31,28 +33,22 @@ final class EditModelType extends EditRecord
 
         //We need to compare to arrays to see if they're identical
         if ($diff) {
-            $newForm = $record->replicate([
-                ModelType::MODEL_TYPE_ID,
-                ModelType::MODEL_TYPE_PARENT_MODEL,
-                'created_at',
-                'updated_at',
-            ]);
+            $newModelType = new ModelType();
 
-            $newForm->model_type_schema               = $data['model_type_schema'];
-            $newForm->model_type_description          = $data['model_type_description'];
-            $newForm->model_type_confirmation_message = $data['model_type_confirmation_message'];
-            $newForm->can_be_created                  = $data['can_be_created'];
-            $newForm->model_type_version              = $this->incrementVersion(
+            $newModelType->fill($data);
+
+            $newModelType->model_type_version              = $this->incrementVersion(
                 $record->model_type_version,
                 config('dynamic-models.increment_count', '0.0.1')
             );
-            $newForm->save();
+
+            $newModelType->save();
 
             // new model type has been created, revert the data back to original
             $data['model_type_schema'] = $record->model_type_schema;
 
             // //redirect to the new form view page
-            // return redirect(FormResource::getUrl('edit', ['record' => $newForm]));
+            // return redirect(FormResource::getUrl('edit', ['record' => $newModelType]));
         } else {
             // increment form version
             $data['model_type_version'] = $this->incrementVersion(
