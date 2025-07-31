@@ -17,21 +17,10 @@ final class DynamicModelsProvider extends PackageServiceProvider
     {
         $package
             ->name('dynamic-models')
+            //We do not have translations or views
             ->hasConfigFile()
-            ->hasTranslations()
-            ->hasViews()
             ->hasCommands($this->getCommands());
     }
-
-    // public function getMigrations()
-    // {
-    //     //return list of migration names
-    //     //TODO: Add other migrations
-    //     //If we allow the migrations inside hasMigrations, they can be published, remember that
-    //     return [
-    //         'create_forms_table',
-    //     ];
-    // }
 
     public function getCommands(): array
     {

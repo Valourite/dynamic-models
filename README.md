@@ -92,29 +92,12 @@ Note: Only one `model instance` can belong to one model as a `model instance` is
 
 ---
 
-### 2. Create Filament Resources
+### 2. Update Filament components
+
+This allows the form schema to be injected into your resource form schema. 
 
 ```php
-
-class ClientInfolist
-{
-    public static function configure(Schema $schema): Schema
-    {
-        return $schema
-            ->components([
-                // Your existing info fields
-                TextEntry::make('name'),
-                TextEntry::make('email'),
-
-                // Add form response display
-                ...FormInfoListInjector::make()
-            ])
-    }
-}
-
-```
-
-```php
+use Valourite\DynamicModels\Filament\Support\Injectors\ModelTypeSchemaInjector;
 
 class ClientForm
 {
@@ -127,14 +110,60 @@ class ClientForm
                 TextInput::make('email')->email()->required(),
 
                 //inject form schema
-                ...FormSchemaInjector::make()
+                ...ModelTypeSchemaInjector::make()
             ]);
     }
 }
 
 ```
 
-This allows for the schema for the model type to be injected into your models current form schema and infolist schema. 
+This allows the table schema to be injected into your resource's table schema
+- This would inidicate the type of model that has been created.
+
+```php
+use Valourite\DynamicModels\Filament\Support\Injectors\ModelTypeTableInjector;
+
+class ClientTable
+{
+    public static function configure(Table $table): Table
+    {
+        return $table
+            ->columns([
+                TextColumn::make('name')
+                    ->searchable(),
+                TextColumn::make('email')
+                    ->searchable(),
+
+                //inject table schema
+                ...ModelTypeTableInjector::make(),
+            ]);
+    }
+}
+
+```
+
+This allows the infolist schema to be injected into your resource's infolist schema. 
+
+```php
+use Valourite\DynamicModels\Filament\Support\Injectors\ModelTypeInfoListInjector;
+
+class ClientInfolist
+{
+    public static function configure(Schema $schema): Schema
+    {
+        return $schema
+            ->components([
+                // Your existing info fields
+                TextEntry::make('name'),
+                TextEntry::make('email'),
+
+                // Add form response display
+                ...ModelTypeInfoListInjector::make()
+            ])
+    }
+}
+
+```
 
 ---
 
@@ -205,7 +234,9 @@ No tests have been written as of yet
 * [x] Version control system
 * [x] Response storage system
 * [x] Filament v4 integration
-* [ ] Extract model instance json data in seperate key:value table
+* [x] Extract model instance json data in seperate key:value table
+* [ ] Allow user to style infolist and form sections
+* [ ] Add more functionality to sections (non-collapsible)
 * [ ] File upload field support
 * [ ] More customization on fields and sections
 * [ ] Implementing prefix and suffix icons with colour handling

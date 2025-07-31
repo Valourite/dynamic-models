@@ -10,9 +10,9 @@ use Valourite\DynamicModels\Filament\Support\Generators\ModelTypeSchemaGenerator
 use Valourite\DynamicModels\Models\ModelType;
 
 /**
- * The user will use this class to inject the form schema into their form schema.
+ * The user will use this class to inject the model type form schema into their form schema.
  */
-final class FormSchemaInjector
+final class ModelTypeSchemaInjector
 {
     public static function make(): array
     {
