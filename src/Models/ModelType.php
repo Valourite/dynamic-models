@@ -55,6 +55,8 @@ final class ModelType extends Model
 
     protected $dateFormat = 'Y-m-d';
 
+    public $timestamps = true;
+
     /**
      * =========================
      *		 CASTS
