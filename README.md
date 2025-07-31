@@ -1,6 +1,6 @@
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/dayne-valourite/dynamic-models.svg?style=flat-square)](https://packagist.org/packages/valourite/dynamic-models)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/valourite/dynamic-models.svg?style=flat-square)](https://packagist.org/packages/valourite/dynamic-models)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](MIT)
-[![Total Downloads](https://img.shields.io/packagist/dt/dayne-valourite/dynamic-models.svg?style=flat-square)](https://packagist.org/packages/valourite/dynamic-models)
+[![Total Downloads](https://img.shields.io/packagist/dt/valourite/dynamic-models.svg?style=flat-square)](https://packagist.org/packages/valourite/dynamic-models)
 
 
 # Dynamic Models for Filament & Laravel
