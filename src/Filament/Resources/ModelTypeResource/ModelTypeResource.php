@@ -7,6 +7,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Contracts\Support\Htmlable;
 use UnitEnum;
 use Valourite\DynamicModels\Filament\Resources\ModelTypeResource\Pages\CreateModelType;
 use Valourite\DynamicModels\Filament\Resources\ModelTypeResource\Pages\EditModelType;
@@ -58,8 +59,28 @@ final class ModelTypeResource extends Resource
         ];
     }
 
+    public static function getLabel(): ?string
+    {
+        return config('dynamic-models.navigation.label') ? __(config('dynamic-models.navigation.label')) : __('Dynamic Model');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return config('dynamic-models.navigation.plural_label') ? __(config('dynamic-models.navigation.plural_label')) : __('Dynamic Models');
+    }
+
     public static function getNavigationGroup(): string|UnitEnum|null
     {
-        return config('dynamic-models.grouped', true) ? config('dynamic-models.group', 'Model Builder') : null;
+        return config('dynamic-models.navigation.grouped', true) ? __(config('dynamic-models.navigation.group', 'Model Builder')) : null;
+    }
+
+    public static function getNavigationIcon(): string|BackedEnum|Htmlable|null
+    {
+        return config('dynamic-models.navigation.icon') ? config('dynamic-models.navigation.icon') : self::$navigationIcon;
+    }
+
+    public static function getNavigationSort(): ?int
+    {
+        return config('dynamic-models.navigation.sort', true);
     }
 }
