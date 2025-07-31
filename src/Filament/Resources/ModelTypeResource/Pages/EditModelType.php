@@ -38,10 +38,10 @@ final class EditModelType extends EditRecord
                 'updated_at',
             ]);
 
-            $newForm->model_type_schema              = $data['model_type_schema'];
+            $newForm->model_type_schema               = $data['model_type_schema'];
             $newForm->model_type_description          = $data['model_type_description'];
             $newForm->model_type_confirmation_message = $data['model_type_confirmation_message'];
-            $newForm->can_be_created                 = $data['can_be_created'];
+            $newForm->can_be_created                  = $data['can_be_created'];
             $newForm->model_type_version              = $this->incrementVersion(
                 $record->model_type_version,
                 config('dynamic-models.increment_count', '0.0.1')

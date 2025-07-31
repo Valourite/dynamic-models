@@ -8,10 +8,8 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
-use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Support\Facades\Cache;
-use Illuminate\Support\Str;
 use Valourite\DynamicModels\Filament\Support\Components\SectionRepeater;
 use Valourite\DynamicModels\Models\ModelType;
 
@@ -87,7 +85,7 @@ final class ModelTypeForm
     {
         //Can't cache incase these values are changed
         return collect(config('dynamic-models.parent_models', []))
-                ->mapWithKeys(fn ($class) => [$class => class_basename($class)])
-                ->toArray();
+            ->mapWithKeys(fn ($class) => [$class => class_basename($class)])
+            ->toArray();
     }
 }

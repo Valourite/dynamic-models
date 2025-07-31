@@ -3,8 +3,8 @@
 namespace Valourite\DynamicModels\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
-use Valourite\DynamicModels\Models\ModelType;
 use Valourite\DynamicModels\Models\ModelInstance;
+use Valourite\DynamicModels\Models\ModelType;
 
 trait HandlesModelInstance
 {
@@ -50,7 +50,7 @@ trait HandlesModelInstance
             return;
         }
 
-        $modelTypeSchema  = $modelType->model_type_schema ?? [];
+        $modelTypeSchema   = $modelType->model_type_schema ?? [];
         $modelInstanceData = [];
 
         foreach ($modelTypeSchema as $section) {
@@ -67,10 +67,10 @@ trait HandlesModelInstance
 
         //We need to fetch the model instance and update it instead of creating a new one
         $model->modelInstance()->updateOrCreate([], [
-            ModelInstance::MODEL_TYPE_ID        => $modelTypeID,
-            ModelInstance::PARENT_MODEL_TYPE    => get_class($model),
-            ModelInstance::PARENT_MODEL_ID      => $model->getKey(),
-            ModelInstance::MODEL_INSTANCE_DATA  => $modelInstanceData,
+            ModelInstance::MODEL_TYPE_ID       => $modelTypeID,
+            ModelInstance::PARENT_MODEL_TYPE   => get_class($model),
+            ModelInstance::PARENT_MODEL_ID     => $model->getKey(),
+            ModelInstance::MODEL_INSTANCE_DATA => $modelInstanceData,
         ]);
     }
 }

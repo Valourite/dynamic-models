@@ -22,7 +22,7 @@ final class FormSchemaInjector
             //This means that models created without a type will never be able to get a type after creation
             Select::make(ModelType::MODEL_TYPE_ID)
                 ->label('Type')
-                ->visible(fn($context) => $context === 'create')
+                ->visible(fn ($context) => $context === 'create')
                 ->live()
                 ->options(function ($model) {
                     return ModelType::query()

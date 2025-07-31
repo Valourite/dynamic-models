@@ -2,8 +2,8 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
-use Valourite\DynamicModels\Models\ModelType;
 use Valourite\DynamicModels\Models\ModelInstance;
+use Valourite\DynamicModels\Models\ModelType;
 
 trait IsDynamic
 {

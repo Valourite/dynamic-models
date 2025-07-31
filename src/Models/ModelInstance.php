@@ -19,21 +19,21 @@ final class ModelInstance extends Model
      *		 CONSTANTS
      * ==========================.
      */
-    const MODEL_INSTANCE_ID = 'model_instance_id';
+    public const MODEL_INSTANCE_ID = 'model_instance_id';
 
-    const MODEL_TYPE_ID = 'model_type_id';
+    public const MODEL_TYPE_ID = 'model_type_id';
 
-    const PARENT_MODEL_ID = 'parent_model_id';
+    public const PARENT_MODEL_ID = 'parent_model_id';
 
-    const PARENT_MODEL_TYPE = 'parent_model_type';
+    public const PARENT_MODEL_TYPE = 'parent_model_type';
 
-    const MODEL_INSTANCE_DATA = 'model_instance_data';
+    public const MODEL_INSTANCE_DATA = 'model_instance_data';
 
-    const PRIMARY_KEY = 'model_instance_id';
+    public const PRIMARY_KEY = 'model_instance_id';
 
-    const MORPH_NAME = 'parent_model';
+    public const MORPH_NAME = 'parent_model';
 
-    const BASE_TABLE_NAME = 'model_instances';
+    public const BASE_TABLE_NAME = 'model_instances';
 
     /**
      * =========================
@@ -54,9 +54,9 @@ final class ModelInstance extends Model
      * =========================.
      */
     protected $casts = [
-        self::MODEL_TYPE_ID         => 'int',
-        self::PARENT_MODEL_ID       => 'int',
-        self::MODEL_INSTANCE_DATA   => 'json',
+        self::MODEL_TYPE_ID       => 'int',
+        self::PARENT_MODEL_ID     => 'int',
+        self::MODEL_INSTANCE_DATA => 'json',
     ];
 
     /**

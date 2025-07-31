@@ -22,25 +22,25 @@ final class ModelType extends Model
      *		 CONSTANTS
      * ==========================.
      */
-    const MODEL_TYPE_ID = 'model_type_id';
+    public const MODEL_TYPE_ID = 'model_type_id';
 
-    const MODEL_TYPE_NAME = 'model_type_name';
+    public const MODEL_TYPE_NAME = 'model_type_name';
 
-    const MODEL_TYPE_DESCRIPTION = 'model_type_description';
+    public const MODEL_TYPE_DESCRIPTION = 'model_type_description';
 
-    const MODEL_TYPE_CONFIRMATION_MESSAGE = 'model_type_confirmation_message';
+    public const MODEL_TYPE_CONFIRMATION_MESSAGE = 'model_type_confirmation_message';
 
-    const CAN_BE_CREATED = 'can_be_created';
+    public const CAN_BE_CREATED = 'can_be_created';
 
-    const MODEL_TYPE_PARENT_MODEL = 'model_type_parent_model';
+    public const MODEL_TYPE_PARENT_MODEL = 'model_type_parent_model';
 
-    const MODEL_TYPE_SCHEMA = 'model_type_schema';
+    public const MODEL_TYPE_SCHEMA = 'model_type_schema';
 
-    const MODEL_TYPE_VERSION = 'model_type_version';
+    public const MODEL_TYPE_VERSION = 'model_type_version';
 
-    const PRIMARY_KEY = 'model_type_id';
+    public const PRIMARY_KEY = 'model_type_id';
 
-    const BASE_TABLE_NAME = 'model_types';
+    public const BASE_TABLE_NAME = 'model_types';
 
     /**
      * =========================

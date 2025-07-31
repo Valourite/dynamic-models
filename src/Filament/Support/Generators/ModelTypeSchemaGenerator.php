@@ -9,8 +9,8 @@ use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Str;
 use Throwable;
 use Valourite\DynamicModels\Filament\Support\Renderers\FieldRenderer;
-use Valourite\DynamicModels\Models\ModelType;
 use Valourite\DynamicModels\Models\ModelInstance;
+use Valourite\DynamicModels\Models\ModelType;
 
 final class ModelTypeSchemaGenerator
 {
@@ -25,7 +25,7 @@ final class ModelTypeSchemaGenerator
      */
     public static function formSchema(int|ModelType $modelType): array
     {
-        $modelType        = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
+        $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
         $modelTypeSchema = $modelType->model_type_schema ?? [];
 
         $components = [];
@@ -95,8 +95,8 @@ final class ModelTypeSchemaGenerator
             ? $modelInstance
             : ModelInstance::findOrFail($modelInstance);
 
-        $modelTypeSchema  = $modelInstance->modelType?->model_type_schema ?? [];
-        $instanceData = $modelInstance->model_instance_data ?? [];
+        $modelTypeSchema = $modelInstance->modelType?->model_type_schema ?? [];
+        $instanceData    = $modelInstance->model_instance_data ?? [];
 
         $entries = [];
 
