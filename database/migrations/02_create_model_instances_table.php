@@ -10,18 +10,18 @@ return new class () extends Migration {
      */
     public function up(): void
     {
-        Schema::create(config('form-builder.table_prefix') . 'form_responses', function (Blueprint $table) {
-            $table->bigIncrements('form_response_id');
+        Schema::create(config('dynamic-models.table_prefix') . 'model_instances', function (Blueprint $table) {
+            $table->bigIncrements('model_instance_id');
 
             //Reference the id of the form table
-            $table->foreignId('form_id')->constrained(config('form-builder.table_prefix') . 'forms', 'form_id')->cascadeOnDelete()->cascadeOnUpdate();
+            $table->foreignId('model_type_id')->constrained(config('dynamic-models.table_prefix') . 'model_types', 'model_type_id')->cascadeOnDelete()->cascadeOnUpdate();
 
-            //Reference the id of the model
+            //Reference the id of the parent model
             //We cannot constrain the foreignId as we do not know the model
-            $table->morphs('model');
+            $table->morphs('parent_model', 'parent_model_index');
 
             // Form response data
-            $table->json('response_data');
+            $table->json('model_instance_data');
 
             $table->timestamps();
         });
@@ -32,6 +32,6 @@ return new class () extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('form_responses');
+        Schema::dropIfExists('model_instances');
     }
 };

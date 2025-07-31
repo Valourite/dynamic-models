@@ -1,6 +1,6 @@
 <?php
 
-namespace Valourite\FormBuilder\Filament\Enums;
+namespace Valourite\DynamicModels\Filament\Enums;
 
 enum FieldType: string
 {

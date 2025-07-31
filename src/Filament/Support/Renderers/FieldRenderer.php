@@ -1,6 +1,6 @@
 <?php
 
-namespace Valourite\FormBuilder\Filament\Support\Renderers;
+namespace Valourite\DynamicModels\Filament\Support\Renderers;
 
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;

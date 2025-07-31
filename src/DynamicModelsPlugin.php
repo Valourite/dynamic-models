@@ -1,12 +1,12 @@
 <?php
 
-namespace Valourite\FormBuilder;
+namespace Valourite\DynamicModels;
 
 use Filament\Contracts\Plugin;
 use Filament\Panel;
-use Valourite\FormBuilder\Filament\Resources\FormResource\FormResource;
+use Valourite\DynamicModels\Filament\Resources\ModelTypeResource\ModelTypeResource;
 
-final class FormBuilderPlugin implements Plugin
+final class DynamicModelsPlugin implements Plugin
 {
     public static function make()
     {
@@ -16,7 +16,7 @@ final class FormBuilderPlugin implements Plugin
     public function register(Panel $panel): void
     {
         $panel->resources([
-            FormResource::class,
+            ModelTypeResource::class,
         ]);
     }
 
@@ -24,6 +24,6 @@ final class FormBuilderPlugin implements Plugin
 
     public function getId(): string
     {
-        return 'form-builder';
+        return 'dynamic-models';
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace Valourite\FormBuilder\Filament\Support\Generators;
+namespace Valourite\DynamicModels\Filament\Support\Generators;
 
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
@@ -8,29 +8,29 @@ use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Str;
 use Throwable;
-use Valourite\FormBuilder\Filament\Support\Renderers\FieldRenderer;
-use Valourite\FormBuilder\Models\Form;
-use Valourite\FormBuilder\Models\FormResponse;
+use Valourite\DynamicModels\Filament\Support\Renderers\FieldRenderer;
+use Valourite\DynamicModels\Models\ModelInstance;
+use Valourite\DynamicModels\Models\ModelType;
 
-final class FormGenerator
+final class ModelTypeSchemaGenerator
 {
     private static array $componentCache = [];
 
     /**
      * Generates the form schema that can be appended to the models form.
      *
-     * @param int|\Valourite\FormBuilder\Models\Form $form
+     * @param int|\Valourite\DynamicModels\Models\ModelType $modelType
      *
      * @return array
      */
-    public static function formSchema(int|Form $form): array
+    public static function formSchema(int|ModelType $modelType): array
     {
-        $form        = $form instanceof Form ? $form : Form::findOrFail($form);
-        $formContent = $form->form_content ?? [];
+        $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
+        $modelTypeSchema = $modelType->model_type_schema ?? [];
 
         $components = [];
 
-        foreach ($formContent as $section) {
+        foreach ($modelTypeSchema as $section) {
             $fields = [];
 
             foreach ($section['Fields'] ?? [] as $field) {
@@ -85,22 +85,22 @@ final class FormGenerator
     /**
      * Generates the infolist schema that can be appended to the models infolist.
      *
-     * @param int|\Valourite\FormBuilder\Models\FormResponse $formResponse
+     * @param int|\Valourite\DynamicModels\Models\ModelInstance $modelInstance
      *
      * @return array
      */
-    public static function infolistSchema(int|FormResponse $formResponse): array
+    public static function infolistSchema(int|ModelInstance $modelInstance): array
     {
-        $formResponse = $formResponse instanceof FormResponse
-            ? $formResponse
-            : FormResponse::findOrFail($formResponse);
+        $modelInstance = $modelInstance instanceof ModelInstance
+            ? $modelInstance
+            : ModelInstance::findOrFail($modelInstance);
 
-        $formContent  = $formResponse->form?->form_content ?? [];
-        $responseData = $formResponse->response_data ?? [];
+        $modelTypeSchema = $modelInstance->modelType?->model_type_schema ?? [];
+        $instanceData    = $modelInstance->model_instance_data ?? [];
 
         $entries = [];
 
-        foreach ($formContent as $section) {
+        foreach ($modelTypeSchema as $section) {
             $sectionTitle = $section['title'] ?? 'Section';
             $fields       = [];
 
@@ -111,7 +111,7 @@ final class FormGenerator
                 }
 
                 $label = $field['label'] ?? $field['name'] ?? 'Field';
-                $value = $responseData[$fieldId] ?? '-';
+                $value = $instanceData[$fieldId] ?? '-';
 
                 $value = match ($field['type']) {
                     'boolean' => $value ? 'Yes' : 'No',
@@ -158,10 +158,10 @@ final class FormGenerator
     private static function hydrateResponseState(Component $component, string $fieldID): void
     {
         $record   = $component->getLivewire()?->record;
-        $response = $record?->response;
+        $instance = $record?->modelInstance;
 
-        if ($response?->response_data) {
-            $component->state($response->response_data[$fieldID] ?? null);
+        if ($instance?->model_instance_data) {
+            $component->state($instance->model_instance_data[$fieldID] ?? null);
         }
     }
 }

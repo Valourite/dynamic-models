@@ -1,6 +1,6 @@
 {
-    "name": "dayne-valourite/form-builder",
-    "description": "A Laravel Filament form builder plugin.",
+    "name": "valourite/dynamic-models",
+    "description": "A laravel filament plugin for creating dynamic models.",
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -11,8 +11,8 @@
     ],
     "autoload": {
         "psr-4": {
-            "Valourite\\FormBuilder\\": "src/",
-            "Valourite\\FormBuilder\\Database\\Factories\\": "database/factories/"
+            "Valourite\\DynamicModels\\": "src/",
+            "Valourite\\DynamicModels\\Database\\Factories\\": "database/factories/"
         }
     },
     "require": {
@@ -24,11 +24,11 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Valourite\\FormBuilder\\FormBuilderProvider"
+                "Valourite\\DynamicModels\\DynamicModelsProvider"
             ]
         },
         "branch-alias": {
-            "dev-main": "v1.x-dev"
+            "dev-main": "v2.x-dev"
         }
     },
     "minimum-stability": "beta"
