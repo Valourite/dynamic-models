@@ -1,6 +1,6 @@
 <?php
 
-namespace Valourite\FormBuilder\Filament\Support\Components;
+namespace Valourite\DynamicModels\Filament\Support\Components;
 
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\Repeater;
@@ -10,17 +10,15 @@ use Filament\Schemas\Components\Tabs;
 use Filament\Schemas\Components\Tabs\Tab;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Str;
-use Valourite\FormBuilder\Filament\Enums\FieldType;
-use Valourite\FormBuilder\Filament\Support\Helpers\FieldHelper;
+use Valourite\DynamicModels\Filament\Enums\FieldType;
+use Valourite\DynamicModels\Filament\Support\Helpers\FieldHelper;
 
 final class FieldRepeater extends Repeater
 {
-    protected static ?array $cachedSchema = null;
-
     public static function make(?string $name = null): static
     {
         return parent::make($name)
-            ->label('Form Field')
+            ->label('Model Field')
             ->grid(2)
             ->columnSpanFull()
             ->schema(static::buildSchema());

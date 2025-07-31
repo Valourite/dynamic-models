@@ -1,39 +1,39 @@
 <?php
 
-namespace Valourite\FormBuilder\Models;
+namespace Valourite\DynamicModels\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Valourite\FormBuilder\Concerns\UsesForm;
+use Valourite\DynamicModels\Concerns\BelongsToType;
 
-final class FormResponse extends Model
+final class ModelInstance extends Model
 {
     /**
      * =========================
      *		 TRAIT
      * =========================.
      */
-    use UsesForm;
+    use BelongsToType;
 
     /**
      * ==========================
      *		 CONSTANTS
      * ==========================.
      */
-    public const FORM_RESPONSE_ID = 'form_response_id';
+    const MODEL_INSTANCE_ID = 'model_instance_id';
 
-    public const FORM_ID = 'form_id';
+    const MODEL_TYPE_ID = 'model_type_id';
 
-    public const MODEL_ID = 'model_id';
+    const PARENT_MODEL_ID = 'parent_model_id';
 
-    public const MODEL_TYPE = 'model_type';
+    const PARENT_MODEL_TYPE = 'parent_model_type';
 
-    public const RESPONSE_DATA = 'response_data';
+    const MODEL_INSTANCE_DATA = 'model_instance_data';
 
-    public const PRIMARY_KEY = 'form_response_id';
+    const PRIMARY_KEY = 'model_instance_id';
 
-    public const MORPH_NAME = 'model';
+    const MORPH_NAME = 'parent_model';
 
-    public const BASE_TABLE_NAME = 'form_responses';
+    const BASE_TABLE_NAME = 'model_instances';
 
     /**
      * =========================
@@ -54,9 +54,9 @@ final class FormResponse extends Model
      * =========================.
      */
     protected $casts = [
-        self::FORM_ID       => 'int',
-        self::MODEL_ID      => 'int',
-        self::RESPONSE_DATA => 'json',
+        self::MODEL_TYPE_ID         => 'int',
+        self::PARENT_MODEL_ID       => 'int',
+        self::MODEL_INSTANCE_DATA   => 'json',
     ];
 
     /**
@@ -65,10 +65,10 @@ final class FormResponse extends Model
      * =========================.
      */
     protected $fillable = [
-        self::FORM_ID,
-        self::MODEL_ID,
-        self::MODEL_TYPE,
-        self::RESPONSE_DATA,
+        self::MODEL_TYPE_ID,
+        self::PARENT_MODEL_ID,
+        self::PARENT_MODEL_TYPE,
+        self::MODEL_INSTANCE_DATA,
     ];
 
     /**
@@ -76,7 +76,7 @@ final class FormResponse extends Model
      * 		 WITH
      * ========================.
      */
-    protected $with = ['model', 'form'];
+    protected $with = ['parentModel', 'modelType'];
 
     /**
      * =========================
@@ -87,7 +87,7 @@ final class FormResponse extends Model
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('form-builder.table_prefix') . self::BASE_TABLE_NAME);
+        $this->setTable(config('dynamic-models.table_prefix') . self::BASE_TABLE_NAME);
     }
 
     /*
@@ -101,7 +101,7 @@ final class FormResponse extends Model
      *
      * @return \Illuminate\Database\Eloquent\Relations\MorphTo
      */
-    public function model()
+    public function parentModel()
     {
         return $this->morphTo();
     }

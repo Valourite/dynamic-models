@@ -1,6 +1,6 @@
 <?php
 
-namespace Valourite\FormBuilder\Filament\Support\Helpers;
+namespace Valourite\DynamicModels\Filament\Support\Helpers;
 
 use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
@@ -14,7 +14,7 @@ final class FieldHelper
 {
     public static function select(): Select
     {
-        $options = Cache::remember('form-builder.heroicon-options', now()->addHours(6), function () {
+        $options = Cache::remember('dynamic-models.heroicon-options', now()->addHours(6), function () {
             return collect(Heroicon::cases())->mapWithKeys(function (Heroicon $heroicon) {
                 $iconName = $heroicon->value;
                 $iconHtml = \Filament\Support\generate_icon_html($heroicon)->toHtml();

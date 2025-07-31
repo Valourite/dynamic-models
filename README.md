@@ -1,6 +1,6 @@
-[![Latest Version on Packagist](https://img.shields.io/packagist/v/dayne-valourite/form-builder.svg?style=flat-square)](https://packagist.org/packages/valourite/form-builder)
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/dayne-valourite/dynamic-models.svg?style=flat-square)](https://packagist.org/packages/valourite/dynamic-models)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](MIT)
-[![Total Downloads](https://img.shields.io/packagist/dt/dayne-valourite/form-builder.svg?style=flat-square)](https://packagist.org/packages/valourite/form-builder)
+[![Total Downloads](https://img.shields.io/packagist/dt/dayne-valourite/dynamic-models.svg?style=flat-square)](https://packagist.org/packages/valourite/dynamic-models)
 
 
 # Dynamic Models for Filament & Laravel
@@ -25,7 +25,7 @@ Key Features:
 - Filament v4 integration - Native UI components and resource management
 - Visual dynamic model builder - Create forms with sections, fields, and options for dynamic models
 - Automatic versioning - New form versions created on schema changes
-- Response storage - Dedicated `form_responses` table with JSON data
+- Response storage - Dedicated `model_instances` table with JSON data
 - Data integrity - Responses always linked to their form version
 - Field types - Text, number, email, select, radio, date/time, and more
 - Custom IDs - Unique identifiers for form field data binding
@@ -38,19 +38,19 @@ Key Features:
 
 1. Install via Composer:
 ```bash
-composer require dayne-valourite/form-builder
+composer require dayne-valourite/dynamic-models
 ```
 
 2. Run the installer:
 ```bash
-php artisan form-builder:install
+php artisan dynamic-models:install
 ```
 
 This will:
-- Publish configuration to `config/form-builder.php`
+- Publish configuration to `config/dynamic-models.php`
 - Create database tables:
   - `forms` (form definitions)
-  - `form_responses` (response data)
+  - `model_instances` (response data)
 
 ---
 
@@ -59,7 +59,7 @@ This will:
 In your `PanelProvider`:
 
 ```php
-use Valourite\FormBuilder\FormBuilderPlugin;
+use Valourite\DynamicModels\FormBuilderPlugin;
 
 public function panel(Panel $panel): Panel
 {
@@ -79,7 +79,7 @@ public function panel(Panel $panel): Panel
 Use the `HasResponse` trait:
 
 ```php
-use Valourite\FormBuilder\Concerns\HasResponse;
+use Valourite\DynamicModels\Concerns\HasResponse;
 
 class Client extends Model
 {
@@ -165,7 +165,7 @@ class EditClient extends EditRecord
 This handles:
 
 * Saving the form response into `form_response`
-* Linking the correct `form_id`, version, and structure
+* Linking the correct `model_type_id`, version, and structure
 * Allowing updates to be made to the form values
 
 We can display a custom message set inside the form by making use of the trait `CustomFormNotification`
@@ -181,7 +181,7 @@ We can display a custom message set inside the form by making use of the trait `
    - Existing responses remain linked to their original version
 
 2. **Response Handling**:
-   - Responses are stored in `form_responses` table
+   - Responses are stored in `model_instances` table
    - Each response references the exact form version used
    - Data stored as JSON with field IDs as keys
 

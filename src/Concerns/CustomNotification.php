@@ -1,13 +1,13 @@
 <?php
 
-namespace Valourite\FormBuilder\Concerns;
+namespace Valourite\DynamicModels\Concerns;
 
 use Filament\Notifications\Notification;
 
 /**
  * This trait will be used to display a custom notification on create.
  */
-trait CustomFormNotification
+trait CustomNotification
 {
     /**
      * Allows a custom notification to be used when the model is created and form filled.
@@ -16,11 +16,11 @@ trait CustomFormNotification
      */
     protected function getCreatedNotification(): ?Notification
     {
-        $confirmationMessage = $this->record->form->form_confirmation_message ?? null;
+        $confirmationMessage = $this->record->modelType->model_type_confirmation_message ?? null;
 
         return Notification::make()
             ->success()
-            ->title($confirmationMessage ?? 'Form submitted successfully!');
+            ->title($confirmationMessage ?? 'Record created successfully!');
     }
 
     /**
@@ -30,10 +30,10 @@ trait CustomFormNotification
      */
     protected function getSavedNotification(): ?Notification
     {
-        $confirmationMessage = $this->record->form->form_confirmation_message ?? null;
+        $confirmationMessage = $this->record->modelType->model_type_confirmation_message ?? null;
 
         return Notification::make()
             ->success()
-            ->title($confirmationMessage ?? 'Form submitted successfully!');
+            ->title($confirmationMessage ?? 'Record saved successfully!');
     }
 }

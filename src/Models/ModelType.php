@@ -1,12 +1,12 @@
 <?php
 
-namespace Valourite\FormBuilder\Models;
+namespace Valourite\DynamicModels\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Valourite\FormBuilder\Database\Factories\FormFactory;
+use Valourite\DynamicModels\Database\Factories\ModelTypeFactory;
 
-final class Form extends Model
+final class ModelType extends Model
 {
     /**
      * =========================
@@ -22,27 +22,25 @@ final class Form extends Model
      *		 CONSTANTS
      * ==========================.
      */
-    public const FORM_ID = 'form_id';
+    const MODEL_TYPE_ID = 'model_type_id';
 
-    public const FROM_NAME = 'form_name';
+    const MODEL_TYPE_NAME = 'model_type_name';
 
-    public const FORM_SLUG = 'form_slug';
+    const MODEL_TYPE_DESCRIPTION = 'model_type_description';
 
-    public const FORM_DESCRIPTION = 'form_description';
+    const MODEL_TYPE_CONFIRMATION_MESSAGE = 'model_type_confirmation_message';
 
-    public const FORM_CONFIRMATION_MESSAGE = 'form_confirmation_message';
+    const CAN_BE_CREATED = 'can_be_created';
 
-    public const IS_ACTIVE = 'is_active';
+    const MODEL_TYPE_PARENT_MODEL = 'model_type_parent_model';
 
-    public const FORM_MODEL = 'form_model';
+    const MODEL_TYPE_SCHEMA = 'model_type_schema';
 
-    public const FORM_CONTENT = 'form_content';
+    const MODEL_TYPE_VERSION = 'model_type_version';
 
-    public const FORM_VERSION = 'form_version';
+    const PRIMARY_KEY = 'model_type_id';
 
-    public const PRIMARY_KEY = 'form_id';
-
-    public const BASE_TABLE_NAME = 'forms';
+    const BASE_TABLE_NAME = 'model_types';
 
     /**
      * =========================
@@ -63,8 +61,8 @@ final class Form extends Model
      * =========================.
      */
     protected $casts = [
-        self::IS_ACTIVE    => 'boolean',
-        self::FORM_CONTENT => 'json',
+        self::CAN_BE_CREATED    => 'boolean',
+        self::MODEL_TYPE_SCHEMA => 'json',
     ];
 
     /**
@@ -73,14 +71,13 @@ final class Form extends Model
      * =========================.
      */
     protected $fillable = [
-        self::FROM_NAME,
-        self::FORM_SLUG,
-        self::FORM_DESCRIPTION,
-        self::FORM_CONFIRMATION_MESSAGE,
-        self::IS_ACTIVE,
-        self::FORM_MODEL,
-        self::FORM_CONTENT,
-        self::FORM_VERSION,
+        self::MODEL_TYPE_NAME,
+        self::MODEL_TYPE_DESCRIPTION,
+        self::MODEL_TYPE_CONFIRMATION_MESSAGE,
+        self::CAN_BE_CREATED,
+        self::MODEL_TYPE_PARENT_MODEL,
+        self::MODEL_TYPE_SCHEMA,
+        self::MODEL_TYPE_VERSION,
     ];
 
     /**
@@ -92,7 +89,7 @@ final class Form extends Model
     {
         parent::__construct($attributes);
 
-        $this->setTable(config('form-builder.table_prefix') . self::BASE_TABLE_NAME);
+        $this->setTable(config('dynamic-models.table_prefix') . self::BASE_TABLE_NAME);
     }
 
     /**
@@ -102,12 +99,10 @@ final class Form extends Model
      */
     public static function booted(): void
     {
-        // Allow the slug to be generated from the form
+        //Prevent an empty schema from being generated
         static::creating(function ($model) {
-            $model->form_slug = str($model->form_name)->slug();
-
-            if ($model->form_content === null) {
-                $model->form_content = json_encode('{}');
+            if ($model->model_type_schema === null) {
+                $model->model_type_schema = json_encode('{}');
             }
         });
     }
@@ -118,9 +113,9 @@ final class Form extends Model
      * =========================
      */
 
-    public static function factory(): FormFactory
+    public static function factory(): ModelTypeFactory
     {
-        return FormFactory::new();
+        return ModelTypeFactory::new();
     }
 
     /*
@@ -131,6 +126,6 @@ final class Form extends Model
 
     public function responses()
     {
-        return $this->hasMany(FormResponse::class, self::PRIMARY_KEY);
+        return $this->hasMany(ModelInstance::class, self::PRIMARY_KEY);
     }
 }

@@ -1,16 +1,16 @@
 <?php
 
-namespace Valourite\FormBuilder\Filament\Resources\FormResource\Pages;
+namespace Valourite\DynamicModels\Filament\Resources\ModelTypeResource\Pages;
 
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
-use Valourite\FormBuilder\Filament\Resources\FormResource\FormResource;
-use Valourite\FormBuilder\Models\Form;
+use Valourite\DynamicModels\Filament\Resources\ModelTypeResource\ModelTypeResource;
+use Valourite\DynamicModels\Models\ModelType;
 
-final class EditForm extends EditRecord
+final class EditModelType extends EditRecord
 {
-    protected static string $resource = FormResource::class;
+    protected static string $resource = ModelTypeResource::class;
 
     protected function getHeaderActions(): array
     {
@@ -24,41 +24,40 @@ final class EditForm extends EditRecord
     {
         $record = $this->getRecord();
 
-        $recordForm = $record->form_content;
-        $dataForm   = $data['form_content'];
+        $recordForm = $record->model_type_schema;
+        $dataForm   = $data['model_type_schema'];
 
-        $diff = static::hasFormContentChanged($recordForm, $dataForm);
+        $diff = static::hasModelTypeSchemaChanged($recordForm, $dataForm);
 
         //We need to compare to arrays to see if they're identical
         if ($diff) {
             $newForm = $record->replicate([
-                Form::FORM_ID,
-                Form::FORM_MODEL,
+                ModelType::MODEL_TYPE_ID,
+                ModelType::MODEL_TYPE_PARENT_MODEL,
                 'created_at',
                 'updated_at',
             ]);
 
-            $newForm->form_content              = $data['form_content'];
-            $newForm->form_description          = $data['form_description'];
-            $newForm->form_confirmation_message = $data['form_confirmation_message'];
-            $newForm->form_slug                 = $data['form_slug'];
-            $newForm->is_active                 = $data['is_active'];
-            $newForm->form_version              = $this->incrementVersion(
-                $record->form_version,
-                config('form-builder.increment_count', '0.0.1')
+            $newForm->model_type_schema              = $data['model_type_schema'];
+            $newForm->model_type_description          = $data['model_type_description'];
+            $newForm->model_type_confirmation_message = $data['model_type_confirmation_message'];
+            $newForm->can_be_created                 = $data['can_be_created'];
+            $newForm->model_type_version              = $this->incrementVersion(
+                $record->model_type_version,
+                config('dynamic-models.increment_count', '0.0.1')
             );
             $newForm->save();
 
-            // new form has been created, revert the data back to original
-            $data['form_content'] = $record->form_content;
+            // new model type has been created, revert the data back to original
+            $data['model_type_schema'] = $record->model_type_schema;
 
             // //redirect to the new form view page
             // return redirect(FormResource::getUrl('edit', ['record' => $newForm]));
         } else {
             // increment form version
-            $data['form_version'] = $this->incrementVersion(
-                $record->form_version,
-                config('form-builder.increment_count', '0.0.1')
+            $data['model_type_version'] = $this->incrementVersion(
+                $record->model_type_version,
+                config('dynamic-models.increment_count', '0.0.1')
             );
         }
 
@@ -77,7 +76,7 @@ final class EditForm extends EditRecord
         return "{$newMajor}.{$newMinor}.{$newPatch}";
     }
 
-    protected function hasFormContentChanged(array $old, array $new): bool
+    protected function hasModelTypeSchemaChanged(array $old, array $new): bool
     {
         $normalize = fn (array $content) => collect($content)
             ->map(function ($section) {

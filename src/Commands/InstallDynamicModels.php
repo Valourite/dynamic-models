@@ -1,38 +1,38 @@
 <?php
 
-namespace Valourite\FormBuilder\Commands;
+namespace Valourite\DynamicModels\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 
-final class InstallFormBuilder extends Command
+final class InstallDynamicModels extends Command
 {
-    protected $signature = 'form-builder:install';
+    protected $signature = 'dynamic-models:install';
 
-    protected $description = 'Install the Form Builder package (publish config, run migrations)';
+    protected $description = 'Install the Dynamic Models Package (publish config, run migrations)';
 
     public function handle(): int
     {
-        $this->info('🔧 Installing Form Builder...');
+        $this->info('🔧 Installing Dynamic Models...');
 
         $this->publishConfigIfNeeded();
         $this->runMigrationsIfNeeded();
 
-        $this->info('🎉 Form Builder installed successfully!');
+        $this->info('🎉 Dynamic Models installed successfully!');
 
         return self::SUCCESS;
     }
 
     protected function publishConfigIfNeeded(): void
     {
-        $configPath = config_path('form-builder.php');
+        $configPath = config_path('dynamic-models.php');
 
         if (File::exists($configPath)) {
-            $this->warn('⚠️  Config file already exists: form-builder.php');
+            $this->warn('⚠️  Config file already exists: dynamic-models.php');
             if ($this->confirm('Do you want to overwrite it?', false)) {
                 $this->callSilent('vendor:publish', [
-                    '--tag'   => 'form-builder-config',
+                    '--tag'   => 'dynamic-models-config',
                     '--force' => true,
                 ]);
                 $this->info('✅ Config overwritten');
@@ -41,7 +41,7 @@ final class InstallFormBuilder extends Command
             }
         } else {
             $this->callSilent('vendor:publish', [
-                '--tag' => 'form-builder-config',
+                '--tag' => 'dynamic-models-config',
             ]);
             $this->info('✅ Config published');
         }
@@ -49,8 +49,8 @@ final class InstallFormBuilder extends Command
 
     protected function runMigrationsIfNeeded(): void
     {
-        if (Schema::hasTable(config('form-builder.table_prefix') . 'forms')) {
-            $this->warn('⚠️  Migrations already seem to be applied (' . config('form-builder.table_prefix') . 'forms table exists)');
+        if (Schema::hasTable(config('dynamic-models.table_prefix') . 'model_types')) {
+            $this->warn('⚠️  Migrations already seem to be applied (' . config('dynamic-models.table_prefix') . 'model_types table exists)');
             if ( ! $this->confirm('Do you want to run migrations anyway?', false)) {
                 $this->info('⏭️  Skipping migration');
 

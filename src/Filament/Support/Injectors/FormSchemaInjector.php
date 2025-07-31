@@ -1,13 +1,13 @@
 <?php
 
-namespace Valourite\FormBuilder\Filament\Support\Injectors;
+namespace Valourite\DynamicModels\Filament\Support\Injectors;
 
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Group;
 use Illuminate\Database\Eloquent\Model;
-use Valourite\FormBuilder\Filament\Support\Generators\FormGenerator;
-use Valourite\FormBuilder\Models\Form;
+use Valourite\DynamicModels\Filament\Support\Generators\ModelTypeSchemaGenerator;
+use Valourite\DynamicModels\Models\ModelType;
 
 /**
  * The user will use this class to inject the form schema into their form schema.
@@ -17,33 +17,36 @@ final class FormSchemaInjector
     public static function make(): array
     {
         return [
-            //The select that allows a user to select a form
-            Select::make(Form::FORM_ID)
-                ->label('Form')
+            //The select that allows a user to select a model
+            //Only visible on create, not edit, as we don't want the user to change the model type after creation
+            //This means that models created without a type will never be able to get a type after creation
+            Select::make(ModelType::MODEL_TYPE_ID)
+                ->label('Type')
+                ->visible(fn($context) => $context === 'create')
                 ->live()
                 ->options(function ($model) {
-                    return Form::query()
-                        ->where(Form::FORM_MODEL, $model)
-                        ->where(Form::IS_ACTIVE, true)
-                        ->pluck(Form::FROM_NAME, Form::FORM_ID)
+                    return ModelType::query()
+                        ->where(ModelType::MODEL_TYPE_PARENT_MODEL, $model)
+                        ->where(ModelType::CAN_BE_CREATED, true)
+                        ->pluck(ModelType::MODEL_TYPE_NAME, ModelType::MODEL_TYPE_ID)
                         ->toArray();
                 })
                 ->afterStateHydrated(function (?Model $record, Component $component) {
-                    $component->state($record?->response?->form_id);
+                    $component->state($record?->modelInstance?->model_type_id);
                 })
                 ->required(),
 
-            //The gorup that generates the form schema based on the selected form
+            //The gorup that generates the model type schema based on the selected model type
             Group::make()
                 ->schema(function (callable $get) {
-                    $formId = $get(Form::FORM_ID);
-                    if ( ! filled($formId)) {
-                        return []; // return empty schema if no form selected
+                    $modelTypeID = $get(ModelType::MODEL_TYPE_ID);
+                    if ( ! filled($modelTypeID)) {
+                        return []; // return empty schema if no modelType selected
                     }
 
-                    return FormGenerator::formSchema($formId);
+                    return ModelTypeSchemaGenerator::formSchema($modelTypeID);
                 })
-                ->visible(fn (callable $get) => filled($get(Form::FORM_ID)))
+                ->visible(fn (callable $get) => filled($get(ModelType::MODEL_TYPE_ID)))
                 ->columnSpanFull(),
         ];
     }
