@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Valourite\DynamicModels\Concerns\BelongsToModelInstance;
 use Valourite\DynamicModels\Filament\Enums\FieldType;
 
-class ModelInstanceValue extends Model
+final class ModelInstanceValue extends Model
 {
     /**
      * =========================
@@ -47,13 +47,13 @@ class ModelInstanceValue extends Model
      */
     public $incrementing = true;
 
+    public $timestamps = true;
+
     protected $primaryKey = self::PRIMARY_KEY;
 
     protected $table;
 
     protected $dateFormat = 'Y-m-d';
-
-    public $timestamps = true;
 
     /**
      * =========================

@@ -16,7 +16,7 @@ trait HandlesModelInstance
         // Reject dynamic-models fields
         $this->data = collect($this->data)
             ->reject(
-                fn($_, $key) => $key === 'model_type_id' ||
+                fn ($_, $key) => $key === 'model_type_id' ||
                 str_starts_with($key, 'field-')
             )
             ->all();
@@ -37,17 +37,17 @@ trait HandlesModelInstance
 
     protected function createOrUpdateModelInstance(): void
     {
-        if (!method_exists($this->record, 'modelInstance') || !method_exists($this->record, 'modelType')) {
+        if ( ! method_exists($this->record, 'modelInstance') || ! method_exists($this->record, 'modelType')) {
             return;
         }
 
         $modelTypeID = $this->dynamicModelRawData['model_type_id'] ?? null;
-        if (!$modelTypeID) {
+        if ( ! $modelTypeID) {
             return;
         }
 
         $modelType = ModelType::find($modelTypeID);
-        if (!$modelType) {
+        if ( ! $modelType) {
             return;
         }
 
@@ -61,10 +61,10 @@ trait HandlesModelInstance
 
                 if ($customId && array_key_exists($customId, $this->dynamicModelRawData)) {
                     $values[] = [
-                        ModelInstanceValue::NAME => $field['name'],
-                        ModelInstanceValue::FIELD_ID => $customId,
-                        ModelInstanceValue::VALUE => $this->dynamicModelRawData[$customId],
-                        ModelInstanceValue::TYPE => $field['type'],
+                        ModelInstanceValue::NAME       => $field['name'],
+                        ModelInstanceValue::FIELD_ID   => $customId,
+                        ModelInstanceValue::VALUE      => $this->dynamicModelRawData[$customId],
+                        ModelInstanceValue::TYPE       => $field['type'],
                         ModelInstanceValue::CREATED_AT => now(),
                         ModelInstanceValue::UPDATED_AT => now(),
                     ];
@@ -76,9 +76,9 @@ trait HandlesModelInstance
         $model = $this->record;
 
         $modelInstance = $model->modelInstance()->updateOrCreate([], [
-            ModelInstance::MODEL_TYPE_ID => $modelTypeID,
+            ModelInstance::MODEL_TYPE_ID     => $modelTypeID,
             ModelInstance::PARENT_MODEL_TYPE => get_class($model),
-            ModelInstance::PARENT_MODEL_ID => $model->getKey(),
+            ModelInstance::PARENT_MODEL_ID   => $model->getKey(),
         ]);
 
         // Attach model_instance_id to each row
@@ -93,5 +93,4 @@ trait HandlesModelInstance
             [ModelInstanceValue::NAME, ModelInstanceValue::VALUE, ModelInstanceValue::TYPE, ModelInstanceValue::UPDATED_AT]     // Columns to update
         );
     }
-
 }

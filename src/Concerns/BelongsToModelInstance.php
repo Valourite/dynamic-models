@@ -5,12 +5,13 @@ namespace Valourite\DynamicModels\Concerns;
 use Valourite\DynamicModels\Models\ModelInstance;
 
 /**
- * This trait will be used to link a model to a model instance
+ * This trait will be used to link a model to a model instance.
  */
 trait BelongsToModelInstance
 {
     /**
-     * Returns the model instance this model belongs to
+     * Returns the model instance this model belongs to.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
     public function modelInstance()

@@ -38,7 +38,8 @@ trait IsDynamic
     //TODO: Check if this works
     /**
      * Returns all the model instance values this model has
-     * Essentially returning the values that this model set on creation with a type
+     * Essentially returning the values that this model set on creation with a type.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
      */
     public function modelInstanceValues()

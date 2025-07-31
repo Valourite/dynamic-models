@@ -40,13 +40,13 @@ final class ModelInstance extends Model
      */
     public $incrementing = true;
 
+    public $timestamps = true;
+
     protected $primaryKey = self::PRIMARY_KEY;
 
     protected $table;
 
     protected $dateFormat = 'Y-m-d';
-
-    public $timestamps = true;
 
     /**
      * =========================
@@ -54,8 +54,8 @@ final class ModelInstance extends Model
      * =========================.
      */
     protected $casts = [
-        self::MODEL_TYPE_ID       => 'int',
-        self::PARENT_MODEL_ID     => 'int',
+        self::MODEL_TYPE_ID   => 'int',
+        self::PARENT_MODEL_ID => 'int',
     ];
 
     /**
@@ -120,7 +120,8 @@ final class ModelInstance extends Model
     }
 
     /**
-     * Returns the model instance values this model instance has
+     * Returns the model instance values this model instance has.
+     *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
     public function modelInstanceValues()
