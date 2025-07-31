@@ -7,9 +7,9 @@ use Filament\Schemas\Components\Utilities\Get;
 use Valourite\DynamicModels\Filament\Support\Generators\ModelTypeSchemaGenerator;
 
 /**
- * The user will use this class to inject the form infolist schema into their infolist schema.
+ * The user will use this class to inject the model type infolist schema into their infolist schema.
  */
-final class FormInfoListInjector
+final class ModelTypeInfoListInjector
 {
     public static function make(): array
     {

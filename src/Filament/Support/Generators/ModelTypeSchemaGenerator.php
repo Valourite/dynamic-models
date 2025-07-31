@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Throwable;
 use Valourite\DynamicModels\Filament\Support\Renderers\FieldRenderer;
 use Valourite\DynamicModels\Models\ModelInstance;
+use Valourite\DynamicModels\Models\ModelInstanceValue;
 use Valourite\DynamicModels\Models\ModelType;
 
 final class ModelTypeSchemaGenerator
@@ -82,6 +83,8 @@ final class ModelTypeSchemaGenerator
         return $components;
     }
 
+    //TODO: See about a helper function that can always grab the value based on a fieldID
+
     /**
      * Generates the infolist schema that can be appended to the models infolist.
      *
@@ -96,7 +99,7 @@ final class ModelTypeSchemaGenerator
             : ModelInstance::findOrFail($modelInstance);
 
         $modelTypeSchema = $modelInstance->modelType?->model_type_schema ?? [];
-        $instanceData    = $modelInstance->model_instance_data ?? [];
+        $instanceData    = $modelInstance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
 
         $entries = [];
 
@@ -159,9 +162,10 @@ final class ModelTypeSchemaGenerator
     {
         $record   = $component->getLivewire()?->record;
         $instance = $record?->modelInstance;
+        $values   = $instance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
 
-        if ($instance?->model_instance_data) {
-            $component->state($instance->model_instance_data[$fieldID] ?? null);
-        }
+        $value = $values[$fieldID] ?? null;
+
+        $component->state($value);
     }
 }

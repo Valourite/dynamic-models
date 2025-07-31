@@ -20,9 +20,6 @@ return new class () extends Migration {
             //We cannot constrain the foreignId as we do not know the model
             $table->morphs('parent_model', 'parent_model_index');
 
-            // Form response data
-            $table->json('model_instance_data');
-
             $table->timestamps();
         });
     }

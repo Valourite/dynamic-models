@@ -4,6 +4,7 @@ namespace Valourite\DynamicModels\Concerns;
 
 use Illuminate\Database\Eloquent\Model;
 use Valourite\DynamicModels\Models\ModelInstance;
+use Valourite\DynamicModels\Models\ModelInstanceValue;
 use Valourite\DynamicModels\Models\ModelType;
 
 trait HandlesModelInstance
@@ -50,14 +51,23 @@ trait HandlesModelInstance
             return;
         }
 
-        $modelTypeSchema   = $modelType->model_type_schema ?? [];
-        $modelInstanceData = [];
+        $modelTypeSchema = $modelType->model_type_schema ?? [];
+
+        $values = [];
 
         foreach ($modelTypeSchema as $section) {
             foreach ($section['Fields'] ?? [] as $field) {
                 $customId = $field['custom_id'] ?? null;
+
                 if ($customId && array_key_exists($customId, $this->dynamicModelRawData)) {
-                    $modelInstanceData[$customId] = $this->dynamicModelRawData[$customId];
+                    $values[] = [
+                        ModelInstanceValue::NAME       => $field['name'],
+                        ModelInstanceValue::FIELD_ID   => $customId,
+                        ModelInstanceValue::VALUE      => $this->dynamicModelRawData[$customId],
+                        ModelInstanceValue::TYPE       => $field['type'],
+                        ModelInstanceValue::CREATED_AT => now(),
+                        ModelInstanceValue::UPDATED_AT => now(),
+                    ];
                 }
             }
         }
@@ -65,12 +75,22 @@ trait HandlesModelInstance
         /** @var Model $model */
         $model = $this->record;
 
-        //We need to fetch the model instance and update it instead of creating a new one
-        $model->modelInstance()->updateOrCreate([], [
-            ModelInstance::MODEL_TYPE_ID       => $modelTypeID,
-            ModelInstance::PARENT_MODEL_TYPE   => get_class($model),
-            ModelInstance::PARENT_MODEL_ID     => $model->getKey(),
-            ModelInstance::MODEL_INSTANCE_DATA => $modelInstanceData,
+        $modelInstance = $model->modelInstance()->updateOrCreate([], [
+            ModelInstance::MODEL_TYPE_ID     => $modelTypeID,
+            ModelInstance::PARENT_MODEL_TYPE => get_class($model),
+            ModelInstance::PARENT_MODEL_ID   => $model->getKey(),
         ]);
+
+        // Attach model_instance_id to each row
+        foreach ($values as &$row) {
+            $row[ModelInstance::MODEL_INSTANCE_ID] = $modelInstance->getKey();
+        }
+
+        // Perform bulk upsert
+        ModelInstanceValue::upsert(
+            $values,
+            [ModelInstanceValue::MODEL_INSTANCE_ID, ModelInstanceValue::FIELD_ID], // Unique constraint
+            [ModelInstanceValue::NAME, ModelInstanceValue::VALUE, ModelInstanceValue::TYPE, ModelInstanceValue::UPDATED_AT]     // Columns to update
+        );
     }
 }

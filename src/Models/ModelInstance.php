@@ -27,8 +27,6 @@ final class ModelInstance extends Model
 
     public const PARENT_MODEL_TYPE = 'parent_model_type';
 
-    public const MODEL_INSTANCE_DATA = 'model_instance_data';
-
     public const PRIMARY_KEY = 'model_instance_id';
 
     public const MORPH_NAME = 'parent_model';
@@ -42,6 +40,8 @@ final class ModelInstance extends Model
      */
     public $incrementing = true;
 
+    public $timestamps = true;
+
     protected $primaryKey = self::PRIMARY_KEY;
 
     protected $table;
@@ -54,9 +54,8 @@ final class ModelInstance extends Model
      * =========================.
      */
     protected $casts = [
-        self::MODEL_TYPE_ID       => 'int',
-        self::PARENT_MODEL_ID     => 'int',
-        self::MODEL_INSTANCE_DATA => 'json',
+        self::MODEL_TYPE_ID   => 'int',
+        self::PARENT_MODEL_ID => 'int',
     ];
 
     /**
@@ -68,7 +67,6 @@ final class ModelInstance extends Model
         self::MODEL_TYPE_ID,
         self::PARENT_MODEL_ID,
         self::PARENT_MODEL_TYPE,
-        self::MODEL_INSTANCE_DATA,
     ];
 
     /**
@@ -76,7 +74,9 @@ final class ModelInstance extends Model
      * 		 WITH
      * ========================.
      */
-    protected $with = ['parentModel', 'modelType'];
+    //NOTE: We do not grab the parent model as we only access this model from the parent model
+    //We want to grab the model type and the values set
+    protected $with = ['modelType', 'modelInstanceValues'];
 
     /**
      * =========================
@@ -88,6 +88,19 @@ final class ModelInstance extends Model
         parent::__construct($attributes);
 
         $this->setTable(config('dynamic-models.table_prefix') . self::BASE_TABLE_NAME);
+    }
+
+    /**
+     * =======================
+     *      BOOTED
+     * =======================.
+     */
+    public static function booted(): void
+    {
+        //Delete all the values when this model is deleted
+        static::deleting(function ($model) {
+            $model->modelInstanceValues()->delete();
+        });
     }
 
     /*
@@ -104,5 +117,15 @@ final class ModelInstance extends Model
     public function parentModel()
     {
         return $this->morphTo();
+    }
+
+    /**
+     * Returns the model instance values this model instance has.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function modelInstanceValues()
+    {
+        return $this->hasMany(ModelInstanceValue::class, self::PRIMARY_KEY);
     }
 }
