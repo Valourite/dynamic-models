@@ -8,7 +8,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Str;
 use Throwable;
-use Valourite\DynamicModels\Concerns\CanIncludeExtraOptions;
 use Valourite\DynamicModels\Filament\Support\Renderers\FieldRenderer;
 use Valourite\DynamicModels\Models\ModelInstance;
 use Valourite\DynamicModels\Models\ModelInstanceValue;
@@ -36,53 +35,46 @@ final class ModelTypeSchemaGenerator
             $fields = [];
 
             foreach ($section['Fields'] ?? [] as $field) {
-                $fieldID = $field['custom_id'] ?? null;
+                $fieldID     = $field['custom_id'] ?? null;
+                $type        = $field['type'] ?? 'text';
+                $label       = $field['label'] ?? $field['name'] ?? $fieldID;
+                $required    = $field['required'] ?? false;
+                $prefixIcon  = $field['prefix_icon'] ?? null;
+                $suffixIcon  = $field['suffix_icon'] ?? null;
+                $prefixColor = $field['prefix_icon_color'] ?? null;
+                $suffixColor = $field['suffix_icon_color'] ?? null;
+
                 if ( ! $fieldID) {
                     continue;
                 }
 
-                $name       = $field['name'] ?? $fieldID;
-                $label      = $field['label'] ?? Str::title($name);
-                $type       = $field['type'] ?? 'text';
-                $required   = $field['required'] ?? false;
-                $prefixIcon = $field['prefix_icon'] ?? null;
-
-                // Cache FieldRenderer result per field key per request
                 $component = static::getRenderedFieldComponent($type, $fieldID);
-
-                // Apply field-specific extra options
-                $extraOptions = CanIncludeExtraOptions::getFieldExtraOptions($type);
-
-                // Inject supported properties from $field to $component manually
-                foreach ($field as $optionKey => $optionValue) {
-                    // Skip known handled keys
-                    if (in_array($optionKey, ['name', 'label', 'type', 'required', 'custom_id', 'prefix_icon', 'suffix_icon', 'prefix_icon_color', 'suffix_icon_color', 'options'])) {
-                        continue;
-                    }
-
-                    // Dynamically call matching setter methods if they exist
-                    $method = Str::camel($optionKey);
-                    if (method_exists($component, $method)) {
-                        $component->{$method}($optionValue);
-                    } elseif (method_exists($component, 'extraAttributes')) {
-                        // Fallback: apply via attributes if supported
-                        $component->extraAttributes([$optionKey => $optionValue]);
-                    }
-                }
 
                 $component
                     ->label($label)
                     ->required($required)
-                    ->afterStateHydrated(fn (Component $component, $state) => static::hydrateResponseState($component, $fieldID));
+                    ->afterStateHydrated(
+                        fn (Component $component, $state) => static::hydrateResponseState($component, $fieldID)
+                    );
 
+                // Handle icons
                 if ($prefixIcon && static::hasMethod($component, 'prefixIcon')) {
                     $component->prefixIcon(Heroicon::from($prefixIcon));
 
-                    if (static::hasMethod($component, 'prefixIconColor')) {
-                        $component->prefixIconColor('white');
+                    if ($prefixColor && static::hasMethod($component, 'prefixIconColor')) {
+                        $component->prefixIconColor($prefixColor);
                     }
                 }
 
+                if ($suffixIcon && static::hasMethod($component, 'suffixIcon')) {
+                    $component->suffixIcon(Heroicon::from($suffixIcon));
+
+                    if ($suffixColor && static::hasMethod($component, 'suffixIconColor')) {
+                        $component->suffixIconColor($suffixColor);
+                    }
+                }
+
+                // Handle options
                 if (static::hasMethod($component, 'options') && ! empty($field['options'])) {
                     $component->options(
                         collect($field['options'])->mapWithKeys(fn ($opt) => [
@@ -91,33 +83,57 @@ final class ModelTypeSchemaGenerator
                     );
                 }
 
+                // Apply additional settings from field data (excluding already handled keys)
+                $handled = [
+                    'name',
+                    'label',
+                    'type',
+                    'required',
+                    'custom_id',
+                    'prefix_icon',
+                    'suffix_icon',
+                    'prefix_icon_color',
+                    'suffix_icon_color',
+                    'max_length',
+                    'options',
+                ];
+
+                foreach ($field as $key => $value) {
+                    if (in_array($key, $handled)) {
+                        continue;
+                    }
+
+                    $method = Str::camel($key);
+
+                    if (method_exists($component, $method)) {
+                        $component->{$method}($value);
+                    } elseif (method_exists($component, 'extraAttributes')) {
+                        $component->extraAttributes([$key => $value]);
+                    }
+                }
+
                 $fields[] = $component;
             }
 
             if ( ! empty($fields)) {
-                $sectionTitle = $section['title'] ?? 'Section';
-
+                $sectionTitle     = $section['title'] ?? 'Section';
                 $sectionComponent = Section::make($sectionTitle)
                     ->schema($fields);
 
-                // Apply collapsible setting
-                if ( ! empty($section['is_collapsible'])) {
-                    $sectionComponent->collapsible();
+                if ( ! empty($section['helper_text'])) {
+                    $sectionComponent->description($section['helper_text']);
                 }
 
-                // Apply column span full
-                if ( ! empty($section['column_span_full'])) {
-                    $sectionComponent->columnSpanFull();
-                }
-
-                // Apply column count
                 if ( ! empty($section['column_count'])) {
                     $sectionComponent->columns((int) $section['column_count']);
                 }
 
-                // Add description (helper text)
-                if ( ! empty($section['helper_text'])) {
-                    $sectionComponent->description($section['helper_text']);
+                if ( ! empty($section['is_collapsible'])) {
+                    $sectionComponent->collapsible();
+                }
+
+                if ( ! empty($section['column_span_full'])) {
+                    $sectionComponent->columnSpanFull();
                 }
 
                 $components[] = $sectionComponent;

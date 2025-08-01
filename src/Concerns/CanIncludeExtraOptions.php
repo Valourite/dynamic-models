@@ -37,8 +37,11 @@ trait CanIncludeExtraOptions
                     TextInput::make('max_length')
                         ->label('Max Length')
                         ->numeric()
-                        //TODO: Default is not being set
-                        ->default(255)
+                        //We set a placeholder and default to 255 in generator
+                        ->placeholder('255')
+                        ->afterStateHydrated(function (mixed $state) {
+                            $state = 255;
+                        })
                         ->helperText('Maximum number of characters.'),
 
                     //TODO: These text masks need to conform to Filament masks

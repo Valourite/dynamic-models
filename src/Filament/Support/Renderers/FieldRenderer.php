@@ -42,10 +42,10 @@ final class FieldRenderer
             'select'   => fn ($id) => Select::make($id),
             'radio'    => fn ($id) => Radio::make($id),
             'checkbox' => fn ($id) => Checkbox::make($id),
-            'date'     => fn ($id) => DatePicker::make($id),
-            'time'     => fn ($id) => TimePicker::make($id),
-            'datetime' => fn ($id) => DateTimePicker::make($id),
-            // 'file'  => fn($id) => FileUpload::make($id), // TODO: implement
+            'date'     => fn ($id) => DatePicker::make($id)->native(false),
+            'time'     => fn ($id) => TimePicker::make($id)->native(false),
+            'datetime' => fn ($id) => DateTimePicker::make($id)->native(false),
+            // 'file'  => fn($id) => FileUpload::make($id), //TODO: implement
             'default' => fn ($id) => TextInput::make($id),
         ];
     }
