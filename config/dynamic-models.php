@@ -12,13 +12,12 @@ return [
     'table_prefix' => 'dynamic_models_',
 
     'navigation' => [
-
-        /**
+        /*
          * The Dynamic Models Creator resource label
          */
         'label' => null,
 
-        /**
+        /*
          * The Dynamic Models Creator resource plural label
          */
         'plural_label' => null,
@@ -33,12 +32,12 @@ return [
          */
         'group' => 'Model Builder',
 
-        /**
+        /*
          * The navigation icon
          */
         'icon' => \Filament\Support\Icons\Heroicon::DocumentText,
 
-        /**
+        /*
          * The navigation position
          */
         'sort' => 1,

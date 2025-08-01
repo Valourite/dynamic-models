@@ -27,7 +27,7 @@ final class ModelTypeSchemaGenerator
      */
     public static function formSchema(int|ModelType $modelType): array
     {
-        $modelType = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
+        $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
         $modelTypeSchema = $modelType->model_type_schema ?? [];
 
         $components = [];
@@ -37,14 +37,14 @@ final class ModelTypeSchemaGenerator
 
             foreach ($section['Fields'] ?? [] as $field) {
                 $fieldID = $field['custom_id'] ?? null;
-                if (!$fieldID) {
+                if ( ! $fieldID) {
                     continue;
                 }
 
-                $name = $field['name'] ?? $fieldID;
-                $label = $field['label'] ?? Str::title($name);
-                $type = $field['type'] ?? 'text';
-                $required = $field['required'] ?? false;
+                $name       = $field['name'] ?? $fieldID;
+                $label      = $field['label'] ?? Str::title($name);
+                $type       = $field['type'] ?? 'text';
+                $required   = $field['required'] ?? false;
                 $prefixIcon = $field['prefix_icon'] ?? null;
 
                 // Cache FieldRenderer result per field key per request
@@ -73,7 +73,7 @@ final class ModelTypeSchemaGenerator
                 $component
                     ->label($label)
                     ->required($required)
-                    ->afterStateHydrated(fn(Component $component, $state) => static::hydrateResponseState($component, $fieldID));
+                    ->afterStateHydrated(fn (Component $component, $state) => static::hydrateResponseState($component, $fieldID));
 
                 if ($prefixIcon && static::hasMethod($component, 'prefixIcon')) {
                     $component->prefixIcon(Heroicon::from($prefixIcon));
@@ -83,9 +83,9 @@ final class ModelTypeSchemaGenerator
                     }
                 }
 
-                if (static::hasMethod($component, 'options') && !empty($field['options'])) {
+                if (static::hasMethod($component, 'options') && ! empty($field['options'])) {
                     $component->options(
-                        collect($field['options'])->mapWithKeys(fn($opt) => [
+                        collect($field['options'])->mapWithKeys(fn ($opt) => [
                             $opt['value'] => Str::title(str_replace('_', ' ', $opt['label'])),
                         ])->toArray()
                     );
@@ -94,29 +94,29 @@ final class ModelTypeSchemaGenerator
                 $fields[] = $component;
             }
 
-            if (!empty($fields)) {
+            if ( ! empty($fields)) {
                 $sectionTitle = $section['title'] ?? 'Section';
 
                 $sectionComponent = Section::make($sectionTitle)
                     ->schema($fields);
 
                 // Apply collapsible setting
-                if (!empty($section['is_collapsible'])) {
+                if ( ! empty($section['is_collapsible'])) {
                     $sectionComponent->collapsible();
                 }
 
                 // Apply column span full
-                if (!empty($section['column_span_full'])) {
+                if ( ! empty($section['column_span_full'])) {
                     $sectionComponent->columnSpanFull();
                 }
 
                 // Apply column count
-                if (!empty($section['column_count'])) {
+                if ( ! empty($section['column_count'])) {
                     $sectionComponent->columns((int) $section['column_count']);
                 }
 
                 // Add description (helper text)
-                if (!empty($section['helper_text'])) {
+                if ( ! empty($section['helper_text'])) {
                     $sectionComponent->description($section['helper_text']);
                 }
 
@@ -143,17 +143,17 @@ final class ModelTypeSchemaGenerator
             : ModelInstance::findOrFail($modelInstance);
 
         $modelTypeSchema = $modelInstance->modelType?->model_type_schema ?? [];
-        $instanceData = $modelInstance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
+        $instanceData    = $modelInstance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
 
         $entries = [];
 
         foreach ($modelTypeSchema as $section) {
             $sectionTitle = $section['title'] ?? 'Section';
-            $fields = [];
+            $fields       = [];
 
             foreach ($section['Fields'] ?? [] as $field) {
                 $fieldId = $field['custom_id'] ?? null;
-                if (!$fieldId) {
+                if ( ! $fieldId) {
                     continue;
                 }
 
@@ -162,8 +162,8 @@ final class ModelTypeSchemaGenerator
 
                 $value = match ($field['type']) {
                     'boolean' => $value ? 'Yes' : 'No',
-                    'date' => static::formatDate($value),
-                    default => $value,
+                    'date'    => static::formatDate($value),
+                    default   => $value,
                 };
 
                 $fields[] = TextEntry::make($fieldId)
@@ -171,27 +171,27 @@ final class ModelTypeSchemaGenerator
                     ->state($value);
             }
 
-            if (!empty($fields)) {
+            if ( ! empty($fields)) {
                 $sectionComponent = Section::make($sectionTitle)
                     ->schema($fields);
 
                 // Column count
-                if (!empty($section['column_count'])) {
+                if ( ! empty($section['column_count'])) {
                     $sectionComponent->columns((int) $section['column_count']);
                 }
 
                 // Full width
-                if (!empty($section['column_span_full'])) {
+                if ( ! empty($section['column_span_full'])) {
                     $sectionComponent->columnSpanFull();
                 }
 
                 // Collapsible
-                if (!empty($section['is_collapsible'])) {
+                if ( ! empty($section['is_collapsible'])) {
                     $sectionComponent->collapsible();
                 }
 
                 // Description (helper text)
-                if (!empty($section['helper_text'])) {
+                if ( ! empty($section['helper_text'])) {
                     $sectionComponent->description($section['helper_text']);
                 }
 
@@ -225,9 +225,9 @@ final class ModelTypeSchemaGenerator
 
     private static function hydrateResponseState(Component $component, string $fieldID): void
     {
-        $record = $component->getLivewire()?->record;
+        $record   = $component->getLivewire()?->record;
         $instance = $record?->modelInstance;
-        $values = $instance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
+        $values   = $instance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
 
         $value = $values[$fieldID] ?? null;
 

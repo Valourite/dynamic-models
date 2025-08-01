@@ -7,7 +7,7 @@ use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\TextInput;
 
 /**
- * This trait will be used to include base fields into the field or section options
+ * This trait will be used to include base fields into the field or section options.
  */
 trait CanIncludeBaseFields
 {
@@ -35,4 +35,3 @@ trait CanIncludeBaseFields
             ->default($default);
     }
 }
-

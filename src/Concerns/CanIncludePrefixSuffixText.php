@@ -7,7 +7,7 @@ use Filament\Schemas\Components\Section;
 use Illuminate\Support\Str;
 
 /**
- * This trait will be used to include prefix and suffix text into the field or section options
+ * This trait will be used to include prefix and suffix text into the field or section options.
  */
 trait CanIncludePrefixSuffixText
 {

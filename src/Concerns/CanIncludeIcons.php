@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 /**
- * This trait will be used to include an icon selector into the field or section options
+ * This trait will be used to include an icon selector into the field or section options.
  */
 trait CanIncludeIcons
 {
@@ -41,7 +41,7 @@ trait CanIncludeIcons
     public static function getIconColorPicker($name)
     {
         $label = str_replace('-', ' ', $name);
-        
+
         return ColorPicker::make($name)
             ->label(Str::title($label))
             ->helperText("This is the {$label}.");
@@ -54,7 +54,7 @@ trait CanIncludeIcons
             return collect(Heroicon::cases())->mapWithKeys(function (Heroicon $heroicon) {
                 $iconName = $heroicon->value;
                 $iconHtml = \Filament\Support\generate_icon_html($heroicon)->toHtml();
-                $label = "<span class='inline-flex items-center'>
+                $label    = "<span class='inline-flex items-center'>
                             {$iconHtml}
                             <span class='ml-1'>{$iconName}</span>
                         </span>";

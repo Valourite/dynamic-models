@@ -14,11 +14,11 @@ use Valourite\DynamicModels\Models\ModelType;
 /**
  * This class will be used to inject any reused code into the section repeater.
  */
-class SectionHelper
+final class SectionHelper
 {
     use CanIncludeBaseFields;
-    use CanIncludeIcons;
     use CanIncludeHiddenFields;
+    use CanIncludeIcons;
     use CanIncludeSectionOptions;
 
     public static function getBaseOptionsModal(): Action
@@ -31,13 +31,12 @@ class SectionHelper
             ->slideOver()
             ->modalHeading('Configure Section Options')
             ->form(function (array $arguments, Get $get) {
-                $state = $get(ModelType::MODEL_TYPE_SCHEMA);
+                $state    = $get(ModelType::MODEL_TYPE_SCHEMA);
                 $itemData = $state[$arguments['item']] ?? [];
 
                 // dd($state);
-    
-                return array_values(array_filter([
 
+                return array_values(array_filter([
                     //Add helper text
                     static::getHelperText()->default($itemData['helper_text'] ?? ''),
 
@@ -53,10 +52,11 @@ class SectionHelper
             })
             ->fillForm(function (array $arguments, Get $get) {
                 $state = $get(ModelType::MODEL_TYPE_SCHEMA);
+
                 return $state[$arguments['item']] ?? [];
             })
             ->action(function (array $data, array $arguments, Repeater $component) {
-                $state = $component->getState();
+                $state                     = $component->getState();
                 $state[$arguments['item']] = array_merge($state[$arguments['item']], $data);
                 $component->state($state);
             });

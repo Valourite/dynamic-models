@@ -16,13 +16,13 @@ use Illuminate\Support\Str;
 use Valourite\DynamicModels\Filament\Enums\FieldType;
 
 /**
- * This trait will be used to include extra options into the field or section options
+ * This trait will be used to include extra options into the field or section options.
  */
 trait CanIncludeExtraOptions
 {
     public static function getFieldExtraOptions(null|FieldType|string $field = null): ?Component
     {
-        if (!$field) {
+        if ( ! $field) {
             return null;
         }
 
@@ -45,10 +45,10 @@ trait CanIncludeExtraOptions
                     Select::make('text_mask')
                         ->label('Text Mask')
                         ->options([
-                            'uppercase' => 'Uppercase (UPPERCASE)',
-                            'lowercase' => 'Lowercase (lowercase)',
+                            'uppercase'  => 'Uppercase (UPPERCASE)',
+                            'lowercase'  => 'Lowercase (lowercase)',
                             'snake_case' => 'Snake Case (snake_case)',
-                            'camelCase' => 'Camel Case (camelCase)',
+                            'camelCase'  => 'Camel Case (camelCase)',
                         ])
                         ->searchable()
                         ->preload()
@@ -102,11 +102,11 @@ trait CanIncludeExtraOptions
                                 ->label('Option Label')
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(function (Set $set, ?string $state, $context) {
-                                        if ($context === 'edit') {
-                                            return;
-                                        }
-                                        $set('value', str_replace(' ', '_', Str::lower(trim($state))));
-                                    }),
+                                    if ($context === 'edit') {
+                                        return;
+                                    }
+                                    $set('value', str_replace(' ', '_', Str::lower(trim($state))));
+                                }),
 
                             TextInput::make('value')
                                 ->required()
@@ -158,7 +158,7 @@ trait CanIncludeExtraOptions
                     Select::make('format')
                         ->label('Time Format')
                         ->options([
-                            'H:i' => '24-hour (HH:MM)',
+                            'H:i'   => '24-hour (HH:MM)',
                             'h:i A' => '12-hour (HH:MM AM/PM)',
                         ])
                         ->searchable()
@@ -189,7 +189,7 @@ trait CanIncludeExtraOptions
                     Select::make('format')
                         ->label('DateTime Format')
                         ->options([
-                            'Y-m-d H:i' => 'YYYY-MM-DD HH:MM',
+                            'Y-m-d H:i'   => 'YYYY-MM-DD HH:MM',
                             'd/m/Y h:i A' => 'DD/MM/YYYY HH:MM AM/PM',
                         ])
                         ->searchable()

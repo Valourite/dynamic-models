@@ -3,12 +3,10 @@
 namespace Valourite\DynamicModels\Concerns;
 
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Support\Enums\Width;
 
 /**
- * This trait will be used to include section specific options into the section options
+ * This trait will be used to include section specific options into the section options.
  */
 trait CanIncludeSectionOptions
 {
@@ -29,7 +27,7 @@ trait CanIncludeSectionOptions
                 '2' => '2',
                 '3' => '3',
                 '4' => '4',
-                '5' => '5'
+                '5' => '5',
             ]);
     }
 
