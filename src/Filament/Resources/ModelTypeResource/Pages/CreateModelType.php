@@ -8,4 +8,10 @@ use Valourite\DynamicModels\Filament\Resources\ModelTypeResource\ModelTypeResour
 final class CreateModelType extends CreateRecord
 {
     protected static string $resource = ModelTypeResource::class;
+    
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        // dd($data);
+        return $data;
+    }
 }
