@@ -18,8 +18,8 @@ trait CanIncludePrefixSuffixText
             ->collapsible()
             ->collapsed()
             ->schema([
-                static::getText('prefix_text')->default($itemData['prefix_text'] ?? ''),
-                static::getText('suffix_text')->default($itemData['suffix_text'] ?? ''),
+                static::getText('prefix_text'),
+                static::getText('suffix_text'),
             ]);
     }
 

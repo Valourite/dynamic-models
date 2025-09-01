@@ -35,7 +35,6 @@ trait IsDynamic
         )->where(ModelInstance::PARENT_MODEL_TYPE, static::class);
     }
 
-    //TODO: Check if this works
     /**
      * Returns all the model instance values this model has
      * Essentially returning the values that this model set on creation with a type.
@@ -47,11 +46,11 @@ trait IsDynamic
         return $this->hasManyThrough(
             ModelInstanceValue::class,
             ModelInstance::class,
-            ModelInstanceValue::MODEL_INSTANCE_VALUE_ID,
-            ModelInstance::MODEL_INSTANCE_ID,
-            'id',
+            ModelInstance::PARENT_MODEL_ID,
             ModelInstanceValue::MODEL_INSTANCE_ID,
-        );
+            'id',
+            ModelInstance::MODEL_INSTANCE_ID
+        )->where(ModelInstance::PARENT_MODEL_TYPE, static::class);
     }
 
     protected static function booted(): void

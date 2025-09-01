@@ -15,7 +15,5 @@ enum FieldType: string
     case DATE     = 'date';
     case TIME     = 'time';
     case DATETIME = 'datetime';
-
-    //removed for now as we do not have any upload logic
-    //case FILE     = 'file';
+    case FILE     = 'file';
 }

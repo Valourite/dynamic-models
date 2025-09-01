@@ -2,6 +2,7 @@
 
 namespace Valourite\DynamicModels\Filament\Support\Renderers;
 
+use Closure;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\DateTimePicker;
@@ -12,13 +13,17 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Schemas\Components\Component;
+use Valourite\DynamicModels\Concerns\HandlesFieldOptions;
+use Valourite\DynamicModels\Filament\Enums\FieldType;
 
 final class FieldRenderer
 {
+    use HandlesFieldOptions;
+
     /** @var array<string, Closure> */
     private static array $renderMap = [];
 
-    public static function render(string $type, ?string $fieldID = null): Component
+    public static function render(string $type, ?string $fieldID = null, array $options = []): Component
     {
         $type = mb_strtolower($type);
 
@@ -26,9 +31,63 @@ final class FieldRenderer
             static::buildRenderMap();
         }
 
-        $renderer = static::$renderMap[$type] ?? static::$renderMap['default'];
+        $renderer  = static::$renderMap[$type] ?? static::$renderMap['default'];
+        $component = $renderer($fieldID);
 
-        return $renderer($fieldID);
+        return static::applyFieldOptions($component, $type, $options);
+    }
+
+    /**
+     * Check if a component supports certain features.
+     */
+    public static function supportsFeature(string|FieldType $type, string $feature): bool
+    {
+        $feature = mb_strtolower($feature);
+        $type    = is_string($type) ? mb_strtolower($type) : mb_strtolower($type->value);
+
+        // Lists of field types that support each feature
+        $featureSupport = [
+            // Text-related features
+            'prefix'      => ['text', 'number', 'email', 'password'],
+            'suffix'      => ['text', 'number', 'email', 'password'],
+            'icon'        => ['text', 'number', 'email', 'password', 'select', 'date', 'time', 'datetime', 'file'],
+            'placeholder' => ['text', 'number', 'email', 'password', 'textarea'],
+            'maxlength'   => ['text', 'email', 'password', 'textarea'],
+
+            // Selection-related features
+            'options'    => ['select', 'radio'],
+            'searchable' => ['select'],
+            'multiple'   => ['select', 'file'],
+            'inline'     => ['radio', 'checkbox'],
+
+            // Number-specific features
+            'min_value' => ['number'],
+            'max_value' => ['number'],
+            'step'      => ['number'],
+
+            // Text area specific features
+            'rows'     => ['textarea'],
+            'cols'     => ['textarea'],
+            'autosize' => ['textarea'],
+
+            // Date and time features
+            'date_format' => ['date', 'datetime'],
+            'min_date'    => ['date', 'datetime'],
+            'max_date'    => ['date', 'datetime'],
+
+            // File upload features
+            'file_upload'         => ['file'],
+            'accepted_file_types' => ['file'],
+            'max_file_size'       => ['file'],
+            'max_files'           => ['file'],
+        ];
+
+        // Check if the feature is supported for this field type
+        if (isset($featureSupport[$feature])) {
+            return in_array($type, $featureSupport[$feature], true);
+        }
+
+        return false;
     }
 
     private static function buildRenderMap(): void
@@ -42,10 +101,21 @@ final class FieldRenderer
             'select'   => fn ($id) => Select::make($id),
             'radio'    => fn ($id) => Radio::make($id),
             'checkbox' => fn ($id) => Checkbox::make($id),
-            'date'     => fn ($id) => DatePicker::make($id)->native(false),
-            'time'     => fn ($id) => TimePicker::make($id)->native(false),
-            'datetime' => fn ($id) => DateTimePicker::make($id)->native(false),
-            // 'file'  => fn($id) => FileUpload::make($id), //TODO: implement
+            'date'     => fn ($id) => DatePicker::make($id)
+                ->native(false)
+                ->displayFormat('Y-m-d')
+                ->closeOnDateSelection(),
+            'time' => fn ($id) => TimePicker::make($id)
+                ->native(false)
+                ->seconds(true),
+            'datetime' => fn ($id) => DateTimePicker::make($id)
+                ->native(false)
+                ->seconds(true)
+                ->displayFormat('Y-m-d H:i:s'),
+            'file' => fn ($id) => FileUpload::make($id)
+                ->disk('public')
+                ->directory('dynamic-models/uploads')
+                ->visibility('public'),
             'default' => fn ($id) => TextInput::make($id),
         ];
     }
