@@ -2,6 +2,7 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Valourite\DynamicModels\Models\ModelInstance;
 
 /**
@@ -12,7 +13,7 @@ trait BelongsToModelInstance
     /**
      * Returns the model instance this model belongs to.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function modelInstance()
     {

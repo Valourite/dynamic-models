@@ -2,6 +2,7 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Valourite\DynamicModels\Models\ModelType;
 
 //TODO: docblock not picking up?
@@ -13,7 +14,7 @@ trait BelongsToType
     /**
      * Returns the form this response belongs to.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return BelongsTo
      */
     public function modelType()
     {

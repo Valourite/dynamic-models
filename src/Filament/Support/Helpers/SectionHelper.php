@@ -30,7 +30,7 @@ final class SectionHelper
             ->color('gray')
             ->slideOver()
             ->modalHeading('Configure Section Options')
-            ->form(function (array $arguments, Get $get) {
+            ->schema(function (array $arguments, Get $get) {
                 $state    = $get(ModelType::MODEL_TYPE_SCHEMA);
                 $itemData = $state[$arguments['item']] ?? [];
 

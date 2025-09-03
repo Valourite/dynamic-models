@@ -2,6 +2,7 @@
 
 namespace Valourite\DynamicModels;
 
+use Spatie\LaravelPackageTools\Package;
 use Spatie\LaravelPackageTools\PackageServiceProvider;
 use Valourite\DynamicModels\Commands\InstallDynamicModels;
 
@@ -13,7 +14,7 @@ final class DynamicModelsProvider extends PackageServiceProvider
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
     }
 
-    public function configurePackage(\Spatie\LaravelPackageTools\Package $package): void
+    public function configurePackage(Package $package): void
     {
         $package
             ->name('dynamic-models')

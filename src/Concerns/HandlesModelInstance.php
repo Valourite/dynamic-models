@@ -2,6 +2,12 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\TimePicker;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\FileUpload;
+use Carbon\Carbon;
 use DateTime;
 use Exception;
 use Illuminate\Database\Eloquent\Model;
@@ -59,17 +65,17 @@ trait HandlesModelInstance
             $fieldType = null;
 
             // Determine field type based on component instance
-            if ($component instanceof \Filament\Forms\Components\DatePicker) {
+            if ($component instanceof DatePicker) {
                 $fieldType = 'date';
-            } elseif ($component instanceof \Filament\Forms\Components\DateTimePicker) {
+            } elseif ($component instanceof DateTimePicker) {
                 $fieldType = 'datetime';
-            } elseif ($component instanceof \Filament\Forms\Components\TimePicker) {
+            } elseif ($component instanceof TimePicker) {
                 $fieldType = 'time';
-            } elseif ($component instanceof \Filament\Forms\Components\Select && $component->isMultiple()) {
+            } elseif ($component instanceof Select && $component->isMultiple()) {
                 $fieldType = 'select-multiple';
-            } elseif ($component instanceof \Filament\Forms\Components\Select) {
+            } elseif ($component instanceof Select) {
                 $fieldType = 'select';
-            } elseif($component instanceof \Filament\Forms\Components\FileUpload) {
+            } elseif($component instanceof FileUpload) {
                 $fieldType = 'file';
             }
 
@@ -82,7 +88,7 @@ trait HandlesModelInstance
             switch ($fieldType) {
                 case 'date':
                     // Handle Carbon/DateTime objects
-                    if ($value instanceof \Carbon\Carbon || $value instanceof DateTime) {
+                    if ($value instanceof Carbon || $value instanceof DateTime) {
                         $this->data[$key] = $value->format('Y-m-d');
                         // Also ensure the component state is updated
                         if ($component) {
@@ -92,7 +98,7 @@ trait HandlesModelInstance
                     // Handle string dates
                     elseif (is_string($value) && ! empty($value)) {
                         try {
-                            $date             = \Carbon\Carbon::parse($value);
+                            $date             = Carbon::parse($value);
                             $this->data[$key] = $date->format('Y-m-d');
                             // Also ensure the component state is updated
                             if ($component) {
@@ -120,7 +126,7 @@ trait HandlesModelInstance
 
                 case 'datetime':
                     // Handle Carbon/DateTime objects
-                    if ($value instanceof \Carbon\Carbon || $value instanceof DateTime) {
+                    if ($value instanceof Carbon || $value instanceof DateTime) {
                         $this->data[$key] = $value->format('Y-m-d H:i:s');
                         // Also ensure the component state is updated
                         if ($component) {
@@ -130,7 +136,7 @@ trait HandlesModelInstance
                     // Handle string dates
                     elseif (is_string($value) && ! empty($value)) {
                         try {
-                            $date             = \Carbon\Carbon::parse($value);
+                            $date             = Carbon::parse($value);
                             $this->data[$key] = $date->format('Y-m-d H:i:s');
                             // Also ensure the component state is updated
                             if ($component) {
@@ -158,7 +164,7 @@ trait HandlesModelInstance
 
                 case 'time':
                     // Handle Carbon/DateTime objects
-                    if ($value instanceof \Carbon\Carbon || $value instanceof DateTime) {
+                    if ($value instanceof Carbon || $value instanceof DateTime) {
                         $this->data[$key] = $value->format('H:i:s');
                         // Also ensure the component state is updated
                         if ($component) {
@@ -168,7 +174,7 @@ trait HandlesModelInstance
                     // Handle string times
                     elseif (is_string($value) && ! empty($value)) {
                         try {
-                            $time             = \Carbon\Carbon::parse($value);
+                            $time             = Carbon::parse($value);
                             $this->data[$key] = $time->format('H:i:s');
                             // Also ensure the component state is updated
                             if ($component) {
@@ -216,7 +222,7 @@ trait HandlesModelInstance
 
 
             // Handle Select components
-            if ($component instanceof \Filament\Forms\Components\Select) {
+            if ($component instanceof Select) {
                 // Ensure all Select components have at least empty options
                 if ($component->getOptions() === null) {
                     $component->options([]);
@@ -253,9 +259,9 @@ trait HandlesModelInstance
             }
 
             // Handle Date/DateTime/Time components
-            if ($component instanceof \Filament\Forms\Components\DatePicker ||
-                $component instanceof \Filament\Forms\Components\DateTimePicker ||
-                $component instanceof \Filament\Forms\Components\TimePicker) {
+            if ($component instanceof DatePicker ||
+                $component instanceof DateTimePicker ||
+                $component instanceof TimePicker) {
                 // Get current state for debugging
                 $state = $component->getState();
 
@@ -263,11 +269,11 @@ trait HandlesModelInstance
                 $component->required(false);
 
                 // Ensure date format is appropriate
-                if ($component instanceof \Filament\Forms\Components\DatePicker) {
+                if ($component instanceof DatePicker) {
                     $component->displayFormat('Y-m-d');
-                } elseif ($component instanceof \Filament\Forms\Components\DateTimePicker) {
+                } elseif ($component instanceof DateTimePicker) {
                     $component->displayFormat('Y-m-d H:i:s');
-                } elseif ($component instanceof \Filament\Forms\Components\TimePicker) {
+                } elseif ($component instanceof TimePicker) {
                     $component->displayFormat('H:i:s');
                 }
 
@@ -276,34 +282,34 @@ trait HandlesModelInstance
                     // If state is a string but should be a Carbon instance
                     if (is_string($state) && ! empty($state)) {
                         try {
-                            if ($component instanceof \Filament\Forms\Components\DatePicker) {
-                                $carbon = \Carbon\Carbon::parse($state)->startOfDay();
+                            if ($component instanceof DatePicker) {
+                                $carbon = Carbon::parse($state)->startOfDay();
                                 $component->state($carbon);
-                            } elseif ($component instanceof \Filament\Forms\Components\DateTimePicker) {
-                                $carbon = \Carbon\Carbon::parse($state);
+                            } elseif ($component instanceof DateTimePicker) {
+                                $carbon = Carbon::parse($state);
                                 $component->state($carbon);
-                            } elseif ($component instanceof \Filament\Forms\Components\TimePicker) {
-                                $carbon = \Carbon\Carbon::parse($state);
+                            } elseif ($component instanceof TimePicker) {
+                                $carbon = Carbon::parse($state);
                                 $component->state($carbon);
                             }
                         } catch (Exception $e) {
                             // Set default values for invalid dates
-                            if ($component instanceof \Filament\Forms\Components\DatePicker) {
+                            if ($component instanceof DatePicker) {
                                 $component->state(now()->startOfDay());
-                            } elseif ($component instanceof \Filament\Forms\Components\DateTimePicker) {
+                            } elseif ($component instanceof DateTimePicker) {
                                 $component->state(now());
-                            } elseif ($component instanceof \Filament\Forms\Components\TimePicker) {
+                            } elseif ($component instanceof TimePicker) {
                                 $component->state(now());
                             }
                         }
                     }
                 } else {
                     // Handle null state by setting default values
-                    if ($component instanceof \Filament\Forms\Components\DatePicker) {
+                    if ($component instanceof DatePicker) {
                         $component->state(now()->startOfDay());
-                    } elseif ($component instanceof \Filament\Forms\Components\DateTimePicker) {
+                    } elseif ($component instanceof DateTimePicker) {
                         $component->state(now());
-                    } elseif ($component instanceof \Filament\Forms\Components\TimePicker) {
+                    } elseif ($component instanceof TimePicker) {
                         $component->state(now());
                     }
                 }
@@ -449,7 +455,7 @@ trait HandlesModelInstance
                 // Process value based on field type
                 if ($value !== null) {
                     // Handle arrays (for multiple select)
-                    if (($value instanceof \Carbon\Carbon || $value instanceof DateTime)) {
+                    if (($value instanceof Carbon || $value instanceof DateTime)) {
                         if ($fieldType === 'date') {
                             $value = $value->format('Y-m-d');
                         } elseif ($fieldType === 'datetime') {
@@ -461,7 +467,7 @@ trait HandlesModelInstance
                     // Handle string dates that need formatting
                     elseif (is_string($value) && in_array($fieldType, ['date', 'datetime', 'time'])) {
                         try {
-                            $date = \Carbon\Carbon::parse($value);
+                            $date = Carbon::parse($value);
                             if ($fieldType === 'date') {
                                 $value = $date->format('Y-m-d');
                             } elseif ($fieldType === 'datetime') {

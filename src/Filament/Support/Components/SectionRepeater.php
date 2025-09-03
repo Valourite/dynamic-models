@@ -15,6 +15,9 @@ final class SectionRepeater extends Repeater
             ->collapsible()
             // ->collapsed()
             ->minItems(1)
+            ->addable(true)
+            ->deletable(true)
+            ->reorderable(true)
             ->columnSpanFull()
             ->schema(static::buildSchema())
             ->extraItemActions([

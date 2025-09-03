@@ -4,6 +4,7 @@ namespace Valourite\DynamicModels\Filament\Support\Helpers;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Valourite\DynamicModels\Concerns\CanIncludeBaseFields;
@@ -33,7 +34,7 @@ final class FieldHelper
             ->color('gray')
             ->slideOver()
             ->modalHeading('Configure Field Options')
-            ->form(function (array $arguments, Get $get) {
+            ->schema(function (array $arguments, Get $get) {
                 $state    = $get('Fields');
                 $itemData = $state[$arguments['item']] ?? [];
                 $type     = $itemData['type'] ?? null;
@@ -179,6 +180,25 @@ final class FieldHelper
                 // Merge data with the filtered current item
                 $state[$arguments['item']] = array_merge($currentItem, $data);
                 $component->state($state);
+            });
+    }
+
+    public static function test(): Action
+    {
+        return Action::make('test')
+            ->icon('heroicon-m-cog')
+            ->label('')
+            ->tooltip('Edit base field options')
+            ->color('gray')
+            ->slideOver()
+            ->modalHeading('Configure Field Options')
+            ->schema(function (array $arguments, Get $get) {
+                return [
+                    TextInput::make('name')
+                        ->label('Name')
+                        ->required()
+                        ->live(onBlur: true),
+                ];
             });
     }
 }

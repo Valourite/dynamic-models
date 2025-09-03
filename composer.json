@@ -18,7 +18,7 @@
     "require": {
         "php": "^8.2",
        "laravel/framework": "^12.0",
-       "filament/filament": "^4.0",
+        "filament/filament": "^4.0",
        "spatie/laravel-package-tools": "^1.0"
     },
     "extra": {
@@ -30,6 +30,5 @@
         "branch-alias": {
             "dev-main": "v2.x-dev"
         }
-    },
-    "minimum-stability": "beta"
+    }
 }

@@ -2,6 +2,7 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
+use function Filament\Support\generate_icon_html;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
@@ -53,7 +54,7 @@ trait CanIncludeIcons
         $options = Cache::remember('dynamic-models.heroicon-options', now()->addHours(6), function () {
             return collect(Heroicon::cases())->mapWithKeys(function (Heroicon $heroicon) {
                 $iconName = $heroicon->value;
-                $iconHtml = \Filament\Support\generate_icon_html($heroicon)->toHtml();
+                $iconHtml = generate_icon_html($heroicon)->toHtml();
                 $label    = "<span class='inline-flex items-center'>
                             {$iconHtml}
                             <span class='ml-1'>{$iconName}</span>
