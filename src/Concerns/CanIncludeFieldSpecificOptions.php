@@ -94,28 +94,6 @@ trait CanIncludeFieldSpecificOptions
     }
 
     /**
-     * Get select-specific options.
-     */
-    // public static function getSelectOptions()
-    // {
-    //     return Section::make('Select Options')
-    //         ->columns(2)
-    //         ->collapsible()
-    //         ->collapsed()
-    //         ->schema([
-    //             Toggle::make('searchable')
-    //                 ->label('Searchable')
-    //                 ->helperText('Allow searching through options')
-    //                 ->default(false),
-
-    //             Toggle::make('multiple')
-    //                 ->label('Multiple')
-    //                 ->helperText('Allow multiple selections')
-    //                 ->default(false),
-    //         ]);
-    // }
-
-    /**
      * Get inline display option for radio/checkbox.
      */
     public static function getInlineOption()

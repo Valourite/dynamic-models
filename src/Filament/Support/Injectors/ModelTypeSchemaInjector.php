@@ -41,6 +41,7 @@ final class ModelTypeSchemaInjector
                 ->schema(function (callable $get) {
                     $modelTypeID = $get(ModelType::MODEL_TYPE_ID);
                     if ( ! filled($modelTypeID)) {
+                        logger("An empty array has been returned");
                         return []; // return empty schema if no modelType selected
                     }
 

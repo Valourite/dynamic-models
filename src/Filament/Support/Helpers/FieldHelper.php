@@ -34,6 +34,10 @@ final class FieldHelper
             ->slideOver()
             ->modalHeading('Configure Field Options')
             ->form(function (array $arguments, Get $get) {
+                if ( ! isset($arguments['item'])) {
+                    return [];
+                }
+
                 $state    = $get('Fields');
                 $itemData = $state[$arguments['item']] ?? [];
                 $type     = $itemData['type'] ?? null;
@@ -102,7 +106,7 @@ final class FieldHelper
                 if ($supportsRowsCols) {
                     $fieldSections[] = static::getTextAreaOptions();
                 }
-                
+
                 // Add radio/checkbox options for inline display
                 if ($supportsInline) {
                     $fieldSections[] = static::getInlineOption()
@@ -124,15 +128,26 @@ final class FieldHelper
                     $fieldSections[] = static::getFileUploadOptions();
                 }
 
+                // dd($fieldSections);
+
                 return array_values(array_filter($fieldSections));
             })
             ->fillForm(function (array $arguments, Get $get) {
+                if ( ! isset($arguments['item'])) {
+                    return [];
+                }
+
                 $state = $get('Fields');
 
                 return $state[$arguments['item']] ?? [];
             })
             ->action(function (array $data, array $arguments, Repeater $component) {
-                $state       = $component->getState();
+                $state = $component->getState();
+
+                if ( ! isset($arguments['item']) || ! isset($state[$arguments['item']])) {
+                    return;
+                }
+
                 $currentItem = $state[$arguments['item']] ?? [];
                 $currentType = $currentItem['type'] ?? null;
                 $lastType    = $currentItem['last_type'] ?? null;

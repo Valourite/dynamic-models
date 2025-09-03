@@ -111,7 +111,8 @@ final class FieldRenderer
             'datetime' => fn ($id) => DateTimePicker::make($id)
                 ->native(false)
                 ->seconds(true)
-                ->displayFormat('Y-m-d H:i:s'),
+                ->closeOnDateSelection(),
+                // ->displayFormat('Y-m-d H:i:s'),
             'file' => fn ($id) => FileUpload::make($id)
                 ->disk('public')
                 ->directory('dynamic-models/uploads')

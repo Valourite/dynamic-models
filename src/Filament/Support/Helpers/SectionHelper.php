@@ -31,6 +31,10 @@ final class SectionHelper
             ->slideOver()
             ->modalHeading('Configure Section Options')
             ->form(function (array $arguments, Get $get) {
+                if ( ! isset($arguments['item'])) {
+                    return [];
+                }
+
                 $state    = $get(ModelType::MODEL_TYPE_SCHEMA);
                 $itemData = $state[$arguments['item']] ?? [];
 
@@ -51,12 +55,21 @@ final class SectionHelper
                 ]));
             })
             ->fillForm(function (array $arguments, Get $get) {
+                if ( ! isset($arguments['item'])) {
+                    return [];
+                }
+
                 $state = $get(ModelType::MODEL_TYPE_SCHEMA);
 
                 return $state[$arguments['item']] ?? [];
             })
             ->action(function (array $data, array $arguments, Repeater $component) {
-                $state                     = $component->getState();
+                $state = $component->getState();
+
+                if ( ! isset($arguments['item']) || ! isset($state[$arguments['item']])) {
+                    return;
+                }
+
                 $state[$arguments['item']] = array_merge($state[$arguments['item']], $data);
                 $component->state($state);
             });

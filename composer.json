@@ -12,7 +12,8 @@
     "autoload": {
         "psr-4": {
             "Valourite\\DynamicModels\\": "src/",
-            "Valourite\\DynamicModels\\Database\\Factories\\": "database/factories/"
+            "Valourite\\DynamicModels\\Database\\Factories\\": "database/factories/",
+            "Valourite\\DynamicModels\\Database\\Seeders\\": "database/seeders/"
         }
     },
     "require": {
