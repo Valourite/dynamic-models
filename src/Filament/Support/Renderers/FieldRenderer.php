@@ -101,22 +101,10 @@ final class FieldRenderer
             'select'   => fn ($id) => Select::make($id),
             'radio'    => fn ($id) => Radio::make($id),
             'checkbox' => fn ($id) => Checkbox::make($id),
-            'date'     => fn ($id) => DatePicker::make($id)
-                ->native(false)
-                ->displayFormat('Y-m-d')
-                ->closeOnDateSelection(),
-            'time' => fn ($id) => TimePicker::make($id)
-                ->native(false)
-                ->seconds(true),
-            'datetime' => fn ($id) => DateTimePicker::make($id)
-                ->native(false)
-                ->seconds(true)
-                ->closeOnDateSelection(),
-                // ->displayFormat('Y-m-d H:i:s'),
-            'file' => fn ($id) => FileUpload::make($id)
-                ->disk('public')
-                ->directory('dynamic-models/uploads')
-                ->visibility('public'),
+            'date'     => fn ($id) => DatePicker::make($id),
+            'time'     => fn ($id) => TimePicker::make($id),
+            'datetime' => fn ($id) => DateTimePicker::make($id),
+            // 'file'  => fn($id) => FileUpload::make($id), // TODO: implement
             'default' => fn ($id) => TextInput::make($id),
         ];
     }

@@ -19,6 +19,5 @@ trait BelongsToModelInstance
         return $this->belongsTo(ModelInstance::class, ModelInstance::MODEL_INSTANCE_ID);
     }
 
-    //NOTE: we can add any other functionality or scopes in here as
-    //this trait is specific to the model instance value model only
+    //TODO: we can add any other functionality or scopes in here as this trait is specific to the model instance value model only
 }
