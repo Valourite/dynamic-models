@@ -11,7 +11,8 @@ final class CreateModelType extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        // dd($data);
+        // Process data if needed
+        dd($data);
         return $data;
     }
 }

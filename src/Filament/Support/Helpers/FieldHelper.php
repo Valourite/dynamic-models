@@ -4,7 +4,6 @@ namespace Valourite\DynamicModels\Filament\Support\Helpers;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Valourite\DynamicModels\Concerns\CanIncludeBaseFields;
@@ -37,7 +36,7 @@ final class FieldHelper
             ->schema(function (array $arguments, Get $get) {
                 $state    = $get('Fields');
                 $itemData = $state[$arguments['item']] ?? [];
-                $type     = $itemData['type'] ?? null;
+                $type = $itemData['type'] ?? null;
 
                 // Get common options for all field types
                 $commonOptions = [
@@ -56,8 +55,6 @@ final class FieldHelper
                 $supportsOptions      = FieldRenderer::supportsFeature($type, 'options');
                 $supportsDateFormat   = FieldRenderer::supportsFeature($type, 'date_format');
                 $supportsFileUpload   = FieldRenderer::supportsFeature($type, 'file_upload');
-                $supportsSearchable   = FieldRenderer::supportsFeature($type, 'searchable');
-                $supportsMultiple     = FieldRenderer::supportsFeature($type, 'multiple');
                 $supportsInline       = FieldRenderer::supportsFeature($type, 'inline');
                 $supportsMinMaxValue  = FieldRenderer::supportsFeature($type, 'min_value');
                 $supportsStep         = FieldRenderer::supportsFeature($type, 'step');
@@ -103,7 +100,7 @@ final class FieldHelper
                 if ($supportsRowsCols) {
                     $fieldSections[] = static::getTextAreaOptions();
                 }
-                
+
                 // Add radio/checkbox options for inline display
                 if ($supportsInline) {
                     $fieldSections[] = static::getInlineOption()
@@ -133,6 +130,7 @@ final class FieldHelper
                 return $state[$arguments['item']] ?? [];
             })
             ->action(function (array $data, array $arguments, Repeater $component) {
+                logger('Inside action');
                 $state       = $component->getState();
                 $currentItem = $state[$arguments['item']] ?? [];
                 $currentType = $currentItem['type'] ?? null;
@@ -179,26 +177,8 @@ final class FieldHelper
 
                 // Merge data with the filtered current item
                 $state[$arguments['item']] = array_merge($currentItem, $data);
-                $component->state($state);
-            });
-    }
 
-    public static function test(): Action
-    {
-        return Action::make('test')
-            ->icon('heroicon-m-cog')
-            ->label('')
-            ->tooltip('Edit base field options')
-            ->color('gray')
-            ->slideOver()
-            ->modalHeading('Configure Field Options')
-            ->schema(function (array $arguments, Get $get) {
-                return [
-                    TextInput::make('name')
-                        ->label('Name')
-                        ->required()
-                        ->live(onBlur: true),
-                ];
+                $component->state($state);
             });
     }
 }

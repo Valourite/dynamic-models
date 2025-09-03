@@ -34,57 +34,21 @@ final class ModelTypeSchemaGenerator
         $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
         $modelTypeSchema = $modelType->model_type_schema ?? [];
 
-        // Log the entire schema for debugging
-        logger('Processing model type schema: ' . json_encode($modelTypeSchema));
-
         $components = [];
 
-        foreach ($modelTypeSchema as $sectionIndex => $section) {
+        foreach ($modelTypeSchema as $section) {
             $fields = [];
-            logger("Processing section {$sectionIndex}: " . ($section['title'] ?? 'Unnamed'));
 
-            foreach ($section['Fields'] ?? [] as $fieldIndex => $field) {
+            foreach ($section['Fields'] ?? [] as $field) {
                 $fieldID = $field['custom_id'] ?? null;
                 $type    = $field['type'] ?? 'text';
 
-                logger("Processing field {$fieldIndex} with ID {$fieldID} of type {$type}");
-
                 if ( ! $fieldID) {
-                    logger('Skipping field with no custom_id');
                     continue;
                 }
 
                 // Create the component with all field options
                 $component = FieldRenderer::render($type, $fieldID, $field);
-
-                // Debug the field and component
-                logger("Generated form component for field: {$fieldID}, type: {$type}, hidden: " .
-                       (isset($field['hidden']) && $field['hidden'] ? 'true' : 'false'));
-
-                // Set default state for required select fields to prevent validation errors
-                if ($type === 'select' && isset($field['required']) && $field['required']
-                    && $component instanceof Select) {
-                    // Get the first option as default value if options exist
-                    if ( ! empty($field['options']) && is_array($field['options']) && count($field['options']) > 0) {
-                        $firstOption = $field['options'][0] ?? null;
-                        if ($firstOption && isset($firstOption['value'])) {
-                            $defaultValue = $firstOption['value'];
-
-                            // If multiple select, make it an array
-                            if (isset($field['multiple']) && $field['multiple']) {
-                                $defaultValue = [$defaultValue];
-                            }
-
-                            $component->default($defaultValue);
-                            logger("Set default value for required select field {$fieldID}: " . json_encode($defaultValue));
-                        }
-                    }
-                }
-
-                // Handle afterStateHydrated for retrieving values
-                $component->afterStateHydrated(
-                    fn (Component $component, $state) => static::hydrateResponseState($component, $fieldID)
-                );
 
                 $fields[] = $component;
             }
@@ -322,35 +286,30 @@ final class ModelTypeSchemaGenerator
 
         // Debug log for hydration
         $componentClass = get_class($component);
-        logger("Hydrating {$fieldID} of type {$type} with value: " . json_encode($value) . " to component type: {$componentClass}");
 
         // Skip if there's no value to hydrate
         if ($value === null) {
             // For date/time fields, provide a default value to prevent validation errors
             if ($component instanceof DatePicker) {
                 $value = now()->startOfDay();
-                logger("Setting default date for empty field {$fieldID}");
                 $component->state($value);
 
                 return;
             }
             if ($component instanceof DateTimePicker) {
                 $value = now();
-                logger("Setting default datetime for empty field {$fieldID}");
                 $component->state($value);
 
                 return;
             }
             if ($component instanceof TimePicker) {
                 $value = now();
-                logger("Setting default time for empty field {$fieldID}");
                 $component->state($value);
 
                 return;
             }
             if ($component instanceof Select && $component->isMultiple()) {
                 $value = [];
-                logger("Setting empty array for empty multiple select field {$fieldID}");
                 $component->state($value);
 
                 return;
@@ -369,15 +328,12 @@ final class ModelTypeSchemaGenerator
                 try {
                     $decodedValue = json_decode($value, true);
                     if (is_array($decodedValue)) {
-                        logger("Decoded JSON array for multiple select {$fieldID}: " . json_encode($decodedValue));
                         $value = $decodedValue;
                     } else {
                         // Invalid JSON, use empty array
                         $value = [];
-                        logger("Invalid JSON for multiple select {$fieldID}, using empty array");
                     }
                 } catch (Exception $e) {
-                    logger("Failed to decode JSON for {$fieldID}: {$e->getMessage()}");
                     $value = [];
                 }
             }
@@ -389,7 +345,6 @@ final class ModelTypeSchemaGenerator
                 } else {
                     $value = [$value];
                 }
-                logger("Converted non-array value to array for multiple select {$fieldID}: " . json_encode($value));
             }
         }
 
@@ -403,13 +358,10 @@ final class ModelTypeSchemaGenerator
                     } else {
                         $date = Carbon::parse($value)->startOfDay();
                     }
-                    logger("Converted string date to Carbon for {$fieldID}");
                     $value = $date;
                 } catch (Exception $e) {
-                    logger("Failed to parse date for {$fieldID}: {$e->getMessage()}");
                     // Use current date as fallback
                     $value = now()->startOfDay();
-                    logger("Using current date as fallback for {$fieldID}");
                 }
             } elseif ($component instanceof DateTimePicker) {
                 try {
@@ -420,13 +372,10 @@ final class ModelTypeSchemaGenerator
                         // Fall back to flexible parsing
                         $date = Carbon::parse($value);
                     }
-                    logger("Converted string datetime to Carbon for {$fieldID}");
                     $value = $date;
                 } catch (Exception $e) {
-                    logger("Failed to parse datetime for {$fieldID}: {$e->getMessage()}");
                     // Use current datetime as fallback
                     $value = now();
-                    logger("Using current datetime as fallback for {$fieldID}");
                 }
             } elseif ($component instanceof TimePicker) {
                 try {
@@ -437,19 +386,15 @@ final class ModelTypeSchemaGenerator
                     } else {
                         $time = Carbon::parse($value);
                     }
-                    logger("Converted string time to Carbon for {$fieldID}");
                     $value = $time;
                 } catch (Exception $e) {
-                    logger("Failed to parse time for {$fieldID}: {$e->getMessage()}");
                     // Use current time as fallback
                     $value = now();
-                    logger("Using current time as fallback for {$fieldID}");
                 }
             }
         }
 
         // Set the component state with the processed value
         $component->state($value);
-        logger("Final hydrated state for {$fieldID}: " . (is_object($value) ? get_class($value) : json_encode($value)));
     }
 }
