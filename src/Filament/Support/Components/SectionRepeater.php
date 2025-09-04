@@ -38,10 +38,10 @@ final class SectionRepeater extends Repeater
 
             //Add hidden fields
             //TODO: This is nasty, we need to implement it better
-            SectionHelper::getHiddenField('helper_text'),
-            SectionHelper::getHiddenField('column_span_full'),
-            SectionHelper::getHiddenField('column_count'),
-            SectionHelper::getHiddenField('is_collapsible'),
+            // SectionHelper::getHiddenField('helper_text'),
+            // SectionHelper::getHiddenField('column_span_full'),
+            // SectionHelper::getHiddenField('column_count'),
+            // SectionHelper::getHiddenField('is_collapsible'),
         ];
     }
 }

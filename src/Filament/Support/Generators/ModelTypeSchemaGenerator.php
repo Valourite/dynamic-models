@@ -292,24 +292,28 @@ final class ModelTypeSchemaGenerator
             // For date/time fields, provide a default value to prevent validation errors
             if ($component instanceof DatePicker) {
                 $value = now()->startOfDay();
+                logger("Setting default date for empty field {$fieldID}");
                 $component->state($value);
 
                 return;
             }
             if ($component instanceof DateTimePicker) {
                 $value = now();
+                logger("Setting default datetime for empty field {$fieldID}");
                 $component->state($value);
 
                 return;
             }
             if ($component instanceof TimePicker) {
                 $value = now();
+                logger("Setting default time for empty field {$fieldID}");
                 $component->state($value);
 
                 return;
             }
             if ($component instanceof Select && $component->isMultiple()) {
                 $value = [];
+                logger("Setting empty array for empty multiple select field {$fieldID}");
                 $component->state($value);
 
                 return;
@@ -328,12 +332,15 @@ final class ModelTypeSchemaGenerator
                 try {
                     $decodedValue = json_decode($value, true);
                     if (is_array($decodedValue)) {
+                        logger("Decoded JSON array for multiple select {$fieldID}: " . json_encode($decodedValue));
                         $value = $decodedValue;
                     } else {
                         // Invalid JSON, use empty array
                         $value = [];
+                        logger("Invalid JSON for multiple select {$fieldID}, using empty array");
                     }
                 } catch (Exception $e) {
+                    logger("Failed to decode JSON for {$fieldID}: {$e->getMessage()}");
                     $value = [];
                 }
             }
@@ -345,6 +352,7 @@ final class ModelTypeSchemaGenerator
                 } else {
                     $value = [$value];
                 }
+                logger("Converted non-array value to array for multiple select {$fieldID}: " . json_encode($value));
             }
         }
 
@@ -358,10 +366,13 @@ final class ModelTypeSchemaGenerator
                     } else {
                         $date = Carbon::parse($value)->startOfDay();
                     }
+                    logger("Converted string date to Carbon for {$fieldID}");
                     $value = $date;
                 } catch (Exception $e) {
+                    logger("Failed to parse date for {$fieldID}: {$e->getMessage()}");
                     // Use current date as fallback
                     $value = now()->startOfDay();
+                    logger("Using current date as fallback for {$fieldID}");
                 }
             } elseif ($component instanceof DateTimePicker) {
                 try {
@@ -372,10 +383,12 @@ final class ModelTypeSchemaGenerator
                         // Fall back to flexible parsing
                         $date = Carbon::parse($value);
                     }
+                    logger("Converted string datetime to Carbon for {$fieldID}");
                     $value = $date;
                 } catch (Exception $e) {
                     // Use current datetime as fallback
                     $value = now();
+                    logger("Using current datetime as fallback for {$fieldID}");
                 }
             } elseif ($component instanceof TimePicker) {
                 try {
@@ -386,15 +399,18 @@ final class ModelTypeSchemaGenerator
                     } else {
                         $time = Carbon::parse($value);
                     }
+                    logger("Converted string time to Carbon for {$fieldID}");
                     $value = $time;
                 } catch (Exception $e) {
                     // Use current time as fallback
                     $value = now();
+                    logger("Using current time as fallback for {$fieldID}");
                 }
             }
         }
 
         // Set the component state with the processed value
         $component->state($value);
+        logger("Final hydrated state for {$fieldID}: " . (is_object($value) ? get_class($value) : json_encode($value)));
     }
 }
