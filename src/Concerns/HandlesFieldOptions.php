@@ -145,20 +145,12 @@ trait HandlesFieldOptions
         }
 
         // Radio specific options
-        if ($type === 'radio' && isset($options['inline']) && $options['inline'] && method_exists($component, 'inline')) {
-            $component->inline();
-        }
-
-        // Checkbox specific options
-        if ($type === 'checkbox') {
+        if ($type === 'radio' || $type === 'checkbox') {
             if (isset($options['inline']) && $options['inline'] && method_exists($component, 'inline')) {
-                $component->inline();
-            }
-            if (isset($options['true_value']) && method_exists($component, 'trueValue')) {
-                $component->trueValue($options['true_value']);
-            }
-            if (isset($options['false_value']) && method_exists($component, 'falseValue')) {
-                $component->falseValue($options['false_value']);
+                $component->inline(true);
+            } else {
+                //by default inline is true
+                $component->inline(false);
             }
         }
 

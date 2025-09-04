@@ -101,17 +101,30 @@ final class FieldRenderer
             'select'   => fn ($id) => Select::make($id),
             'radio'    => fn ($id) => Radio::make($id),
             'checkbox' => fn ($id) => Checkbox::make($id),
+
+            /**
+             * --- ISSUE ---
+             * DatePicker when set native to false causes the form to throw a validation error
+             * this only occurs when we import the datePicker from a class into the form - dynamic building
+             * a datePicker that is set on the form will work when native
+             * 
+             * this results in the format not taking effect.
+             */
             'date'     => fn ($id) => DatePicker::make($id)
-                ->native(false)
-                ->displayFormat('Y-m-d')
+                ->native(true)
+                // ->displayFormat('Y-m-d')
+                // ->format('Y-m-d') //ensure a default format is set
                 ->closeOnDateSelection(),
             'time' => fn ($id) => TimePicker::make($id)
-                ->native(false)
+                ->native(true)
+                ->format('H:i:s') //ensure a default format is set
                 ->seconds(true),
             'datetime' => fn ($id) => DateTimePicker::make($id)
-                ->native(false)
-                ->seconds(true)
-                ->displayFormat('Y-m-d H:i:s'),
+                ->native(true)
+                ->format('Y-m-d H:i:s') //ensure a default format is set
+                ->displayFormat('Y-m-d H:i:s')
+                ->seconds(true),
+                
             'file' => fn ($id) => FileUpload::make($id)
                 ->disk('public')
                 ->directory('dynamic-models/uploads')

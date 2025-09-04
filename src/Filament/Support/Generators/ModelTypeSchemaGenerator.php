@@ -52,28 +52,49 @@ final class ModelTypeSchemaGenerator
 
                 // Add afterStateHydrated hook to set the value from modelInstanceValues when in edit mode
                 $component->afterStateHydrated(function ($state, $component) use ($fieldID, $type) {
-                    $record = $component->getContainer()->getParentComponent()->getLivewire()?->record ?? null;
-                    
-                    if (!$record || !method_exists($record, 'modelInstance') || !$record->modelInstance) {
+                    // Resolve Livewire and record robustly across containers
+                    $livewire = $component->getLivewire()
+                        ?? ($component->getContainer()->getLivewire() ?? ($component->getContainer()->getParentComponent()?->getLivewire() ?? null));
+                    $record = $livewire
+                        ? (method_exists($livewire, 'getRecord') ? $livewire->getRecord() : ($livewire->record ?? null))
+                        : null;
+
+                    if (! $record || ! method_exists($record, 'modelInstance') || ! $record->modelInstance) {
                         return;
                     }
-                    
+
                     $instanceValues = $record->modelInstance->modelInstanceValues->pluck('value', 'field_id');
                     $value = $instanceValues[$fieldID] ?? null;
-                    
-                    if ($value !== null) {                        
-                        // Handle date fields
-                        //TODO: Check if date is formatted correctly
-                        if (in_array($type, ['date', 'datetime', 'time']) && is_string($value)) {
+
+                    if ($value === null) {
+                        return;
+                    }
+
+                    // For native inputs, normalize to strings in HTML-expected formats
+                    if (in_array($type, ['date', 'datetime', 'time'], true)) {
+                        if ($value instanceof \Carbon\CarbonInterface || $value instanceof \DateTimeInterface) {
+                            $value = match ($type) {
+                                'date' => $value->format('Y-m-d'),
+                                'datetime' => $value->format('Y-m-d H:i:s'),
+                                'time' => $value->format('H:i:s'),
+                                default => (string) $value,
+                            };
+                        } elseif (is_string($value)) {
                             try {
-                                $value = \Carbon\Carbon::parse($value);
-                            } catch (\Exception $e) {
-                                // Keep as string if parsing fails
+                                $dt = \Carbon\Carbon::parse($value);
+                                $value = match ($type) {
+                                    'date' => $dt->format('Y-m-d'),
+                                    'datetime' => $dt->format('Y-m-d H:i:s'),
+                                    'time' => $dt->format('H:i:s'),
+                                    default => $value,
+                                };
+                            } catch (\Throwable) {
+                                // leave as-is if parsing fails
                             }
                         }
-                        
-                        $component->state($value);
                     }
+
+                    $component->state($value);
                 });
 
                 $fields[] = $component;
