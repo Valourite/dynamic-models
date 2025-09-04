@@ -173,6 +173,24 @@ trait CanIncludeFieldSpecificOptions
             ->collapsible()
             ->collapsed()
             ->schema([
+                TextInput::make('disk')
+                    ->label('Storage Disk')
+                    ->helperText('Filesystem disk to store files (e.g., public, s3)')
+                    ->default('public'),
+
+                TextInput::make('directory')
+                    ->label('Directory')
+                    ->helperText('Directory relative to disk root')
+                    ->default('dynamic-models/uploads'),
+
+                Select::make('visibility')
+                    ->label('Visibility')
+                    ->options([
+                        'public' => 'Public',
+                        'private' => 'Private',
+                    ])
+                    ->default('public'),
+
                 TextInput::make('max_file_size')
                     ->label('Maximum Size (MB)')
                     ->helperText('Maximum file size in megabytes')

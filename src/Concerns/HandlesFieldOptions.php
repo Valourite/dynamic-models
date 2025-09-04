@@ -180,6 +180,20 @@ trait HandlesFieldOptions
             if (isset($options['max_files']) && method_exists($component, 'maxFiles')) {
                 $component->maxFiles($options['max_files']);
             }
+            // Apply storage settings with sensible defaults
+            $disk = $options['disk'] ?? config('dynamic-models.uploads.disk');
+            $dir  = $options['directory'] ?? config('dynamic-models.uploads.directory');
+            $vis  = $options['visibility'] ?? config('dynamic-models.uploads.visibility');
+
+            if ($disk && method_exists($component, 'disk')) {
+                $component->disk($disk);
+            }
+            if ($dir && method_exists($component, 'directory')) {
+                $component->directory($dir);
+            }
+            if ($vis && method_exists($component, 'visibility')) {
+                $component->visibility($vis);
+            }
             if (isset($options['multiple']) && $options['multiple'] && method_exists($component, 'multiple')) {
                 $component->multiple();
             }
@@ -216,8 +230,9 @@ trait HandlesFieldOptions
             'max_file_size',
             'accepted_file_types',
             'max_files',
-            'true_value',
-            'false_value',
+            'visibility',
+            'directory',
+            'disk',
             'last_type',
         ];
 

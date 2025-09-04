@@ -1,3 +1,4 @@
 ✔ When modelTypes are created, we get an error on the model_type_description value being a string and not a ?array @done(25-09-04 10:28)
 ☐ Convert the string of acceptable file types to a multi select enum
 ☐ Use spaite media for the model that gets created, store trait inside handlesModelInstance, allow user to specify where to store media
+☐ Files uploaded to private visibility do not go to private

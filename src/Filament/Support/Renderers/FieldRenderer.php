@@ -25,6 +25,7 @@ final class FieldRenderer
 
     public static function render(string $type, ?string $fieldID = null, array $options = []): Component
     {
+        //This does not help with caching
         $type = mb_strtolower($type);
 
         if (empty(static::$renderMap)) {
@@ -124,11 +125,10 @@ final class FieldRenderer
                 ->format('Y-m-d H:i:s') //ensure a default format is set
                 ->displayFormat('Y-m-d H:i:s')
                 ->seconds(true),
-                
+
             'file' => fn ($id) => FileUpload::make($id)
-                ->disk('public')
-                ->directory('dynamic-models/uploads')
-                ->visibility('public'),
+                ->imageEditor()
+                ->visible(fn ($context) => $context === 'create'), //allow files to be uploaded on create only
             'default' => fn ($id) => TextInput::make($id),
         ];
     }

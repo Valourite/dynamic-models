@@ -34,54 +34,6 @@ trait HandlesModelInstance
     public function beforeValidate()
     {
         // dd($this->data, $this->form);
-        // Process form data before validation
-        if ($this->form) {
-            // Process date fields to ensure they have values
-            $this->processDateFields();
-        }
-    }
-
-    /**
-     * Process date fields to ensure they are properly formatted before validation.
-     */
-    protected function processDateFields(): void
-    {
-        // Skip if we don't have a form
-        if (!$this->form) {
-            return;
-        }
-
-        $components = $this->form->getFlatComponents();
-
-        foreach ($components as $component) {
-
-            // Skip if component isn't a date/time field
-            if (!($component instanceof DatePicker || $component instanceof DateTimePicker || $component instanceof TimePicker)) {
-                continue;
-            }
-
-            $key = $component->getName();
-            $value = $this->data[$key] ?? null;
-
-            // Skip if already has a value
-            if (!empty($value)) {
-                continue;
-            }
-
-            // // Provide a default value
-            // $now = now();
-            
-            // if ($component instanceof DatePicker) {
-            //     $this->data[$key] = $now->format('Y-m-d');
-            //     $component->state($now);
-            // } elseif ($component instanceof DateTimePicker) {
-            //     $this->data[$key] = $now->format('Y-m-d H:i:s');
-            //     $component->state($now);
-            // } elseif ($component instanceof TimePicker) {
-            //     $this->data[$key] = $now->format('H:i:s');
-            //     $component->state($now);
-            // }
-        }
     }
 
     protected function afterSave(): void
@@ -138,92 +90,20 @@ trait HandlesModelInstance
                     continue;
                 }
 
-                // Process value based on field type
-                if ($value !== null) {
-                    // Handle arrays (for multiple select)
-                    if (is_array($value)) {
-                        // Convert to JSON for storage
-                        $value = json_encode($value);
-                    }
-                    // Handle date/time objects
-                    elseif (($value instanceof Carbon || $value instanceof DateTime)) {
-                        if ($fieldType === 'date') {
-                            $value = $value->format('Y-m-d');
-                        } elseif ($fieldType === 'datetime') {
-                            $value = $value->format('Y-m-d H:i:s');
-                        } elseif ($fieldType === 'time') {
-                            $value = $value->format('H:i:s');
-                        }
-                    }
-                    // Handle string dates that need formatting
-                    elseif (is_string($value) && in_array($fieldType, ['date', 'datetime', 'time'])) {
-                        try {
-                            $date = Carbon::parse($value);
-                            if ($fieldType === 'date') {
-                                $value = $date->format('Y-m-d');
-                            } elseif ($fieldType === 'datetime') {
-                                $value = $date->format('Y-m-d H:i:s');
-                            } elseif ($fieldType === 'time') {
-                                $value = $date->format('H:i:s');
-                            }
-                        } catch (Exception $e) {
-                            // Use current date/time as fallback for empty/invalid dates
-                            if ($fieldType === 'date') {
-                                $value = now()->format('Y-m-d');
-                            } elseif ($fieldType === 'datetime') {
-                                $value = now()->format('Y-m-d H:i:s');
-                            } elseif ($fieldType === 'time') {
-                                $value = now()->format('H:i:s');
-                            }
-                        }
-                    }
-                } else {
-                    // For date fields, use current date if value is null
-                    if (in_array($fieldType, ['date', 'datetime', 'time'])) {
-                        // Use current date/time as fallback for null dates
-                        if ($fieldType === 'date') {
-                            $value = now()->format('Y-m-d');
-                        } elseif ($fieldType === 'datetime') {
-                            $value = now()->format('Y-m-d H:i:s');
-                        } elseif ($fieldType === 'time') {
-                            $value = now()->format('H:i:s');
-                        }
-                    }
+                // Normalize value for storage
+                if (is_array($value)) {
+                    // multiple select/file uploads
+                    $value = json_encode($value);
                 }
-                //         try {
-                //             $date = Carbon::parse($value);
-                //             if ($fieldType === 'date') {
-                //                 $value = $date->format('Y-m-d');
-                //             } elseif ($fieldType === 'datetime') {
-                //                 $value = $date->format('Y-m-d H:i:s');
-                //             } elseif ($fieldType === 'time') {
-                //                 $value = $date->format('H:i:s');
-                //             }
-                //         } catch (Exception $e) {
-
-                //             // Use current date/time as fallback for empty/invalid dates
-                //             if ($fieldType === 'date') {
-                //                 $value = now()->format('Y-m-d');
-                //             } elseif ($fieldType === 'datetime') {
-                //                 $value = now()->format('Y-m-d H:i:s');
-                //             } elseif ($fieldType === 'time') {
-                //                 $value = now()->format('H:i:s');
-                //             }
-                //         }
-                //     }
-                // } else {
-                //     // Handle null values for date fields
-                //     if (in_array($fieldType, ['date', 'datetime', 'time'])) {
-                //         // Use current date/time as fallback for null dates
-                //         if ($fieldType === 'date') {
-                //             $value = now()->format('Y-m-d');
-                //         } elseif ($fieldType === 'datetime') {
-                //             $value = now()->format('Y-m-d H:i:s');
-                //         } elseif ($fieldType === 'time') {
-                //             $value = now()->format('H:i:s');
-                //         }
-                //     }
-                // }
+                // Normalize date/time values to strings
+                elseif ($value instanceof Carbon || $value instanceof DateTime) {
+                    $value = match ($fieldType) {
+                        'date' => $value->format('Y-m-d'),
+                        'datetime' => $value->format('Y-m-d H:i:s'),
+                        'time' => $value->format('H:i:s'),
+                        default => (string) $value,
+                    };
+                }
 
                 // Prepare the value for storage
                 $values[] = [

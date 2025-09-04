@@ -2,6 +2,7 @@
 
 namespace Valourite\DynamicModels\Filament\Support\Generators;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Carbon\Carbon;
 use Filament\Forms\Components\DatePicker;
@@ -20,7 +21,7 @@ use Valourite\DynamicModels\Models\ModelType;
 
 final class ModelTypeSchemaGenerator
 {
-    private static array $componentCache = [];
+    protected bool $shouldRender = false;
 
     /**
      * Generates the form schema that can be appended to the models form.
@@ -29,7 +30,7 @@ final class ModelTypeSchemaGenerator
      *
      * @return array
      */
-    public static function formSchema(int|ModelType $modelType): array
+    public static function formSchema(int|ModelType $modelType, string $context): array
     {
         $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
         $modelTypeSchema = $modelType->model_type_schema ?? [];
@@ -49,6 +50,11 @@ final class ModelTypeSchemaGenerator
 
                 // Create the component with all field options
                 $component = FieldRenderer::render($type, $fieldID, $field);
+
+                //continue if fileUpload and context is edit
+                if($component instanceof FileUpload && $context === 'edit'){
+                    continue;
+                }
 
                 // Add afterStateHydrated hook to set the value from modelInstanceValues when in edit mode
                 $component->afterStateHydrated(function ($state, $component) use ($fieldID, $type) {
@@ -100,24 +106,24 @@ final class ModelTypeSchemaGenerator
                 $fields[] = $component;
             }
 
-            if ( ! empty($fields)) {
+            if (!empty($fields)) {
                 $sectionTitle     = $section['title'] ?? 'Section';
                 $sectionComponent = Section::make($sectionTitle)
                     ->schema($fields);
 
-                if ( ! empty($section['helper_text'])) {
+                if (!empty($section['helper_text'])) {
                     $sectionComponent->description($section['helper_text']);
                 }
 
-                if ( ! empty($section['column_count'])) {
+                if (!empty($section['column_count'])) {
                     $sectionComponent->columns((int) $section['column_count']);
                 }
 
-                if ( ! empty($section['is_collapsible'])) {
+                if (!empty($section['is_collapsible'])) {
                     $sectionComponent->collapsible();
                 }
 
-                if ( ! empty($section['column_span_full'])) {
+                if (!empty($section['column_span_full'])) {
                     $sectionComponent->columnSpanFull();
                 }
 
@@ -305,14 +311,6 @@ final class ModelTypeSchemaGenerator
     private static function hasMethod(Component $component, string $method): bool
     {
         return method_exists($component, $method);
-    }
-
-    private static function getRenderedFieldComponent(string $type, string $fieldID): Component
-    {
-        //This might not work
-        $cacheKey = "{$type}:{$fieldID}";
-
-        return static::$componentCache[$cacheKey] ??= FieldRenderer::render($type, $fieldID);
     }
 
     private static function hydrateResponseState(Component $component, string $fieldID): void
