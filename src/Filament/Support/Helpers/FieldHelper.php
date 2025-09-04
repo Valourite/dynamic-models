@@ -4,11 +4,8 @@ namespace Valourite\DynamicModels\Filament\Support\Helpers;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Valourite\DynamicModels\Concerns\CanIncludeBaseFields;
-use Valourite\DynamicModels\Concerns\CanIncludeExtraOptions;
 use Valourite\DynamicModels\Concerns\CanIncludeFieldSpecificOptions;
 use Valourite\DynamicModels\Concerns\CanIncludeIcons;
 use Valourite\DynamicModels\Concerns\CanIncludePrefixSuffixText;
@@ -20,7 +17,6 @@ use Valourite\DynamicModels\Filament\Support\Renderers\FieldRenderer;
 final class FieldHelper
 {
     use CanIncludeBaseFields;
-    use CanIncludeExtraOptions;
     use CanIncludeFieldSpecificOptions;
     use CanIncludeIcons;
     use CanIncludePrefixSuffixText;
