@@ -24,8 +24,6 @@ final class EditModelType extends EditRecord
     {
         $record = $this->getRecord();
 
-        // dd($data);
-
         $recordForm = $record->model_type_schema;
         $dataForm   = $data['model_type_schema'];
 

@@ -38,14 +38,14 @@ final class ModelTypeSchemaInjector
 
             //The gorup that generates the model type schema based on the selected model type
             Group::make()
-                ->schema(function (callable $get) {
+                ->schema(function (callable $get, $context) {
                     $modelTypeID = $get(ModelType::MODEL_TYPE_ID);
                     if ( ! filled($modelTypeID)) {
                         logger("An empty array has been returned");
                         return []; // return empty schema if no modelType selected
                     }
 
-                    return ModelTypeSchemaGenerator::formSchema($modelTypeID);
+                    return ModelTypeSchemaGenerator::formSchema($modelTypeID, $context);
                 })
                 ->visible(fn (callable $get) => filled($get(ModelType::MODEL_TYPE_ID)))
                 ->columnSpanFull(),

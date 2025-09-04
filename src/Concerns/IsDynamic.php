@@ -2,6 +2,9 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Valourite\DynamicModels\Models\ModelInstance;
 use Valourite\DynamicModels\Models\ModelInstanceValue;
 use Valourite\DynamicModels\Models\ModelType;
@@ -11,7 +14,7 @@ trait IsDynamic
     /**
      * Returns the model instance that is linked to this model.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphOne
+     * @return MorphOne
      */
     public function modelInstance()
     {
@@ -21,9 +24,9 @@ trait IsDynamic
     /**
      * Returns the model type this model uses through the model instance.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasOneThrough
+     * @return HasOneThrough
      */
-    public function modelType(): \Illuminate\Database\Eloquent\Relations\HasOneThrough
+    public function modelType(): HasOneThrough
     {
         return $this->hasOneThrough(
             ModelType::class,
@@ -39,7 +42,7 @@ trait IsDynamic
      * Returns all the model instance values this model has
      * Essentially returning the values that this model set on creation with a type.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     * @return HasManyThrough
      */
     public function modelInstanceValues()
     {

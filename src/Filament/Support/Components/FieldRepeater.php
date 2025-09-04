@@ -2,6 +2,7 @@
 
 namespace Valourite\DynamicModels\Filament\Support\Components;
 
+
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -17,6 +18,10 @@ final class FieldRepeater extends Repeater
         return parent::make($name)
             ->label('Model Field')
             ->grid(2)
+            ->minItems(1)
+            ->addable(true)
+            ->deletable(true)
+            ->reorderable(true)
             ->columnSpanFull()
             ->schema(static::buildSchema())
             ->extraItemActions([

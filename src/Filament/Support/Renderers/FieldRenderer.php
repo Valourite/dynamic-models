@@ -25,6 +25,7 @@ final class FieldRenderer
 
     public static function render(string $type, ?string $fieldID = null, array $options = []): Component
     {
+        //This does not help with caching
         $type = mb_strtolower($type);
 
         if (empty(static::$renderMap)) {
@@ -101,10 +102,40 @@ final class FieldRenderer
             'select'   => fn ($id) => Select::make($id),
             'radio'    => fn ($id) => Radio::make($id),
             'checkbox' => fn ($id) => Checkbox::make($id),
+<<<<<<< HEAD
             'date'     => fn ($id) => DatePicker::make($id),
             'time'     => fn ($id) => TimePicker::make($id),
             'datetime' => fn ($id) => DateTimePicker::make($id),
             // 'file'  => fn($id) => FileUpload::make($id), // TODO: implement
+=======
+
+            /**
+             * --- ISSUE ---
+             * DatePicker when set native to false causes the form to throw a validation error
+             * this only occurs when we import the datePicker from a class into the form - dynamic building
+             * a datePicker that is set on the form will work when native
+             * 
+             * this results in the format not taking effect.
+             */
+            'date'     => fn ($id) => DatePicker::make($id)
+                ->native(true)
+                // ->displayFormat('Y-m-d')
+                // ->format('Y-m-d') //ensure a default format is set
+                ->closeOnDateSelection(),
+            'time' => fn ($id) => TimePicker::make($id)
+                ->native(true)
+                ->format('H:i:s') //ensure a default format is set
+                ->seconds(true),
+            'datetime' => fn ($id) => DateTimePicker::make($id)
+                ->native(true)
+                ->format('Y-m-d H:i:s') //ensure a default format is set
+                ->displayFormat('Y-m-d H:i:s')
+                ->seconds(true),
+
+            'file' => fn ($id) => FileUpload::make($id)
+                ->imageEditor()
+                ->visible(fn ($context) => $context === 'create'), //allow files to be uploaded on create only
+>>>>>>> tmp
             'default' => fn ($id) => TextInput::make($id),
         ];
     }

@@ -15,6 +15,9 @@ final class SectionRepeater extends Repeater
             ->collapsible()
             // ->collapsed()
             ->minItems(1)
+            ->addable(true)
+            ->deletable(true)
+            ->reorderable(true)
             ->columnSpanFull()
             ->schema(static::buildSchema())
             ->extraItemActions([
@@ -32,13 +35,6 @@ final class SectionRepeater extends Repeater
             FieldRepeater::make('Fields'),
 
             SectionHelper::getCustomID('section'),
-
-            //Add hidden fields
-            //TODO: This is nasty, we need to implement it better
-            SectionHelper::getHiddenField('helper_text'),
-            SectionHelper::getHiddenField('column_span_full'),
-            SectionHelper::getHiddenField('column_count'),
-            SectionHelper::getHiddenField('is_collapsible'),
         ];
     }
 }

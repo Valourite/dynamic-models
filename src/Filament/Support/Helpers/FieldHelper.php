@@ -4,10 +4,8 @@ namespace Valourite\DynamicModels\Filament\Support\Helpers;
 
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
-use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Utilities\Get;
 use Valourite\DynamicModels\Concerns\CanIncludeBaseFields;
-use Valourite\DynamicModels\Concerns\CanIncludeExtraOptions;
 use Valourite\DynamicModels\Concerns\CanIncludeFieldSpecificOptions;
 use Valourite\DynamicModels\Concerns\CanIncludeIcons;
 use Valourite\DynamicModels\Concerns\CanIncludePrefixSuffixText;
@@ -19,7 +17,6 @@ use Valourite\DynamicModels\Filament\Support\Renderers\FieldRenderer;
 final class FieldHelper
 {
     use CanIncludeBaseFields;
-    use CanIncludeExtraOptions;
     use CanIncludeFieldSpecificOptions;
     use CanIncludeIcons;
     use CanIncludePrefixSuffixText;
@@ -31,8 +28,8 @@ final class FieldHelper
             ->label('')
             ->tooltip('Edit base field options')
             ->color('gray')
-            ->slideOver()
             ->modalHeading('Configure Field Options')
+<<<<<<< HEAD
             ->form(function (array $arguments, Get $get) {
                 if ( ! isset($arguments['item'])) {
                     return [];
@@ -132,15 +129,17 @@ final class FieldHelper
 
                 return array_values(array_filter($fieldSections));
             })
+=======
+>>>>>>> tmp
             ->fillForm(function (array $arguments, Get $get) {
                 if ( ! isset($arguments['item'])) {
                     return [];
                 }
 
                 $state = $get('Fields');
-
                 return $state[$arguments['item']] ?? [];
             })
+<<<<<<< HEAD
             ->action(function (array $data, array $arguments, Repeater $component) {
                 $state = $component->getState();
 
@@ -151,45 +150,60 @@ final class FieldHelper
                 $currentItem = $state[$arguments['item']] ?? [];
                 $currentType = $currentItem['type'] ?? null;
                 $lastType    = $currentItem['last_type'] ?? null;
+=======
+            ->form(function (Get $get, array $arguments, Repeater $component) {
+                $item = $component->getItemState($arguments['item']) ?? [];
+                $type = $item['type'] ?? null;
+>>>>>>> tmp
 
-                // If type has changed, clear type-specific options
-                if ($currentType && $lastType && $currentType !== $lastType) {
-                    // Define common fields that should be preserved
-                    $commonFields = [
-                        'name', 'label', 'type', 'custom_id', 'required', 'helper_text', 'last_type',
-                    ];
+                $sections = [];
 
-                    // Add feature-specific fields based on the new type
-                    $featuresToCheck = [
-                        'prefix'      => ['prefix_text', 'suffix_text'],
-                        'icon'        => ['prefix_icon', 'suffix_icon', 'prefix_icon_color', 'suffix_icon_color'],
-                        'placeholder' => ['placeholder'],
-                        'maxlength'   => ['maxlength'],
-                        'options'     => ['options'],
-                        'searchable'  => ['searchable'],
-                        'multiple'    => ['multiple'],
-                        'inline'      => ['inline'],
-                        'min_value'   => ['min', 'max'],
-                        'step'        => ['step'],
-                        'rows'        => ['rows', 'cols'],
-                        'autosize'    => ['autosize'],
-                        'date_format' => ['min_date', 'max_date', 'display_format'],
-                        'file_upload' => ['max_file_size', 'accepted_file_types', 'max_files', 'disk', 'directory'],
-                    ];
+                // Common
+                $sections[] = static::getRequired()->default($item['required'] ?? false);
+                $sections[] = static::getHelperText()->default($item['helper_text'] ?? '');
 
-                    // Add fields for supported features
-                    foreach ($featuresToCheck as $feature => $fields) {
-                        if (FieldRenderer::supportsFeature($currentType, $feature)) {
-                            $commonFields = array_merge($commonFields, $fields);
-                        }
-                    }
+                /**
+                 * The fieldRenderer helper functions allows
+                 * us to expand for future types
+                 */
 
-                    // Only keep applicable fields for the new type
-                    $currentItem = array_intersect_key($currentItem, array_flip($commonFields));
+                // Feature-driven blocks
+                if (FieldRenderer::supportsFeature($type, 'placeholder')) {
+                    $sections[] = static::getPlaceholderOption()->default($item['placeholder'] ?? '');
+                }
+                if (FieldRenderer::supportsFeature($type, 'maxlength')) {
+                    $sections[] = static::getMaxLengthOption()->default($item['maxlength'] ?? null);
+                }
+                if (FieldRenderer::supportsFeature($type, 'prefix')) {
+                    $sections[] = static::includePrefixSuffixTextOptions();
+                }
+                if (FieldRenderer::supportsFeature($type, 'icon')) {
+                    $sections[] = static::includeIconsOption();
+                }
+                if (FieldRenderer::supportsFeature($type, 'min_value')) {
+                    $sections[] = static::getNumberRangeOptions();
+                }
+                if (FieldRenderer::supportsFeature($type, 'rows')) {
+                    $sections[] = static::getTextAreaOptions();
+                }
+                if (FieldRenderer::supportsFeature($type, 'inline')) {
+                    $sections[] = static::getInlineOption()->default($item['inline'] ?? false);
+                }
+                if (FieldRenderer::supportsFeature($type, 'options')) {
+                    $sections[] = static::getOptionsSection();
+                }
+                if (FieldRenderer::supportsFeature($type, 'date_format')) {
+                    $sections[] = static::getDateOptions();
+                }
+                if (FieldRenderer::supportsFeature($type, 'file_upload')) {
+                    $sections[] = static::getFileUploadOptions();
                 }
 
-                // Update last_type to current type for future comparisons
-                $data['last_type'] = $currentType;
+                return array_values(array_filter($sections));
+            })
+            ->action(function (array $data, array $arguments, Repeater $component) {
+                $state = $component->getState();
+                $currentItem = $state[$arguments['item']] ?? [];
 
                 // Merge data with the filtered current item
                 $state[$arguments['item']] = array_merge($currentItem, $data);

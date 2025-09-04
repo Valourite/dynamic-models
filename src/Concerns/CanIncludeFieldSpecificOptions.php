@@ -9,6 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Valourite\DynamicModels\Filament\Enums\FileOptions;
 
 /**
  * This trait will be used to include field-specific options into the field options form.
@@ -142,20 +143,22 @@ trait CanIncludeFieldSpecificOptions
             ->schema([
                 DatePicker::make('min_date')
                     ->label('Minimum Date')
+                    ->native(false)
                     ->helperText('Earliest selectable date (YYYY-MM-DD)'),
 
                 DatePicker::make('max_date')
                     ->label('Maximum Date')
+                    ->native(false)
                     ->helperText('Latest selectable date (YYYY-MM-DD)'),
 
                 Select::make('display_format')
                     ->label('Display Format')
                     ->helperText('Date format (e.g., Y-m-d)')
                     ->options([
-                        'Y-m-d',
-                        'd-m-Y',
-                        'm/d/Y',
-                        'Y/m/d',
+                        'Y-m-d' => 'Y-m-d',
+                        'd-m-Y' => 'd-m/Y',
+                        'm/d/Y' => 'm/d/Y',
+                        'Y/m/d' => 'Y/m/d',
                     ])
                     ->default('Y-m-d'),
             ]);
@@ -171,16 +174,34 @@ trait CanIncludeFieldSpecificOptions
             ->collapsible()
             ->collapsed()
             ->schema([
+                TextInput::make('disk')
+                    ->label('Storage Disk')
+                    ->helperText('Filesystem disk to store files (e.g., public, s3)')
+                    ->default('public'),
+
+                TextInput::make('directory')
+                    ->label('Directory')
+                    ->helperText('Directory relative to disk root')
+                    ->default('dynamic-models/uploads'),
+
+                Select::make('visibility')
+                    ->label('Visibility')
+                    ->options([
+                        'public' => 'Public',
+                        'private' => 'Private',
+                    ])
+                    ->default('public'),
+
                 TextInput::make('max_file_size')
                     ->label('Maximum Size (MB)')
                     ->helperText('Maximum file size in megabytes')
                     ->numeric()
                     ->default(10), // 10MB
 
-                TextInput::make('accepted_file_types')
+                Select::make('accepted_file_types')
+                    ->multiple()
                     ->label('Accepted File Types')
-                    ->helperText('Comma separated list, e.g.: image/jpeg,image/png')
-                    ->placeholder('image/jpeg,image/png,application/pdf'),
+                    ->options(FileOptions::class),
 
                 Toggle::make('multiple')
                     ->label('Multiple Files')
