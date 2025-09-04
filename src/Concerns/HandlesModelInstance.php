@@ -21,6 +21,8 @@ trait HandlesModelInstance
     {
         $this->dynamicModelRawData = $this->data;
 
+        dd($this->dynamicModelRawData);
+
         // Reject dynamic-models fields
         $this->data = collect($this->data)
             ->reject(
@@ -75,7 +77,6 @@ trait HandlesModelInstance
             foreach ($section['Fields'] ?? [] as $fieldIndex => $field) {
                 $customId  = $field['custom_id'] ?? null;
                 $fieldType = $field['type'] ?? null;
-
 
                 // Get the raw value from the form data
                 $value = $this->dynamicModelRawData[$customId] ?? null;

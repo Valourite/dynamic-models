@@ -9,6 +9,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Schemas\Components\Section;
+use Valourite\DynamicModels\Filament\Enums\FileOptions;
 
 /**
  * This trait will be used to include field-specific options into the field options form.
@@ -197,10 +198,10 @@ trait CanIncludeFieldSpecificOptions
                     ->numeric()
                     ->default(10), // 10MB
 
-                TextInput::make('accepted_file_types')
+                Select::make('accepted_file_types')
+                    ->multiple()
                     ->label('Accepted File Types')
-                    ->helperText('Comma separated list, e.g.: image/jpeg,image/png')
-                    ->placeholder('image/jpeg,image/png,application/pdf'),
+                    ->options(FileOptions::class),
 
                 Toggle::make('multiple')
                     ->label('Multiple Files')

@@ -21,8 +21,6 @@ use Valourite\DynamicModels\Models\ModelType;
 
 final class ModelTypeSchemaGenerator
 {
-    protected bool $shouldRender = false;
-
     /**
      * Generates the form schema that can be appended to the models form.
      *
@@ -87,14 +85,14 @@ final class ModelTypeSchemaGenerator
                             };
                         } elseif (is_string($value)) {
                             try {
-                                $dt = \Carbon\Carbon::parse($value);
+                                $dt = Carbon::parse($value);
                                 $value = match ($type) {
                                     'date' => $dt->format('Y-m-d'),
                                     'datetime' => $dt->format('Y-m-d H:i:s'),
                                     'time' => $dt->format('H:i:s'),
                                     default => $value,
                                 };
-                            } catch (\Throwable) {
+                            } catch (Throwable) {
                                 // leave as-is if parsing fails
                             }
                         }
@@ -134,7 +132,6 @@ final class ModelTypeSchemaGenerator
         return $components;
     }
 
-    //TODO: See about a helper function that can always grab the value based on a fieldID
     /**
      * Generates the infolist schema that can be appended to the models infolist.
      *
@@ -167,15 +164,10 @@ final class ModelTypeSchemaGenerator
                 $value = $instanceData[$fieldId] ?? null;
                 $type  = $field['type'] ?? 'text';
 
-                // Format value based on field type
-                $value = match ($type) {
-                    'boolean', 'checkbox' => $value ? 'Yes' : 'No',
-                    'date'     => static::formatDate($value),
-                    'datetime' => static::formatDateTime($value),
-                    'time'     => static::formatTime($value),
-                    'select'   => static::formatSelectValue($value),
-                    default    => $value,
-                };
+                //if type is file, we skip
+                if($type === 'file') {
+                    continue;
+                }
 
                 // Create a text entry with the formatted value
                 $entry = TextEntry::make($fieldId)
@@ -183,49 +175,41 @@ final class ModelTypeSchemaGenerator
 
                 // Apply different formatters based on field type
                 if ($type === 'date') {
-                    $entry->date();
+                    $format = isset($field['display_format']) ? $field['display_format'] : 'Y-m-d';
+                    $entry->date($format);
                 } elseif ($type === 'datetime') {
-                    $entry->dateTime();
+                    $format = isset($field['display_format']) ? $field['display_format'] : 'Y-m-d H:i:s';
+                    $entry->dateTime($format);
                 } elseif ($type === 'time') {
                     $entry->time();
                 } elseif ($type === 'boolean' || $type === 'checkbox') {
                     $entry->badge();
-                } elseif ($type === 'select' && str_starts_with($value, '[') && str_ends_with($value, ']')) {
-                    // Format select values as bulleted list if it's a JSON array
-                    try {
-                        $decoded = json_decode($value, true);
-                        if (is_array($decoded) && count($decoded) > 1) {
-                            $entry->listWithLineBreaks();
-                        }
-                    } catch (Throwable) {
-                        // Ignore errors and fall back to default
-                    }
                 }
 
                 $fields[] = $entry->state($value ?? '-');
             }
 
-            if ( ! empty($fields)) {
+            if (!empty($fields)) {
                 $sectionComponent = Section::make($sectionTitle)
                     ->schema($fields);
 
                 // Column count
-                if ( ! empty($section['column_count'])) {
+                if (!empty($section['column_count'])) {
                     $sectionComponent->columns((int) $section['column_count']);
                 }
 
                 // Full width
-                if ( ! empty($section['column_span_full'])) {
+                if (!empty($section['column_span_full'])) {
                     $sectionComponent->columnSpanFull();
                 }
 
                 // Collapsible
-                if ( ! empty($section['is_collapsible'])) {
+                if (!empty($section['is_collapsible'])) {
                     $sectionComponent->collapsible();
                 }
 
                 // Description (helper text)
-                if ( ! empty($section['helper_text'])) {
+                if (!empty($section['helper_text'])) {
                     $sectionComponent->description($section['helper_text']);
                 }
 
@@ -234,228 +218,5 @@ final class ModelTypeSchemaGenerator
         }
 
         return $entries;
-    }
-
-    private static function formatDate($value): string
-    {
-        if (empty($value)) {
-            return '-';
-        }
-
-        try {
-            if ($value instanceof Carbon || $value instanceof DateTime) {
-                return $value->format('Y-m-d');
-            }
-
-            return Carbon::parse($value)->format('Y-m-d');
-        } catch (Throwable) {
-            return (string) $value;
-        }
-    }
-
-    private static function formatDateTime($value): string
-    {
-        if (empty($value)) {
-            return '-';
-        }
-
-        try {
-            if ($value instanceof Carbon || $value instanceof DateTime) {
-                return $value->format('Y-m-d H:i:s');
-            }
-
-            return Carbon::parse($value)->format('Y-m-d H:i:s');
-        } catch (Throwable) {
-            return (string) $value;
-        }
-    }
-
-    private static function formatTime($value): string
-    {
-        if (empty($value)) {
-            return '-';
-        }
-
-        try {
-            if ($value instanceof Carbon || $value instanceof DateTime) {
-                return $value->format('H:i:s');
-            }
-
-            return Carbon::parse($value)->format('H:i:s');
-        } catch (Throwable) {
-            return (string) $value;
-        }
-    }
-
-    private static function formatSelectValue($value): string
-    {
-        if (empty($value)) {
-            return '-';
-        }
-
-        // Handle JSON-encoded arrays
-        if (is_string($value) && str_starts_with($value, '[') && str_ends_with($value, ']')) {
-            try {
-                $decoded = json_decode($value, true);
-                if (is_array($decoded)) {
-                    return implode(', ', $decoded);
-                }
-            } catch (Throwable) {
-                // Fall through to default handling
-            }
-        }
-
-        return (string) $value;
-    }
-
-    private static function hasMethod(Component $component, string $method): bool
-    {
-        return method_exists($component, $method);
-    }
-
-    private static function hydrateResponseState(Component $component, string $fieldID): void
-    {
-        $record   = $component->getLivewire()?->record;
-        $instance = $record?->modelInstance;
-
-        // If no record or instance, just return
-        if ( ! $instance) {
-            return;
-        }
-
-        $values = $instance->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
-        $types  = $instance->modelInstanceValues->pluck(ModelInstanceValue::TYPE, ModelInstanceValue::FIELD_ID);
-
-        $value = $values[$fieldID] ?? null;
-        $type  = $types[$fieldID] ?? null;
-
-        // Debug log for hydration
-        $componentClass = get_class($component);
-
-        // Skip if there's no value to hydrate
-        if ($value === null) {
-            // For date/time fields, provide a default value to prevent validation errors
-            if ($component instanceof DatePicker) {
-                $value = now()->startOfDay();
-                logger("Setting default date for empty field {$fieldID}");
-                $component->state($value);
-
-                return;
-            }
-            if ($component instanceof DateTimePicker) {
-                $value = now();
-                logger("Setting default datetime for empty field {$fieldID}");
-                $component->state($value);
-
-                return;
-            }
-            if ($component instanceof TimePicker) {
-                $value = now();
-                logger("Setting default time for empty field {$fieldID}");
-                $component->state($value);
-
-                return;
-            }
-            if ($component instanceof Select && $component->isMultiple()) {
-                $value = [];
-                logger("Setting empty array for empty multiple select field {$fieldID}");
-                $component->state($value);
-
-                return;
-            }
-
-            return;
-        }
-
-        // Handle different field types based on component type and field value
-
-        // Handle Select fields (including multiple select)
-        if ($component instanceof Select) {
-            // Handle multiple select with JSON values
-            if ($component->isMultiple() && is_string($value) &&
-                str_starts_with($value, '[') && str_ends_with($value, ']')) {
-                try {
-                    $decodedValue = json_decode($value, true);
-                    if (is_array($decodedValue)) {
-                        logger("Decoded JSON array for multiple select {$fieldID}: " . json_encode($decodedValue));
-                        $value = $decodedValue;
-                    } else {
-                        // Invalid JSON, use empty array
-                        $value = [];
-                        logger("Invalid JSON for multiple select {$fieldID}, using empty array");
-                    }
-                } catch (Exception $e) {
-                    logger("Failed to decode JSON for {$fieldID}: {$e->getMessage()}");
-                    $value = [];
-                }
-            }
-
-            // Always ensure multiple select has an array value
-            if ($component->isMultiple() && ! is_array($value)) {
-                if (empty($value)) {
-                    $value = [];
-                } else {
-                    $value = [$value];
-                }
-                logger("Converted non-array value to array for multiple select {$fieldID}: " . json_encode($value));
-            }
-        }
-
-        // Handle Date/DateTime/Time fields
-        elseif (is_string($value)) {
-            if ($component instanceof DatePicker) {
-                try {
-                    // Parse as date only (Y-m-d)
-                    if (preg_match('/^\d{4}-\d{2}-\d{2}$/', $value)) {
-                        $date = Carbon::createFromFormat('Y-m-d', $value)->startOfDay();
-                    } else {
-                        $date = Carbon::parse($value)->startOfDay();
-                    }
-                    logger("Converted string date to Carbon for {$fieldID}");
-                    $value = $date;
-                } catch (Exception $e) {
-                    logger("Failed to parse date for {$fieldID}: {$e->getMessage()}");
-                    // Use current date as fallback
-                    $value = now()->startOfDay();
-                    logger("Using current date as fallback for {$fieldID}");
-                }
-            } elseif ($component instanceof DateTimePicker) {
-                try {
-                    // Try specific format first
-                    if (preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $value)) {
-                        $date = Carbon::createFromFormat('Y-m-d H:i:s', $value);
-                    } else {
-                        // Fall back to flexible parsing
-                        $date = Carbon::parse($value);
-                    }
-                    logger("Converted string datetime to Carbon for {$fieldID}");
-                    $value = $date;
-                } catch (Exception $e) {
-                    // Use current datetime as fallback
-                    $value = now();
-                    logger("Using current datetime as fallback for {$fieldID}");
-                }
-            } elseif ($component instanceof TimePicker) {
-                try {
-                    // Parse time format
-                    if (preg_match('/^\d{2}:\d{2}(:\d{2})?$/', $value)) {
-                        $format = mb_strlen($value) === 8 ? 'H:i:s' : 'H:i';
-                        $time   = Carbon::createFromFormat($format, $value);
-                    } else {
-                        $time = Carbon::parse($value);
-                    }
-                    logger("Converted string time to Carbon for {$fieldID}");
-                    $value = $time;
-                } catch (Exception $e) {
-                    // Use current time as fallback
-                    $value = now();
-                    logger("Using current time as fallback for {$fieldID}");
-                }
-            }
-        }
-
-        // Set the component state with the processed value
-        $component->state($value);
-        logger("Final hydrated state for {$fieldID}: " . (is_object($value) ? get_class($value) : json_encode($value)));
     }
 }
