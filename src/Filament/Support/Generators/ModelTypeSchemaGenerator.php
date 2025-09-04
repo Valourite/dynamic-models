@@ -50,6 +50,32 @@ final class ModelTypeSchemaGenerator
                 // Create the component with all field options
                 $component = FieldRenderer::render($type, $fieldID, $field);
 
+                // Add afterStateHydrated hook to set the value from modelInstanceValues when in edit mode
+                $component->afterStateHydrated(function ($state, $component) use ($fieldID, $type) {
+                    $record = $component->getContainer()->getParentComponent()->getLivewire()?->record ?? null;
+                    
+                    if (!$record || !method_exists($record, 'modelInstance') || !$record->modelInstance) {
+                        return;
+                    }
+                    
+                    $instanceValues = $record->modelInstance->modelInstanceValues->pluck('value', 'field_id');
+                    $value = $instanceValues[$fieldID] ?? null;
+                    
+                    if ($value !== null) {                        
+                        // Handle date fields
+                        //TODO: Check if date is formatted correctly
+                        if (in_array($type, ['date', 'datetime', 'time']) && is_string($value)) {
+                            try {
+                                $value = \Carbon\Carbon::parse($value);
+                            } catch (\Exception $e) {
+                                // Keep as string if parsing fails
+                            }
+                        }
+                        
+                        $component->state($value);
+                    }
+                });
+
                 $fields[] = $component;
             }
 

@@ -94,28 +94,6 @@ trait CanIncludeFieldSpecificOptions
     }
 
     /**
-     * Get select-specific options.
-     */
-    // public static function getSelectOptions()
-    // {
-    //     return Section::make('Select Options')
-    //         ->columns(2)
-    //         ->collapsible()
-    //         ->collapsed()
-    //         ->schema([
-    //             Toggle::make('searchable')
-    //                 ->label('Searchable')
-    //                 ->helperText('Allow searching through options')
-    //                 ->default(false),
-
-    //             Toggle::make('multiple')
-    //                 ->label('Multiple')
-    //                 ->helperText('Allow multiple selections')
-    //                 ->default(false),
-    //         ]);
-    // }
-
-    /**
      * Get inline display option for radio/checkbox.
      */
     public static function getInlineOption()
@@ -164,20 +142,22 @@ trait CanIncludeFieldSpecificOptions
             ->schema([
                 DatePicker::make('min_date')
                     ->label('Minimum Date')
+                    ->native(false)
                     ->helperText('Earliest selectable date (YYYY-MM-DD)'),
 
                 DatePicker::make('max_date')
                     ->label('Maximum Date')
+                    ->native(false)
                     ->helperText('Latest selectable date (YYYY-MM-DD)'),
 
                 Select::make('display_format')
                     ->label('Display Format')
                     ->helperText('Date format (e.g., Y-m-d)')
                     ->options([
-                        'Y-m-d',
-                        'd-m-Y',
-                        'm/d/Y',
-                        'Y/m/d',
+                        'Y-m-d' => 'Y-m-d',
+                        'd-m-Y' => 'd-m/Y',
+                        'm/d/Y' => 'm/d/Y',
+                        'Y/m/d' => 'Y/m/d',
                     ])
                     ->default('Y-m-d'),
             ]);

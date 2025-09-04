@@ -175,16 +175,6 @@ trait HandlesFieldOptions
             }
         }
 
-        // Time-specific options
-        if ($type === 'time') {
-            if (isset($options['min_time']) && method_exists($component, 'minTime')) {
-                $component->minTime($options['min_time']);
-            }
-            if (isset($options['max_time']) && method_exists($component, 'maxTime')) {
-                $component->maxTime($options['max_time']);
-            }
-        }
-
         // File upload specific options
         if ($type === 'file') {
             if (isset($options['max_file_size']) && method_exists($component, 'maxSize')) {
@@ -234,8 +224,6 @@ trait HandlesFieldOptions
             'max_file_size',
             'accepted_file_types',
             'max_files',
-            'min_time',
-            'max_time',
             'true_value',
             'false_value',
             'last_type',
