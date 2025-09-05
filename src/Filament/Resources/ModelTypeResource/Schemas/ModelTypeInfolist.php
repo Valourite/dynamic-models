@@ -36,7 +36,7 @@ final class ModelTypeInfolist
                     $record = $get('record');
 
                     // we return the schema and allow the user to play with it -> enter values, they wont be saved
-                    return ModelTypeSchemaGenerator::formSchema($record, $context);
+                    return ModelTypeSchemaGenerator::formSchema($record, 'display');
                 })
                 ->visible(fn (Get $get) => filled($get('record')?->model_type_schema))
                 ->columnSpanFull()

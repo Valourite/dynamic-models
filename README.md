@@ -235,12 +235,11 @@ No tests have been written as of yet
 * [x] Response storage system
 * [x] Filament v4 integration
 * [x] Extract model instance json data in seperate key:value table
+* [x] Add more functionality to sections (non-collapsible)
+* [x] File upload field support
+* [x] More customization on fields and sections
 * [ ] Allow user to style infolist and form sections
-* [ ] Add more functionality to sections (non-collapsible)
-* [ ] File upload field support
-* [ ] More customization on fields and sections
 * [ ] Implementing prefix and suffix icons with colour handling
-* [ ] Multi-page form wizard
 * [ ] Advanced validation rules
 
 ---

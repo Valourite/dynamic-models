@@ -127,8 +127,8 @@ final class FieldRenderer
                 ->seconds(true),
 
             'file' => fn ($id) => FileUpload::make($id)
-                ->imageEditor()
-                ->visible(fn ($context) => $context === 'create'), //allow files to be uploaded on create only
+                ->imageEditor(),
+                // ->visible(fn ($context) => $context === 'create'), //allow files to be uploaded on create only
             'default' => fn ($id) => TextInput::make($id),
         ];
     }
