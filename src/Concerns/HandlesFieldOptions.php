@@ -36,25 +36,19 @@ trait HandlesFieldOptions
         }
 
         // Apply prefix/suffix text
-        if (
-            method_exists($component, 'prefix') && !empty($options['prefix_text']) &&
-            self::supportsFeature($type, 'prefix')
-        ) {
+        if (method_exists($component, 'prefix') && !empty($options['prefix_text']) &&
+            self::supportsFeature($type, 'prefix')) {
             $component->prefix($options['prefix_text']);
         }
 
-        if (
-            method_exists($component, 'suffix') && !empty($options['suffix_text']) &&
-            self::supportsFeature($type, 'suffix')
-        ) {
+        if (method_exists($component, 'suffix') && !empty($options['suffix_text']) &&
+            self::supportsFeature($type, 'suffix')) {
             $component->suffix($options['suffix_text']);
         }
 
         // Apply prefix/suffix icons if the component supports them
-        if (
-            method_exists($component, 'prefixIcon') && !empty($options['prefix_icon']) &&
-            self::supportsFeature($type, 'icon')
-        ) {
+        if (method_exists($component, 'prefixIcon') && !empty($options['prefix_icon']) &&
+            self::supportsFeature($type, 'icon')) {
             $icon = $options['prefix_icon'];
             if (is_string($icon) && !str_contains($icon, '\\')) {
                 $icon = Heroicon::from($icon);
@@ -66,10 +60,8 @@ trait HandlesFieldOptions
             }
         }
 
-        if (
-            method_exists($component, 'suffixIcon') && !empty($options['suffix_icon']) &&
-            self::supportsFeature($type, 'icon')
-        ) {
+        if (method_exists($component, 'suffixIcon') && !empty($options['suffix_icon']) &&
+            self::supportsFeature($type, 'icon')) {
             $icon = $options['suffix_icon'];
             if (is_string($icon) && !str_contains($icon, '\\')) {
                 $icon = Heroicon::from($icon);
@@ -216,7 +208,6 @@ trait HandlesFieldOptions
             'max',
             'step',
             'options',
-            'searchable',
             'multiple',
             'inline',
             'min_date',
@@ -233,7 +224,6 @@ trait HandlesFieldOptions
             'visibility',
             'directory',
             'disk',
-            'last_type',
         ];
 
         foreach ($options as $key => $value) {

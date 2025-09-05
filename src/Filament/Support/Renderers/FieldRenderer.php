@@ -102,12 +102,6 @@ final class FieldRenderer
             'select'   => fn ($id) => Select::make($id),
             'radio'    => fn ($id) => Radio::make($id),
             'checkbox' => fn ($id) => Checkbox::make($id),
-<<<<<<< HEAD
-            'date'     => fn ($id) => DatePicker::make($id),
-            'time'     => fn ($id) => TimePicker::make($id),
-            'datetime' => fn ($id) => DateTimePicker::make($id),
-            // 'file'  => fn($id) => FileUpload::make($id), // TODO: implement
-=======
 
             /**
              * --- ISSUE ---
@@ -135,7 +129,6 @@ final class FieldRenderer
             'file' => fn ($id) => FileUpload::make($id)
                 ->imageEditor()
                 ->visible(fn ($context) => $context === 'create'), //allow files to be uploaded on create only
->>>>>>> tmp
             'default' => fn ($id) => TextInput::make($id),
         ];
     }

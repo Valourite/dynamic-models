@@ -21,8 +21,6 @@ trait HandlesModelInstance
     {
         $this->dynamicModelRawData = $this->data;
 
-        dd($this->dynamicModelRawData);
-
         // Reject dynamic-models fields
         $this->data = collect($this->data)
             ->reject(
@@ -31,11 +29,6 @@ trait HandlesModelInstance
             )
             ->all();
 
-    }
-
-    public function beforeValidate()
-    {
-        // dd($this->data, $this->form);
     }
 
     protected function afterSave(): void
@@ -96,6 +89,7 @@ trait HandlesModelInstance
                     // multiple select/file uploads
                     $value = json_encode($value);
                 }
+                
                 // Normalize date/time values to strings
                 elseif ($value instanceof Carbon || $value instanceof DateTime) {
                     $value = match ($fieldType) {

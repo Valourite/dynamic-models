@@ -31,19 +31,11 @@ final class SectionHelper
             ->color('gray')
             ->slideOver()
             ->modalHeading('Configure Section Options')
-<<<<<<< HEAD
-            ->form(function (array $arguments, Get $get) {
-                if ( ! isset($arguments['item'])) {
-                    return [];
-                }
-
-=======
             ->fillForm(function (array $arguments, Get $get) {
                 $state = $get(ModelType::MODEL_TYPE_SCHEMA);
                 return $state[$arguments['item']] ?? [];
             })
             ->form(function (Get $get, array $arguments) {
->>>>>>> tmp
                 $state    = $get(ModelType::MODEL_TYPE_SCHEMA);
                 $itemData = $state[$arguments['item']] ?? [];
 
@@ -54,32 +46,12 @@ final class SectionHelper
                     static::getColumnCount()->default($itemData['column_count'] ?? 1),
                 ]));
             })
-<<<<<<< HEAD
-            ->fillForm(function (array $arguments, Get $get) {
-                if ( ! isset($arguments['item'])) {
-                    return [];
-                }
-
-                $state = $get(ModelType::MODEL_TYPE_SCHEMA);
-
-                return $state[$arguments['item']] ?? [];
-            })
-            ->action(function (array $data, array $arguments, Repeater $component) {
-                $state = $component->getState();
-
-                if ( ! isset($arguments['item']) || ! isset($state[$arguments['item']])) {
-                    return;
-                }
-
-                $state[$arguments['item']] = array_merge($state[$arguments['item']], $data);
-=======
             ->action(function (array $data, array $arguments, Repeater $component) {
                 $state = $component->getState();
                 $currentItem = $state[$arguments['item']] ?? [];
 
                 // Merge data with the filtered current item
                 $state[$arguments['item']] = array_merge($currentItem, $data);
->>>>>>> tmp
                 $component->state($state);
             });
     }

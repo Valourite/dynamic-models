@@ -2,12 +2,19 @@
 
 namespace Valourite\DynamicModels\Filament\Support\Generators;
 
-use Carbon\Carbon;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Select;
+use Carbon\Carbon;
+use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\TimePicker;
+use DateTime;
+use Exception;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
-use Illuminate\Support\Str;
 use Throwable;
+use Valourite\DynamicModels\Filament\Support\Renderers\FieldRenderer;
 use Valourite\DynamicModels\Models\ModelInstance;
 use Valourite\DynamicModels\Models\ModelInstanceValue;
 use Valourite\DynamicModels\Models\ModelType;
@@ -23,11 +30,9 @@ final class ModelTypeSchemaGenerator
      */
     public static function formSchema(int|ModelType $modelType, string $context): array
     {
-        $modelType = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
+        $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
         $modelTypeSchema = $modelType->model_type_schema ?? [];
 
-
-        //stores the components to be returned
         $components = [];
 
         foreach ($modelTypeSchema as $section) {
@@ -40,6 +45,9 @@ final class ModelTypeSchemaGenerator
                 if ( ! $fieldID) {
                     continue;
                 }
+
+                // Create the component with all field options
+                $component = FieldRenderer::render($type, $fieldID, $field);
 
                 //continue if fileUpload and context is edit
                 if($component instanceof FileUpload && $context === 'edit'){
@@ -117,22 +125,9 @@ final class ModelTypeSchemaGenerator
                     $sectionComponent->columnSpanFull();
                 }
 
-                // Apply column count
-                if ( ! empty($section['column_count'])) {
-                    $sectionComponent->columns((int) $section['column_count']);
-                }
-
-                // Add description (helper text)
-                if ( ! empty($section['helper_text'])) {
-                    $sectionComponent->description($section['helper_text']);
-                }
-
                 $components[] = $sectionComponent;
             }
         }
-
-        //TODO: maybe we can cache this schema for future use
-        //If it gets changed, we can clear the cache and recache it
 
         return $components;
     }
@@ -151,25 +146,23 @@ final class ModelTypeSchemaGenerator
             : ModelInstance::findOrFail($modelInstance);
 
         $modelTypeSchema = $modelInstance->modelType?->model_type_schema ?? [];
-        $instanceData = $modelInstance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
-
-        // dd($instanceData, $modelTypeSchema, $modelInstance);
+        $instanceData    = $modelInstance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
 
         $entries = [];
 
         foreach ($modelTypeSchema as $section) {
             $sectionTitle = $section['title'] ?? 'Section';
-            $fields = [];
+            $fields       = [];
 
             foreach ($section['Fields'] ?? [] as $field) {
                 $fieldId = $field['custom_id'] ?? null;
-                if (!$fieldId) {
+                if ( ! $fieldId) {
                     continue;
                 }
 
                 $label = $field['label'] ?? $field['name'] ?? 'Field';
                 $value = $instanceData[$fieldId] ?? null;
-                $type = $field['type'] ?? 'text';
+                $type  = $field['type'] ?? 'text';
 
                 //if type is file, we skip
                 if($type === 'file') {
@@ -193,7 +186,7 @@ final class ModelTypeSchemaGenerator
                     $entry->badge();
                 }
 
-                $fields[] = $entry->state($value ?? 'infolistSchema - returned');
+                $fields[] = $entry->state($value ?? '-');
             }
 
             if (!empty($fields)) {
