@@ -34,9 +34,6 @@ final class ModelTypeSchemaInjector
                         ])
                         ->toArray();
                 })
-                ->getOptionLabelsUsing(function ($value) {
-                    logger($value);
-                })
                 ->native(false)
                 ->afterStateHydrated(function (?Model $record, Component $component) {
                     $component->state($record?->modelInstance?->model_type_id);
