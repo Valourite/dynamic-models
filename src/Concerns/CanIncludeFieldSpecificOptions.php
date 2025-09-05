@@ -187,7 +187,7 @@ trait CanIncludeFieldSpecificOptions
                 Select::make('visibility')
                     ->label('Visibility')
                     ->options([
-                        'public' => 'Public',
+                        'public'  => 'Public',
                         'private' => 'Private',
                     ])
                     ->default('public'),

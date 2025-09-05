@@ -23,11 +23,11 @@ trait HandlesFieldOptions
     public static function applyFieldOptions(Component $component, string $type, array $options): Component
     {
         // Apply common options first
-        if (!empty($options['helper_text'])) {
+        if ( ! empty($options['helper_text'])) {
             $component->helperText($options['helper_text']);
         }
 
-        if (!empty($options['label'])) {
+        if ( ! empty($options['label'])) {
             $component->label($options['label']);
         }
 
@@ -36,39 +36,39 @@ trait HandlesFieldOptions
         }
 
         // Apply prefix/suffix text
-        if (method_exists($component, 'prefix') && !empty($options['prefix_text']) &&
+        if (method_exists($component, 'prefix') && ! empty($options['prefix_text']) &&
             self::supportsFeature($type, 'prefix')) {
             $component->prefix($options['prefix_text']);
         }
 
-        if (method_exists($component, 'suffix') && !empty($options['suffix_text']) &&
+        if (method_exists($component, 'suffix') && ! empty($options['suffix_text']) &&
             self::supportsFeature($type, 'suffix')) {
             $component->suffix($options['suffix_text']);
         }
 
         // Apply prefix/suffix icons if the component supports them
-        if (method_exists($component, 'prefixIcon') && !empty($options['prefix_icon']) &&
+        if (method_exists($component, 'prefixIcon') && ! empty($options['prefix_icon']) &&
             self::supportsFeature($type, 'icon')) {
             $icon = $options['prefix_icon'];
-            if (is_string($icon) && !str_contains($icon, '\\')) {
+            if (is_string($icon) && ! str_contains($icon, '\\')) {
                 $icon = Heroicon::from($icon);
             }
             $component->prefixIcon($icon);
 
-            if (!empty($options['prefix_icon_color'])) {
+            if ( ! empty($options['prefix_icon_color'])) {
                 $component->prefixIconColor($options['prefix_icon_color']);
             }
         }
 
-        if (method_exists($component, 'suffixIcon') && !empty($options['suffix_icon']) &&
+        if (method_exists($component, 'suffixIcon') && ! empty($options['suffix_icon']) &&
             self::supportsFeature($type, 'icon')) {
             $icon = $options['suffix_icon'];
-            if (is_string($icon) && !str_contains($icon, '\\')) {
+            if (is_string($icon) && ! str_contains($icon, '\\')) {
                 $icon = Heroicon::from($icon);
             }
             $component->suffixIcon($icon);
 
-            if (!empty($options['suffix_icon_color'])) {
+            if ( ! empty($options['suffix_icon_color'])) {
                 $component->suffixIconColor($options['suffix_icon_color']);
             }
         }
@@ -113,7 +113,7 @@ trait HandlesFieldOptions
         }
 
         // Options for select and radio fields
-        if (self::supportsFeature($type, 'options') && !empty($options['options']) && is_array($options['options'])) {
+        if (self::supportsFeature($type, 'options') && ! empty($options['options']) && is_array($options['options'])) {
             // Format options array if necessary
             if (isset($options['options'][0]) && is_array($options['options'][0])) {
                 $formattedOptions = collect($options['options'])->mapWithKeys(function ($option) {

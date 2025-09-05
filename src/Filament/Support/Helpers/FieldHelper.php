@@ -31,6 +31,7 @@ final class FieldHelper
             ->modalHeading('Configure Field Options')
             ->fillForm(function (array $arguments, Get $get) {
                 $state = $get('Fields');
+
                 return $state[$arguments['item']] ?? [];
             })
             ->form(function (Get $get, array $arguments, Repeater $component) {
@@ -43,7 +44,7 @@ final class FieldHelper
                 $sections[] = static::getRequired()->default($item['required'] ?? false);
                 $sections[] = static::getHelperText()->default($item['helper_text'] ?? '');
 
-                /**
+                /*
                  * The fieldRenderer helper functions allows
                  * us to expand for future types
                  */
@@ -83,7 +84,7 @@ final class FieldHelper
                 return array_values(array_filter($sections));
             })
             ->action(function (array $data, array $arguments, Repeater $component) {
-                $state = $component->getState();
+                $state       = $component->getState();
                 $currentItem = $state[$arguments['item']] ?? [];
 
                 // Merge data with the filtered current item

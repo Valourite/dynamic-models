@@ -2,10 +2,12 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
-use function Filament\Support\generate_icon_html;
 use Filament\Forms\Components\ColorPicker;
 use Filament\Forms\Components\Select;
 use Filament\Schemas\Components\Section;
+
+use function Filament\Support\generate_icon_html;
+
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;

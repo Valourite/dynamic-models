@@ -2,14 +2,9 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
-use Filament\Forms\Components\DatePicker;
-use Filament\Forms\Components\DateTimePicker;
-use Filament\Forms\Components\TimePicker;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\FileUpload;
 use Carbon\Carbon;
 use DateTime;
-use Exception;
+use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Model;
 use Valourite\DynamicModels\Models\ModelInstance;
 use Valourite\DynamicModels\Models\ModelInstanceValue;
@@ -28,7 +23,6 @@ trait HandlesModelInstance
                 str_starts_with($key, 'field-')
             )
             ->all();
-
     }
 
     protected function afterSave(): void
@@ -46,27 +40,25 @@ trait HandlesModelInstance
 
     protected function createOrUpdateModelInstance(): void
     {
-        if (!method_exists($this->record, 'modelInstance') || ! method_exists($this->record, 'modelType')) {
+        if ( ! method_exists($this->record, 'modelInstance') || ! method_exists($this->record, 'modelType')) {
             return;
         }
 
         $modelTypeID = $this->dynamicModelRawData['model_type_id'] ?? null;
-        if (!$modelTypeID) {
+        if ( ! $modelTypeID) {
             return;
         }
 
         $modelType = ModelType::find($modelTypeID);
-        if (!$modelType) {
+        if ( ! $modelType) {
             return;
         }
 
         $modelTypeSchema = $modelType->model_type_schema ?? [];
 
-        $values   = [];
-
+        $values = [];
 
         foreach ($modelTypeSchema as $sectionIndex => $section) {
-
             foreach ($section['Fields'] ?? [] as $fieldIndex => $field) {
                 $customId  = $field['custom_id'] ?? null;
                 $fieldType = $field['type'] ?? null;
@@ -74,13 +66,13 @@ trait HandlesModelInstance
                 // Get the raw value from the form data
                 $value = $this->dynamicModelRawData[$customId] ?? null;
 
-                if (!$field) {
+                if ( ! $field) {
                     continue;
                 }
 
                 // Double check field type from the schema
                 $fieldType = $field['type'] ?? null;
-                if (!$fieldType) {
+                if ( ! $fieldType) {
                     continue;
                 }
 
@@ -89,14 +81,14 @@ trait HandlesModelInstance
                     // multiple select/file uploads
                     $value = json_encode($value);
                 }
-                
+
                 // Normalize date/time values to strings
                 elseif ($value instanceof Carbon || $value instanceof DateTime) {
                     $value = match ($fieldType) {
-                        'date' => $value->format('Y-m-d'),
+                        'date'     => $value->format('Y-m-d'),
                         'datetime' => $value->format('Y-m-d H:i:s'),
-                        'time' => $value->format('H:i:s'),
-                        default => (string) $value,
+                        'time'     => $value->format('H:i:s'),
+                        default    => (string) $value,
                     };
                 }
 

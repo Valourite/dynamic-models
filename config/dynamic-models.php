@@ -56,8 +56,8 @@ return [
      * Default upload settings for file fields when per-field options are not provided.
      */
     'uploads' => [
-        'disk' => 'public',
-        'directory' => 'dynamic-models/uploads',
+        'disk'       => 'public',
+        'directory'  => 'dynamic-models/uploads',
         'visibility' => 'public',
     ],
 ];

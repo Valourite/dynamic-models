@@ -5,7 +5,6 @@ namespace Valourite\DynamicModels\Filament\Support\Helpers;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Schemas\Components\Utilities\Get;
-use Filament\Schemas\Components\Utilities\Set;
 use Valourite\DynamicModels\Concerns\CanIncludeBaseFields;
 use Valourite\DynamicModels\Concerns\CanIncludeHiddenFields;
 use Valourite\DynamicModels\Concerns\CanIncludeIcons;
@@ -33,6 +32,7 @@ final class SectionHelper
             ->modalHeading('Configure Section Options')
             ->fillForm(function (array $arguments, Get $get) {
                 $state = $get(ModelType::MODEL_TYPE_SCHEMA);
+
                 return $state[$arguments['item']] ?? [];
             })
             ->form(function (Get $get, array $arguments) {
@@ -47,7 +47,7 @@ final class SectionHelper
                 ]));
             })
             ->action(function (array $data, array $arguments, Repeater $component) {
-                $state = $component->getState();
+                $state       = $component->getState();
                 $currentItem = $state[$arguments['item']] ?? [];
 
                 // Merge data with the filtered current item
@@ -55,5 +55,4 @@ final class SectionHelper
                 $component->state($state);
             });
     }
-
 }
