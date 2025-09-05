@@ -24,6 +24,8 @@ final class ModelType extends Model
      */
     public const MODEL_TYPE_ID = 'model_type_id';
 
+    public const PARENT_ID = 'parent_id';
+
     public const MODEL_TYPE_NAME = 'model_type_name';
 
     public const MODEL_TYPE_DESCRIPTION = 'model_type_description';
@@ -63,7 +65,7 @@ final class ModelType extends Model
      * =========================.
      */
     protected $casts = [
-        self::CAN_BE_CREATED    => 'boolean',
+        self::CAN_BE_CREATED => 'boolean',
         self::MODEL_TYPE_SCHEMA => 'json',
     ];
 
@@ -73,6 +75,7 @@ final class ModelType extends Model
      * =========================.
      */
     protected $fillable = [
+        self::PARENT_ID,
         self::MODEL_TYPE_NAME,
         self::MODEL_TYPE_DESCRIPTION,
         self::MODEL_TYPE_CONFIRMATION_MESSAGE,
@@ -129,5 +132,26 @@ final class ModelType extends Model
     public function responses()
     {
         return $this->hasMany(ModelInstance::class, self::PRIMARY_KEY);
+    }
+
+    public function parent()
+    {
+        return $this->belongsTo(self::class, self::PARENT_ID);
+    }
+
+    public function children()
+    {
+        return $this->hasMany(self::class, self::PARENT_ID);
+    }
+
+    /**
+     * =========================
+     *    SCOPES
+     * ========================
+     */
+    public function scopeSiblings($query)
+    {
+        return$query->where(self::PARENT_ID, $this->parent_model_type_id)
+                 ->where(self::PRIMARY_KEY, '!=', $this->getKey());
     }
 }

@@ -65,6 +65,8 @@ final class ModelTypeForm
 
                 TextInput::make(ModelType::MODEL_TYPE_VERSION)
                     ->default('1.0.0')
+                    //set to readonly to prevent the user changing versions from the current mask
+                    ->readOnly()
                     ->mask('9.9.9')
                     ->prefix('v')
                     ->maxLength(10)
