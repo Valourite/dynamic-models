@@ -2,6 +2,9 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
+use Carbon\Carbon;
+use DateTime;
+use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Model;
 use Valourite\DynamicModels\Models\ModelInstance;
 use Valourite\DynamicModels\Models\ModelInstanceValue;
@@ -55,20 +58,49 @@ trait HandlesModelInstance
 
         $values = [];
 
-        foreach ($modelTypeSchema as $section) {
-            foreach ($section['Fields'] ?? [] as $field) {
-                $customId = $field['custom_id'] ?? null;
+        foreach ($modelTypeSchema as $sectionIndex => $section) {
+            foreach ($section['Fields'] ?? [] as $fieldIndex => $field) {
+                $customId  = $field['custom_id'] ?? null;
+                $fieldType = $field['type'] ?? null;
 
-                if ($customId && array_key_exists($customId, $this->dynamicModelRawData)) {
-                    $values[] = [
-                        ModelInstanceValue::NAME       => $field['name'],
-                        ModelInstanceValue::FIELD_ID   => $customId,
-                        ModelInstanceValue::VALUE      => $this->dynamicModelRawData[$customId],
-                        ModelInstanceValue::TYPE       => $field['type'],
-                        ModelInstanceValue::CREATED_AT => now(),
-                        ModelInstanceValue::UPDATED_AT => now(),
-                    ];
+                // Get the raw value from the form data
+                $value = $this->dynamicModelRawData[$customId] ?? null;
+
+                if ( ! $field) {
+                    continue;
                 }
+
+                // Double check field type from the schema
+                $fieldType = $field['type'] ?? null;
+                if ( ! $fieldType) {
+                    continue;
+                }
+
+                // Normalize value for storage
+                if (is_array($value)) {
+                    // multiple select/file uploads
+                    $value = json_encode($value);
+                }
+
+                // Normalize date/time values to strings
+                elseif ($value instanceof Carbon || $value instanceof DateTime) {
+                    $value = match ($fieldType) {
+                        'date'     => $value->format('Y-m-d'),
+                        'datetime' => $value->format('Y-m-d H:i:s'),
+                        'time'     => $value->format('H:i:s'),
+                        default    => (string) $value,
+                    };
+                }
+
+                // Prepare the value for storage
+                $values[] = [
+                    ModelInstanceValue::NAME       => $field['name'],
+                    ModelInstanceValue::FIELD_ID   => $customId,
+                    ModelInstanceValue::VALUE      => $value,
+                    ModelInstanceValue::TYPE       => $fieldType,
+                    ModelInstanceValue::CREATED_AT => now(),
+                    ModelInstanceValue::UPDATED_AT => now(),
+                ];
             }
         }
 
@@ -90,7 +122,7 @@ trait HandlesModelInstance
         ModelInstanceValue::upsert(
             $values,
             [ModelInstanceValue::MODEL_INSTANCE_ID, ModelInstanceValue::FIELD_ID], // Unique constraint
-            [ModelInstanceValue::NAME, ModelInstanceValue::VALUE, ModelInstanceValue::TYPE, ModelInstanceValue::UPDATED_AT]     // Columns to update
+            [ModelInstanceValue::NAME, ModelInstanceValue::VALUE, ModelInstanceValue::TYPE, ModelInstanceValue::UPDATED_AT] // Columns to update
         );
     }
 }

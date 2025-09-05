@@ -4,45 +4,37 @@ namespace Valourite\DynamicModels\Filament\Support\Components;
 
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TextInput;
-use Filament\Schemas\Components\Tabs;
-use Filament\Schemas\Components\Tabs\Tab;
-use Valourite\DynamicModels\Filament\Support\Helpers\FieldHelper;
+use Valourite\DynamicModels\Filament\Support\Helpers\SectionHelper;
 
 final class SectionRepeater extends Repeater
 {
     public static function make(?string $name = null): static
     {
-        $component = parent::make($name);
-
-        $component
-            ->label('Section')
+        return parent::make($name)
+            ->label('Model Section')
             ->collapsible()
-            ->collapsed()
+            // ->collapsed()
             ->minItems(1)
-            ->schema([
-                Tabs::make()
-                    ->label('Section')
-                    ->tabs([
-                        Tab::make('Section')
-                            ->label('Section')
-                            ->schema([
-                                TextInput::make('title')
-                                    ->label('Title')
-                                    ->required(),
-
-                                FieldRepeater::make('Fields'),
-                            ]),
-
-                        Tab::make('Options')
-                            ->label('Options')
-                            ->schema([
-                                FieldHelper::select(),
-
-                                FieldHelper::customID('sec'),
-                            ]),
-                    ]),
+            ->addable(true)
+            ->deletable(true)
+            ->reorderable(true)
+            ->columnSpanFull()
+            ->schema(static::buildSchema())
+            ->extraItemActions([
+                SectionHelper::getBaseOptionsModal(),
             ]);
+    }
 
-        return $component;
+    protected static function buildSchema(): array
+    {
+        return [
+            TextInput::make('title')
+                ->label('Title')
+                ->required(),
+
+            FieldRepeater::make('Fields'),
+
+            SectionHelper::getCustomID('section'),
+        ];
     }
 }

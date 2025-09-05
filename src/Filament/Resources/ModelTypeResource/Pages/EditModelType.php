@@ -24,8 +24,6 @@ final class EditModelType extends EditRecord
     {
         $record = $this->getRecord();
 
-        // dd($data);
-
         $recordForm = $record->model_type_schema;
         $dataForm   = $data['model_type_schema'];
 
@@ -37,7 +35,7 @@ final class EditModelType extends EditRecord
 
             $newModelType->fill($data);
 
-            $newModelType->model_type_version              = $this->incrementVersion(
+            $newModelType->model_type_version = $this->incrementVersion(
                 $record->model_type_version,
                 config('dynamic-models.increment_count', '0.0.1')
             );

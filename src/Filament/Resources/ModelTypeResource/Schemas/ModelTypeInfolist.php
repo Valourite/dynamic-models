@@ -32,11 +32,11 @@ final class ModelTypeInfolist
                 ->columns(2),
 
             Section::make('Schema Preview')
-                ->schema(function (Get $get) {
+                ->schema(function (Get $get, $context) {
                     $record = $get('record');
 
                     // we return the schema and allow the user to play with it -> enter values, they wont be saved
-                    return ModelTypeSchemaGenerator::formSchema($record);
+                    return ModelTypeSchemaGenerator::formSchema($record, 'display');
                 })
                 ->visible(fn (Get $get) => filled($get('record')?->model_type_schema))
                 ->columnSpanFull()

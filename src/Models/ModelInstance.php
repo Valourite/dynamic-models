@@ -3,6 +3,8 @@
 namespace Valourite\DynamicModels\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Valourite\DynamicModels\Concerns\BelongsToType;
 
 final class ModelInstance extends Model
@@ -108,11 +110,10 @@ final class ModelInstance extends Model
      *		 RELATIONS
      * =========================
      */
-
     /**
      * Returns the model this response belongs to.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\MorphTo
+     * @return MorphTo
      */
     public function parentModel()
     {
@@ -122,7 +123,7 @@ final class ModelInstance extends Model
     /**
      * Returns the model instance values this model instance has.
      *
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * @return HasMany
      */
     public function modelInstanceValues()
     {

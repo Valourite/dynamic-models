@@ -2,6 +2,9 @@
 
 namespace Valourite\DynamicModels\Filament\Support\Generators;
 
+use Carbon\Carbon;
+use DateTimeInterface;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Component;
 use Filament\Schemas\Components\Section;
@@ -15,16 +18,14 @@ use Valourite\DynamicModels\Models\ModelType;
 
 final class ModelTypeSchemaGenerator
 {
-    private static array $componentCache = [];
-
     /**
      * Generates the form schema that can be appended to the models form.
      *
-     * @param int|\Valourite\DynamicModels\Models\ModelType $modelType
+     * @param int|ModelType $modelType
      *
      * @return array
      */
-    public static function formSchema(int|ModelType $modelType): array
+    public static function formSchema(int|ModelType $modelType, string $context): array
     {
         $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
         $modelTypeSchema = $modelType->model_type_schema ?? [];
@@ -36,59 +37,142 @@ final class ModelTypeSchemaGenerator
 
             foreach ($section['Fields'] ?? [] as $field) {
                 $fieldID = $field['custom_id'] ?? null;
+                $type    = $field['type'] ?? 'text';
+
                 if ( ! $fieldID) {
                     continue;
                 }
 
-                $name       = $field['name'] ?? $fieldID;
-                $label      = $field['label'] ?? Str::title($name);
-                $type       = $field['type'] ?? 'text';
-                $required   = $field['required'] ?? false;
-                $prefixIcon = $field['prefix_icon'] ?? null;
+                //test if type is a file and context is edit
+                if ($type === 'file' && ($context === 'edit' || $context === 'display')) {
+                    $description = $context === 'edit'
+                        ? 'File uploads cannot be changed after creation.'
+                        : 'This field would be used to upload a file.';
 
-                // Cache FieldRenderer result per field key per request
-                $component = static::getRenderedFieldComponent($type, $fieldID);
+                    $icon = $context === 'edit'
+                        ? Heroicon::OutlinedExclamationCircle
+                        : Heroicon::OutlinedQuestionMarkCircle;
 
-                $component
-                    ->label($label)
-                    ->required($required)
-                    ->afterStateHydrated(fn (Component $component, $state) => static::hydrateResponseState($component, $fieldID));
+                    //create component to act as a placeholder file component
+                    $component = Section::make($field['label'] ?? 'File Upload')
+                        ->description($description)
+                        ->icon($icon);
 
-                if ($prefixIcon && static::hasMethod($component, 'prefixIcon')) {
-                    $component->prefixIcon(Heroicon::from($prefixIcon));
+                    //add component to fields and skip rest of loop
+                    $fields[] = $component;
+                    continue;
+                }
 
-                    if (static::hasMethod($component, 'prefixIconColor')) {
-                        $component->prefixIconColor('white');
+                // Create the component with all field options
+                $component = FieldRenderer::render($type, $fieldID, $field);
+
+                // Add afterStateHydrated hook to set the value from modelInstanceValues when in edit mode
+                $component->afterStateHydrated(function ($state, $component) use ($fieldID, $type) {
+                    // Resolve Livewire and record robustly across containers
+                    $livewire = $component->getLivewire()
+                        ?? ($component->getContainer()->getLivewire() ?? ($component->getContainer()->getParentComponent()?->getLivewire() ?? null));
+                    $record = $livewire
+                        ? (method_exists($livewire, 'getRecord') ? $livewire->getRecord() : ($livewire->record ?? null))
+                        : null;
+
+                    if ( ! $record || ! method_exists($record, 'modelInstance') || ! $record->modelInstance) {
+                        return;
                     }
-                }
 
-                if (static::hasMethod($component, 'options') && ! empty($field['options'])) {
-                    $component->options(
-                        collect($field['options'])->mapWithKeys(fn ($opt) => [
-                            $opt['value'] => Str::title(str_replace('_', ' ', $opt['label'])),
-                        ])->toArray()
-                    );
-                }
+                    $instanceValues = $record->modelInstance->modelInstanceValues->pluck('value', 'field_id');
+                    $value          = $instanceValues[$fieldID] ?? null;
+
+                    if ($value === null) {
+                        return;
+                    }
+
+                    // For native inputs, normalize to strings in HTML-expected formats
+                    if (in_array($type, ['date', 'datetime', 'time'], true)) {
+                        if ($value instanceof \Carbon\CarbonInterface || $value instanceof DateTimeInterface) {
+                            $value = match ($type) {
+                                'date'     => $value->format('Y-m-d'),
+                                'datetime' => $value->format('Y-m-d H:i:s'),
+                                'time'     => $value->format('H:i:s'),
+                                default    => (string) $value,
+                            };
+                        } elseif (is_string($value)) {
+                            try {
+                                $dt    = Carbon::parse($value);
+                                $value = match ($type) {
+                                    'date'     => $dt->format('Y-m-d'),
+                                    'datetime' => $dt->format('Y-m-d H:i:s'),
+                                    'time'     => $dt->format('H:i:s'),
+                                    default    => $value,
+                                };
+                            } catch (Throwable) {
+                                // leave as-is if parsing fails
+                            }
+                        }
+                    }
+
+                    $component->state($value);
+                });
 
                 $fields[] = $component;
             }
 
             if ( ! empty($fields)) {
-                $components[] = Section::make($section['title'] ?? 'Section')
-                    ->schema($fields)
-                    ->collapsible();
+                $sectionTitle     = Str::title($section['title']) ?? 'Section';
+                $sectionComponent = Section::make($sectionTitle)
+                    ->schema($fields);
+
+                if ( ! empty($section['helper_text'])) {
+                    $sectionComponent->description($section['helper_text']);
+                }
+
+                if ( ! empty($section['column_count'])) {
+                    $sectionComponent->columns((int) $section['column_count']);
+                }
+
+                if ( ! empty($section['is_collapsible'])) {
+                    $sectionComponent->collapsible();
+                }
+
+                if ( ! empty($section['column_span_full'])) {
+                    $sectionComponent->columnSpanFull();
+                }
+
+                $components[] = $sectionComponent;
+            } else {
+                //section is empty, display a placeholder
+                $sectionComponent = Section::make($section['title'] ?? 'Section')
+                    ->description('Fields defined here have been hidden as they can no longer be edited.')
+                    // ->color('gray')
+                    ->icon('heroicon-o-exclamation-circle')
+                    ->schema([]);
+
+                if ( ! empty($section['helper_text'])) {
+                    $sectionComponent->description($section['helper_text']);
+                }
+
+                if ( ! empty($section['column_count'])) {
+                    $sectionComponent->columns((int) $section['column_count']);
+                }
+
+                if ( ! empty($section['is_collapsible'])) {
+                    $sectionComponent->collapsible();
+                }
+
+                if ( ! empty($section['column_span_full'])) {
+                    $sectionComponent->columnSpanFull();
+                }
+
+                $components[] = $sectionComponent;
             }
         }
 
         return $components;
     }
 
-    //TODO: See about a helper function that can always grab the value based on a fieldID
-
     /**
      * Generates the infolist schema that can be appended to the models infolist.
      *
-     * @param int|\Valourite\DynamicModels\Models\ModelInstance $modelInstance
+     * @param int|ModelInstance $modelInstance
      *
      * @return array
      */
@@ -114,58 +198,109 @@ final class ModelTypeSchemaGenerator
                 }
 
                 $label = $field['label'] ?? $field['name'] ?? 'Field';
-                $value = $instanceData[$fieldId] ?? '-';
+                $value = $instanceData[$fieldId] ?? null;
+                $type  = $field['type'] ?? 'text';
 
-                $value = match ($field['type']) {
-                    'boolean' => $value ? 'Yes' : 'No',
-                    'date'    => static::formatDate($value),
-                    default   => $value,
-                };
+                //if type is file, we skip
+                if ($type === 'file') {
+                    // $value can be JSON or a string — normalize to array.
+                    $items = is_array($value) ? $value : json_decode($value, true);
+                    if ( ! is_array($items)) {
+                        $items = array_filter([$value]);
+                    }
 
-                $fields[] = TextEntry::make($fieldId)
-                    ->label($label)
-                    ->state($value);
+                    $disk       = $field['disk'] ?? config('dynamic-models.uploads.disk', 'public');
+                    $visibility = $field['visibility'] ?? config('dynamic-models.uploads.visibility', 'public');
+                    $directory  = trim($field['directory'] ?? config('dynamic-models.uploads.directory', ''), '/');
+
+                    foreach ($items as $idx => $item) {
+                        // Normalize to string
+                        $item = (string) $item;
+
+                        // If already a full URL (http/https) — use as-is (don’t set disk).
+                        $isUrl = Str::startsWith($item, ['http://', 'https://']);
+
+                        // If it starts with /storage/, also use as-is.
+                        $isPublicLink = Str::startsWith($item, ['/storage/']);
+
+                        // Build a relative storage path: "<directory>/<filename>" without duplicates.
+                        $relative = ltrim($item, '/');
+                        if ( ! $isUrl && ! $isPublicLink) {
+                            if ($directory !== '' && ! Str::startsWith($relative, $directory . '/')) {
+                                $relative = $directory . '/' . $relative;
+                            }
+                        }
+
+                        $entry = ImageEntry::make("file_preview_{$idx}")
+                            ->label($label)
+                            ->height(180)
+                            ->extraAttributes(['class' => 'rounded-xl shadow'])
+                            ->url(fn ($state) => $state)->openUrlInNewTab();
+
+                        if ($isUrl || $isPublicLink) {
+                            // State should be a URL the browser can load.
+                            $entry->getStateUsing(fn () => $item);
+                        } else {
+                            $entry->disk($disk)
+                                ->visibility($visibility)
+                                ->getStateUsing(fn () => $relative);
+                        }
+
+                        $fields[] = $entry;
+                    }
+
+                    // continue to next field
+                    continue;
+                }
+
+                // Create a text entry with the formatted value
+                $entry = TextEntry::make($fieldId)
+                    ->label($label);
+
+                // Apply different formatters based on field type
+                if ($type === 'date') {
+                    $format = $field['display_format'] ?? 'Y-m-d';
+                    $entry->date($format);
+                } elseif ($type === 'datetime') {
+                    $format = $field['display_format'] ?? 'Y-m-d H:i:s';
+                    $entry->dateTime($format);
+                } elseif ($type === 'time') {
+                    $entry->time();
+                } elseif ($type === 'boolean' || $type === 'checkbox') {
+                    $entry->badge();
+                }
+
+                $fields[] = $entry->state($value ?? '-');
             }
 
             if ( ! empty($fields)) {
-                $entries[] = Section::make($sectionTitle)
-                    ->schema($fields)
-                    ->columns(2);
+                $sectionComponent = Section::make($sectionTitle)
+                    ->schema($fields);
+
+                // Column count
+                if ( ! empty($section['column_count'])) {
+                    $sectionComponent->columns((int) $section['column_count']);
+                }
+
+                // Full width
+                if ( ! empty($section['column_span_full'])) {
+                    $sectionComponent->columnSpanFull();
+                }
+
+                // Collapsible
+                if ( ! empty($section['is_collapsible'])) {
+                    $sectionComponent->collapsible();
+                }
+
+                // Description (helper text)
+                if ( ! empty($section['helper_text'])) {
+                    $sectionComponent->description($section['helper_text']);
+                }
+
+                $entries[] = $sectionComponent;
             }
         }
 
         return $entries;
-    }
-
-    private static function formatDate($value): string
-    {
-        try {
-            return \Carbon\Carbon::parse($value)->format('Y-m-d');
-        } catch (Throwable) {
-            return '-';
-        }
-    }
-
-    private static function hasMethod(Component $component, string $method): bool
-    {
-        return method_exists($component, $method);
-    }
-
-    private static function getRenderedFieldComponent(string $type, string $fieldID): Component
-    {
-        $cacheKey = "{$type}:{$fieldID}";
-
-        return static::$componentCache[$cacheKey] ??= FieldRenderer::render($type, $fieldID);
-    }
-
-    private static function hydrateResponseState(Component $component, string $fieldID): void
-    {
-        $record   = $component->getLivewire()?->record;
-        $instance = $record?->modelInstance;
-        $values   = $instance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
-
-        $value = $values[$fieldID] ?? null;
-
-        $component->state($value);
     }
 }
