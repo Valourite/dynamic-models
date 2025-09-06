@@ -47,11 +47,6 @@ final class ModelTypeTable
                 TextColumn::make(ModelType::MODEL_TYPE_VERSION)
                     ->label('Version')
                     ->sortable(),
-
-                TextColumn::make('parent.model_type_name')
-                    ->label('Parent')
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
                 SelectFilter::make(ModelType::CAN_BE_CREATED)

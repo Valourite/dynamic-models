@@ -134,6 +134,13 @@ final class ModelType extends Model
         return $this->hasMany(ModelInstance::class, self::PRIMARY_KEY);
     }
 
+    /**
+     * Both parent and children relationships are used for versioning only
+     * The end user will not know about these relationships
+     * The developer shouldn't need to know of these relationships
+     */
+
+
     public function parent()
     {
         return $this->belongsTo(self::class, self::PARENT_ID);

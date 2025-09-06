@@ -23,14 +23,14 @@ trait HandlesSchemaChanges
         }
 
         // Same sections; compare field sets per section
-        foreach ($oldFieldsBySection as $sectionCid => $oldFieldSet) {
+        foreach ($oldFieldsBySection as $sectionCustomID => $oldFieldSet) {
             // If a section exists in old but not in new 
-            // (shouldn't happen if section sets equal)
-            if (!array_key_exists($sectionCid, $newFieldsBySection)) {
+            // (shouldn'currentVersion happen if section sets equal)
+            if (!array_key_exists($sectionCustomID, $newFieldsBySection)) {
                 return true;
             }
 
-            if ($oldFieldSet !== $newFieldsBySection[$sectionCid]) {
+            if ($oldFieldSet !== $newFieldsBySection[$sectionCustomID]) {
                 return true;
             }
         }
@@ -56,7 +56,8 @@ trait HandlesSchemaChanges
         //save the new record
         $new->save();
 
-        // keep current records values as is, as we have copied the values across
+        // keep current records values as is, 
+        // as we have copied the values across
         foreach ($data as $key => $value) {
             if ($key === ModelType::MODEL_TYPE_SCHEMA) {
                 continue;
@@ -73,16 +74,27 @@ trait HandlesSchemaChanges
         return $data;
     }
 
+    /**
+     * Update version if user updated version
+     * Else just return data, do not update version
+     */
     protected function schemaRemained(Model $record, array $data)
     {
         //grab the parent id of the current record
         $parentId = $record->{ModelType::PARENT_ID};
 
-        $data[ModelType::MODEL_TYPE_VERSION] = $this->nextChildVersion(
-            $parentId,
-            $record->model_type_version,
-            config('dynamic-models.increment_count', '0.0.1')
-        );
+        //test if the user changed the version manually
+        // return data with no updated version from nextChildVersion
+        if ($data[ModelType::MODEL_TYPE_VERSION] !== $record->model_type_version) {
+            return $data;
+        }
+
+        //To consider: Should we update the version if the user did not change the schema?
+        // $data[ModelType::MODEL_TYPE_VERSION] = $this->nextChildVersion(
+        //     $parentId,
+        //     $record->model_type_version,
+        //     config('dynamic-models.increment_count', '0.0.1')
+        // );
 
         return $data;
     }
@@ -92,47 +104,58 @@ trait HandlesSchemaChanges
      */
     protected function indexCustomIds(array $schema): array
     {
-        $sectionIds = [];
+        $sectionIDs = [];
         $fieldsBySection = [];
 
-        foreach ($schema as $sectionKey => $section) {
+        foreach ($schema as $section) {
             if (!is_array($section)) {
                 continue;
             }
 
-            // Section custom_id (fallback to array key if missing)
-            $sectionCid = $section['custom_id'] ?? (string) $sectionKey;
-            $sectionIds[] = $sectionCid;
+            // Section custom_id
+            $sectionCustomID = (string) ($section['custom_id'] ?? '');
+            if ($sectionCustomID === '') {
+                continue;
+            }
+
+            $sectionIDs[] = $sectionCustomID;
 
             // Collect field custom_ids for this section
-            $fieldIds = [];
-            foreach (($section['Fields'] ?? []) as $fieldKey => $field) {
+            $fieldIDs = [];
+            foreach (($section['Fields'] ?? []) as $field) {
                 if (!is_array($field)) {
                     continue;
                 }
-                $fieldIds[] = $field['custom_id'] ?? (string) $fieldKey;
+
+                $fieldCustomID = (string) ($field['custom_id'] ?? '');
+                if ($fieldCustomID === '') {
+                    continue;
+                }
+
+                // Field custom_id
+                $fieldIDs[] = $field['custom_id'];
             }
 
             // Normalize field IDs: unique + sorted
-            $fieldIds = array_values(array_unique($fieldIds));
-            sort($fieldIds, SORT_STRING);
+            $fieldIDs = array_values(array_unique($fieldIDs));
+            sort($fieldIDs, SORT_STRING);
 
-            $fieldsBySection[$sectionCid] = $fieldIds;
+            $fieldsBySection[$sectionCustomID] = $fieldIDs;
         }
 
         // Normalize section IDs: unique + sorted
-        $sectionIds = array_values(array_unique($sectionIds));
-        sort($sectionIds, SORT_STRING);
+        $sectionIDs = array_values(array_unique($sectionIDs));
+        sort($sectionIDs, SORT_STRING);
 
         // Sort the map by section id for deterministic comparison
         ksort($fieldsBySection, SORT_STRING);
 
-        return [$sectionIds, $fieldsBySection];
+        return [$sectionIDs, $fieldsBySection];
     }
 
-    protected function nextChildVersion(int|null $parentId, string $currentVersion, string $inc = '0.0.1', bool $resetLowerOnBump = true): string 
+    protected function nextChildVersion(int|null $parentId, string $currentVersion, string $incrementValue = '0.0.1', bool $resetLowerOnBump = true): string
     {
-        return DB::transaction(function () use ($parentId, $currentVersion, $inc, $resetLowerOnBump) {
+        return DB::transaction(function () use ($parentId, $currentVersion, $incrementValue, $resetLowerOnBump) {
             // lock siblings so two writers don’t compute the same base concurrently
             $versions = ModelType::query()
                 ->where(ModelType::PARENT_ID, $parentId)
@@ -140,21 +163,21 @@ trait HandlesSchemaChanges
                 ->pluck(ModelType::MODEL_TYPE_VERSION)
                 ->all();
 
-            $maxSibling = [0, 0, 0];
-            foreach ($versions as $v) {
-                $t = static::parse((string) $v);
-                if (static::compare($t, $maxSibling) === 1) {
-                    $maxSibling = $t;
+            $maxVersion = [0, 0, 0];
+            foreach ($versions as $version) {
+                $parsed = static::parse((string) $version);
+                if (static::compare($parsed, $maxVersion) === 1) {
+                    $maxVersion = $parsed;
                 }
             }
 
             $base = static::parse($currentVersion);
-            if (static::compare($maxSibling, $base) === 1) {
-                $base = $maxSibling; // don’t go backwards vs siblings
+            if (static::compare($maxVersion, $base) === 1) {
+                $base = $maxVersion; // don’t go backwards vs siblings
             }
 
-            $incT = static::parse($inc);
-            $next = static::add($base, $incT, $resetLowerOnBump);
+            $valueToIncrement = static::parse($incrementValue);
+            $next = static::add($base, $valueToIncrement, $resetLowerOnBump);
 
             return implode('.', $next);
         });
@@ -162,32 +185,68 @@ trait HandlesSchemaChanges
 
     protected static function add(array $base, array $inc, bool $resetLowerOnBump): array
     {
-        [$M, $m, $p] = $base;
-        [$iM, $im, $ip] = $inc;
-        if ($resetLowerOnBump && $iM > 0)
-            return [$M + $iM, 0, 0];
-        if ($resetLowerOnBump && $im > 0)
-            return [$M, $m + $im, 0];
-        return [$M + $iM, $m + $im, $p + $ip];
+        [$bMaj, $bMin, $bPat] = array_map('intval', $base);
+        [$iMaj, $iMin, $iPat] = array_map('intval', $inc);
+
+        // --- PATCH ---
+        $sumPat = $bPat + $iPat;
+        $carryMin = intdiv($sumPat, 10);
+
+        // If resetting, *any* change to a higher unit (minor/major) should zero patch:
+        // - explicit minor/major increments
+        // - or a carry up from patch
+        $patch = $resetLowerOnBump && ($iMin > 0 || $iMaj > 0 || $carryMin > 0)
+            ? 0
+            : ($sumPat % 10);
+
+        // --- MINOR ---
+        $sumMin = $bMin + $iMin + $carryMin;
+        $carryMaj = intdiv($sumMin, 10);
+
+        // If resetting, any change to major (explicit or via carry) should zero minor,
+        // and explicit minor increment should also zero patch (already handled) and set minor to summed (mod 10) unless carry/bump happens.
+        $minor = $resetLowerOnBump && ($iMaj > 0 || $carryMaj > 0)
+            ? 0
+            : ($sumMin % 10);
+
+        if ($resetLowerOnBump && ($iMaj > 0 || $carryMaj > 0)) {
+            // ensure both lower parts are zeroed on a major bump
+            $minor = 0;
+            $patch = 0;
+        }
+
+        // --- MAJOR ---
+        $major = $bMaj + $iMaj + $carryMaj;
+
+        return [$major, $minor, $patch];
     }
 
-    protected static function compare(array $a, array $b): int
+    protected static function compare(array $current, array $base): int
     {
         // lexicographic tuple compare
-        if ($a[0] !== $b[0])
-            return $a[0] <=> $b[0];
-        if ($a[1] !== $b[1])
-            return $a[1] <=> $b[1];
-        return $a[2] <=> $b[2];
+        if ($current[0] !== $base[0])
+            return $current[0] <=> $base[0];
+        if ($current[1] !== $base[1])
+            return $current[1] <=> $base[1];
+        return $current[2] <=> $base[2];
     }
 
-    protected static function parse(string $v): array
+    /**
+     * accept "v1.2.3", trim spaces, default to 0.0.0
+     * @param string $version
+     * @return int[]
+     */
+    protected static function parse(string $version): array
     {
-        // accept "v1.2.3", trim spaces, default to 0.0.0
-        $v = trim($v);
-        if (preg_match('/(\d+)\.(\d+)\.(\d+)/', $v, $m)) {
+        //strip whitespaces
+        $version = trim($version);
+
+        //grab numeric values
+        if (preg_match('/(\d+)\.(\d+)\.(\d+)/', $version, $m)) {
             return [intval($m[1]), intval($m[2]), intval($m[3])];
         }
+
+        //default
         return [0, 0, 0];
     }
 
