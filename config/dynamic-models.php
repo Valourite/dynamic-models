@@ -39,17 +39,17 @@ return [
     ],
 
     'versioning' => [
-        /**
+        /*
          * Enables versioning for dynamic models
          */
         'enabled' => true,
 
-        /**
+        /*
          * Create a new model type when the schema changes
          */
         'create_new' => true,
 
-        /**
+        /*
          * Update the version of the model only if schema changes
          */
         'update_only_on_schema_change' => true,
@@ -60,7 +60,7 @@ return [
          */
         'strategy' => \Valourite\DynamicModels\Support\DefaultStrategy::class,
 
-        /**
+        /*
          * Disables all previous versions except the latest one
          */
         'disable_previous_on_new' => false,
@@ -69,21 +69,20 @@ return [
          * Determines the step to increment by
          */
         'increment_count' => '0.0.1',
-
     ],
 
-    /**
+    /*
      * The hook classes to be executed during model type create/update
      * Order matters as it determines the sequence of execution
      */
     'hooks' => [
-        /**
+        /*
          * Must implement \Valourite\DynamicModels\Contracts\BeforeSaveEditHookInterface
          */
         'before_save' => [
             // \App\DynamicModels\Hooks\SanitizeData::class,
         ],
-        /**
+        /*
          * Must implement \Valourite\DynamicModels\Contracts\AfterSaveEditHookInterface
          */
         'after_save' => [
@@ -104,8 +103,8 @@ return [
      * Default upload settings for file fields when per-field options are not provided.
      */
     'uploads' => [
-        'disk' => 'public',
-        'directory' => 'dynamic-models/uploads',
+        'disk'       => 'public',
+        'directory'  => 'dynamic-models/uploads',
         'visibility' => 'public',
     ],
 ];

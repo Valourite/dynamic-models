@@ -2,22 +2,93 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\DB;
 use Valourite\DynamicModels\Models\ModelType;
 
 trait HandlesSchemaChanges
 {
+    protected static function add(array $base, array $inc, bool $resetLowerOnBump): array
+    {
+        [$bMaj, $bMin, $bPat] = array_map('intval', $base);
+        [$iMaj, $iMin, $iPat] = array_map('intval', $inc);
+
+        // --- PATCH ---
+        $sumPat   = $bPat + $iPat;
+        $carryMin = intdiv($sumPat, 10);
+
+        // If resetting, *any* change to a higher unit (minor/major) should zero patch:
+        // - explicit minor/major increments
+        // - or a carry up from patch
+        $patch = $resetLowerOnBump && ($iMin > 0 || $iMaj > 0 || $carryMin > 0)
+            ? 0
+            : ($sumPat % 10);
+
+        // --- MINOR ---
+        $sumMin   = $bMin + $iMin + $carryMin;
+        $carryMaj = intdiv($sumMin, 10);
+
+        // If resetting, any change to major (explicit or via carry) should zero minor,
+        // and explicit minor increment should also zero patch (already handled) and set minor to summed (mod 10) unless carry/bump happens.
+        $minor = $resetLowerOnBump && ($iMaj > 0 || $carryMaj > 0)
+            ? 0
+            : ($sumMin % 10);
+
+        if ($resetLowerOnBump && ($iMaj > 0 || $carryMaj > 0)) {
+            // ensure both lower parts are zeroed on a major bump
+            $minor = 0;
+            $patch = 0;
+        }
+
+        // --- MAJOR ---
+        $major = $bMaj + $iMaj + $carryMaj;
+
+        return [$major, $minor, $patch];
+    }
+
+    protected static function compare(array $current, array $base): int
+    {
+        // lexicographic tuple compare
+        if ($current[0] !== $base[0]) {
+            return $current[0] <=> $base[0];
+        }
+        if ($current[1] !== $base[1]) {
+            return $current[1] <=> $base[1];
+        }
+
+        return $current[2] <=> $base[2];
+    }
+
+    /**
+     * accept "v1.2.3", trim spaces, default to 0.0.0.
+     *
+     * @param string $version
+     *
+     * @return int[]
+     */
+    protected static function parse(string $version): array
+    {
+        //strip whitespaces
+        $version = trim($version);
+
+        //grab numeric values
+        if (preg_match('/(\d+)\.(\d+)\.(\d+)/', $version, $m)) {
+            return [(int) ($m[1]), (int) ($m[2]), (int) ($m[3])];
+        }
+
+        //default
+        return [0, 0, 0];
+    }
+
     /**
      * Build normalized, order-insensitive indices of custom_ids.
      */
     protected function indexCustomIds(array $schema): array
     {
-        $sectionIDs = [];
+        $sectionIDs      = [];
         $fieldsBySection = [];
 
         foreach ($schema as $section) {
-            if (!is_array($section)) {
+            if ( ! is_array($section)) {
                 continue;
             }
 
@@ -32,7 +103,7 @@ trait HandlesSchemaChanges
             // Collect field custom_ids for this section
             $fieldIDs = [];
             foreach (($section['Fields'] ?? []) as $field) {
-                if (!is_array($field)) {
+                if ( ! is_array($field)) {
                     continue;
                 }
 
@@ -86,77 +157,9 @@ trait HandlesSchemaChanges
             }
 
             $valueToIncrement = static::parse($incrementValue);
-            $next = static::add($base, $valueToIncrement, $resetLowerOnBump);
+            $next             = static::add($base, $valueToIncrement, $resetLowerOnBump);
 
             return implode('.', $next);
         });
     }
-
-    protected static function add(array $base, array $inc, bool $resetLowerOnBump): array
-    {
-        [$bMaj, $bMin, $bPat] = array_map('intval', $base);
-        [$iMaj, $iMin, $iPat] = array_map('intval', $inc);
-
-        // --- PATCH ---
-        $sumPat = $bPat + $iPat;
-        $carryMin = intdiv($sumPat, 10);
-
-        // If resetting, *any* change to a higher unit (minor/major) should zero patch:
-        // - explicit minor/major increments
-        // - or a carry up from patch
-        $patch = $resetLowerOnBump && ($iMin > 0 || $iMaj > 0 || $carryMin > 0)
-            ? 0
-            : ($sumPat % 10);
-
-        // --- MINOR ---
-        $sumMin = $bMin + $iMin + $carryMin;
-        $carryMaj = intdiv($sumMin, 10);
-
-        // If resetting, any change to major (explicit or via carry) should zero minor,
-        // and explicit minor increment should also zero patch (already handled) and set minor to summed (mod 10) unless carry/bump happens.
-        $minor = $resetLowerOnBump && ($iMaj > 0 || $carryMaj > 0)
-            ? 0
-            : ($sumMin % 10);
-
-        if ($resetLowerOnBump && ($iMaj > 0 || $carryMaj > 0)) {
-            // ensure both lower parts are zeroed on a major bump
-            $minor = 0;
-            $patch = 0;
-        }
-
-        // --- MAJOR ---
-        $major = $bMaj + $iMaj + $carryMaj;
-
-        return [$major, $minor, $patch];
-    }
-
-    protected static function compare(array $current, array $base): int
-    {
-        // lexicographic tuple compare
-        if ($current[0] !== $base[0])
-            return $current[0] <=> $base[0];
-        if ($current[1] !== $base[1])
-            return $current[1] <=> $base[1];
-        return $current[2] <=> $base[2];
-    }
-
-    /**
-     * accept "v1.2.3", trim spaces, default to 0.0.0
-     * @param string $version
-     * @return int[]
-     */
-    protected static function parse(string $version): array
-    {
-        //strip whitespaces
-        $version = trim($version);
-
-        //grab numeric values
-        if (preg_match('/(\d+)\.(\d+)\.(\d+)/', $version, $m)) {
-            return [intval($m[1]), intval($m[2]), intval($m[3])];
-        }
-
-        //default
-        return [0, 0, 0];
-    }
-
 }

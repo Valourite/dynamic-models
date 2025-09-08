@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Valourite\DynamicModels\Models\ModelType;
 
-return new class extends Migration {
+return new class () extends Migration {
     public function up(): void
     {
         $tableName = config('dynamic-models.table_prefix') . ModelType::BASE_TABLE_NAME;

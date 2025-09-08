@@ -29,7 +29,7 @@ final class ModelTypeSchemaGenerator
      */
     public static function formSchema(int|ModelType $modelType, string $context): array
     {
-        $modelType = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
+        $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
         $modelTypeSchema = $modelType->model_type_schema ?? [];
 
         $components = [];
@@ -39,9 +39,9 @@ final class ModelTypeSchemaGenerator
 
             foreach ($section['Fields'] ?? [] as $field) {
                 $fieldID = $field['custom_id'] ?? null;
-                $type = $field['type'] ?? 'text';
+                $type    = $field['type'] ?? 'text';
 
-                if (!$fieldID) {
+                if ( ! $fieldID) {
                     continue;
                 }
 
@@ -77,12 +77,12 @@ final class ModelTypeSchemaGenerator
                         ? (method_exists($livewire, 'getRecord') ? $livewire->getRecord() : ($livewire->record ?? null))
                         : null;
 
-                    if (!$record || !method_exists($record, 'modelInstance') || !$record->modelInstance) {
+                    if ( ! $record || ! method_exists($record, 'modelInstance') || ! $record->modelInstance) {
                         return;
                     }
 
                     $instanceValues = $record->modelInstance->modelInstanceValues->pluck('value', 'field_id');
-                    $value = $instanceValues[$fieldID] ?? null;
+                    $value          = $instanceValues[$fieldID] ?? null;
 
                     if ($value === null) {
                         return;
@@ -92,19 +92,19 @@ final class ModelTypeSchemaGenerator
                     if (in_array($type, ['date', 'datetime', 'time'], true)) {
                         if ($value instanceof \Carbon\CarbonInterface || $value instanceof DateTimeInterface) {
                             $value = match ($type) {
-                                'date' => $value->format('Y-m-d'),
+                                'date'     => $value->format('Y-m-d'),
                                 'datetime' => $value->format('Y-m-d H:i:s'),
-                                'time' => $value->format('H:i:s'),
-                                default => (string) $value,
+                                'time'     => $value->format('H:i:s'),
+                                default    => (string) $value,
                             };
                         } elseif (is_string($value)) {
                             try {
-                                $dt = Carbon::parse($value);
+                                $dt    = Carbon::parse($value);
                                 $value = match ($type) {
-                                    'date' => $dt->format('Y-m-d'),
+                                    'date'     => $dt->format('Y-m-d'),
                                     'datetime' => $dt->format('Y-m-d H:i:s'),
-                                    'time' => $dt->format('H:i:s'),
-                                    default => $value,
+                                    'time'     => $dt->format('H:i:s'),
+                                    default    => $value,
                                 };
                             } catch (Throwable) {
                                 // leave as-is if parsing fails
@@ -118,24 +118,24 @@ final class ModelTypeSchemaGenerator
                 $fields[] = $component;
             }
 
-            if (!empty($fields)) {
-                $sectionTitle = Str::title($section['title']) ?? 'Section';
+            if ( ! empty($fields)) {
+                $sectionTitle     = Str::title($section['title']) ?? 'Section';
                 $sectionComponent = Section::make($sectionTitle)
                     ->schema($fields);
 
-                if (!empty($section['helper_text'])) {
+                if ( ! empty($section['helper_text'])) {
                     $sectionComponent->description($section['helper_text']);
                 }
 
-                if (!empty($section['column_count'])) {
+                if ( ! empty($section['column_count'])) {
                     $sectionComponent->columns((int) $section['column_count']);
                 }
 
-                if (!empty($section['is_collapsible'])) {
+                if ( ! empty($section['is_collapsible'])) {
                     $sectionComponent->collapsible();
                 }
 
-                if (!empty($section['column_span_full'])) {
+                if ( ! empty($section['column_span_full'])) {
                     $sectionComponent->columnSpanFull();
                 }
 
@@ -148,19 +148,19 @@ final class ModelTypeSchemaGenerator
                     ->icon('heroicon-o-exclamation-circle')
                     ->schema([]);
 
-                if (!empty($section['helper_text'])) {
+                if ( ! empty($section['helper_text'])) {
                     $sectionComponent->description($section['helper_text']);
                 }
 
-                if (!empty($section['column_count'])) {
+                if ( ! empty($section['column_count'])) {
                     $sectionComponent->columns((int) $section['column_count']);
                 }
 
-                if (!empty($section['is_collapsible'])) {
+                if ( ! empty($section['is_collapsible'])) {
                     $sectionComponent->collapsible();
                 }
 
-                if (!empty($section['column_span_full'])) {
+                if ( ! empty($section['column_span_full'])) {
                     $sectionComponent->columnSpanFull();
                 }
 
@@ -185,52 +185,52 @@ final class ModelTypeSchemaGenerator
             : ModelInstance::findOrFail($modelInstance);
 
         $modelTypeSchema = $modelInstance->modelType?->model_type_schema ?? [];
-        $instanceData = $modelInstance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
+        $instanceData    = $modelInstance?->modelInstanceValues->pluck(ModelInstanceValue::VALUE, ModelInstanceValue::FIELD_ID);
 
         $entries = [];
 
         foreach ($modelTypeSchema as $section) {
             $sectionTitle = $section['title'] ?? 'Section';
-            $fields = [];
+            $fields       = [];
 
             foreach ($section['Fields'] ?? [] as $field) {
                 $fieldId = $field['custom_id'] ?? null;
-                if (!$fieldId) {
+                if ( ! $fieldId) {
                     continue;
                 }
 
                 $label = $field['label'] ?? $field['name'] ?? 'Field';
                 $value = $instanceData[$fieldId] ?? null;
-                $type = $field['type'] ?? 'text';
+                $type  = $field['type'] ?? 'text';
 
                 //if type is file, we skip
                 if ($type === 'file') {
                     // $value can be JSON or a string — normalize to array.
                     $items = is_array($value) ? $value : json_decode($value, true);
-                    if (!is_array($items)) {
+                    if ( ! is_array($items)) {
                         $items = array_filter([$value]);
                     }
 
-                    $disk = $field['disk'] ?? config('dynamic-models.uploads.disk', 'public');
+                    $disk       = $field['disk'] ?? config('dynamic-models.uploads.disk', 'public');
                     $visibility = $field['visibility'] ?? config('dynamic-models.uploads.visibility', 'public');
-                    $directory = trim($field['directory'] ?? config('dynamic-models.uploads.directory', ''), '/');
+                    $directory  = trim($field['directory'] ?? config('dynamic-models.uploads.directory', ''), '/');
 
                     foreach ($items as $idx => $item) {
                         $item = (string) $item;
 
-                        $isUrl = Str::startsWith($item, ['http://', 'https://']);
+                        $isUrl        = Str::startsWith($item, ['http://', 'https://']);
                         $isPublicLink = Str::startsWith($item, ['/storage/']);
 
                         $relative = ltrim($item, '/');
-                        if (!$isUrl && !$isPublicLink) {
-                            if ($directory !== '' && !Str::startsWith($relative, $directory . '/')) {
+                        if ( ! $isUrl && ! $isPublicLink) {
+                            if ($directory !== '' && ! Str::startsWith($relative, $directory . '/')) {
                                 $relative = $directory . '/' . $relative;
                             }
                         }
 
                         $resolveOpenUrl = function (string $disk, string $path) {
-                            $diskCfg = config("filesystems.disks.$disk", []);
-                            $driver = Arr::get($diskCfg, 'driver');
+                            $diskCfg = config("filesystems.disks.{$disk}", []);
+                            $driver  = Arr::get($diskCfg, 'driver');
 
                             // If disk has a base URL (e.g. public disk), use it
                             if ($urlBase = Arr::get($diskCfg, 'url')) {
@@ -256,16 +256,17 @@ final class ModelTypeSchemaGenerator
                                 if ($isUrl || $isPublicLink) {
                                     return $state;
                                 }
+
                                 return $resolveOpenUrl($disk, $state);
                             })
                             ->openUrlInNewTab();
 
                         if ($isUrl || $isPublicLink) {
-                            $entry->getStateUsing(fn() => $item);
+                            $entry->getStateUsing(fn () => $item);
                         } else {
                             $entry->disk($disk)
                                 ->visibility($visibility)
-                                ->getStateUsing(fn() => $relative);
+                                ->getStateUsing(fn () => $relative);
                         }
 
                         $fields[] = $entry;
@@ -295,27 +296,27 @@ final class ModelTypeSchemaGenerator
                 $fields[] = $entry->state($value ?? '-');
             }
 
-            if (!empty($fields)) {
+            if ( ! empty($fields)) {
                 $sectionComponent = Section::make($sectionTitle)
                     ->schema($fields);
 
                 // Column count
-                if (!empty($section['column_count'])) {
+                if ( ! empty($section['column_count'])) {
                     $sectionComponent->columns((int) $section['column_count']);
                 }
 
                 // Full width
-                if (!empty($section['column_span_full'])) {
+                if ( ! empty($section['column_span_full'])) {
                     $sectionComponent->columnSpanFull();
                 }
 
                 // Collapsible
-                if (!empty($section['is_collapsible'])) {
+                if ( ! empty($section['is_collapsible'])) {
                     $sectionComponent->collapsible();
                 }
 
                 // Description (helper text)
-                if (!empty($section['helper_text'])) {
+                if ( ! empty($section['helper_text'])) {
                     $sectionComponent->description($section['helper_text']);
                 }
 

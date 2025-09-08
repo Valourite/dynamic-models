@@ -2,12 +2,11 @@
 
 namespace Valourite\DynamicModels\Support;
 
-use Illuminate\Database\Eloquent\Model;
 use Valourite\DynamicModels\Concerns\HandlesSchemaChanges;
 use Valourite\DynamicModels\Contracts\StrategyInterface;
 use Valourite\DynamicModels\Models\ModelType;
 
-class DefaultStrategy implements StrategyInterface
+final class DefaultStrategy implements StrategyInterface
 {
     use HandlesSchemaChanges;
 
@@ -33,9 +32,9 @@ class DefaultStrategy implements StrategyInterface
 
         // Same sections; compare field sets per section
         foreach ($oldFieldsBySection as $sectionCustomID => $oldFieldSet) {
-            // If a section exists in old but not in new 
+            // If a section exists in old but not in new
             // (shouldn'currentVersion happen if section sets equal)
-            if (!array_key_exists($sectionCustomID, $newFieldsBySection)) {
+            if ( ! array_key_exists($sectionCustomID, $newFieldsBySection)) {
                 return true;
             }
 
@@ -56,7 +55,7 @@ class DefaultStrategy implements StrategyInterface
         if (config('dynamic-models.versioning.create_new', true)) {
             $new = new ModelType();
             $new->fill($data);
-            $new->{ModelType::PARENT_ID} = $parentId;
+            $new->{ModelType::PARENT_ID}          = $parentId;
             $new->{ModelType::MODEL_TYPE_VERSION} = $this->computeNextVersion($record, $data);
 
             //save the new record
@@ -70,17 +69,17 @@ class DefaultStrategy implements StrategyInterface
             $data[ModelType::MODEL_TYPE_VERSION] = $this->computeNextVersion($record, $data);
         }
 
-        // keep current records values as is, 
+        // keep current records values as is,
         // as we have copied the values across
         foreach ($data as $key => $value) {
             if ($key === ModelType::MODEL_TYPE_VERSION) {
                 continue;
             }
 
-            $data[$key] = $record->$key;
+            $data[$key] = $record->{$key};
         }
 
-        //set the data model_schema to the records schema 
+        //set the data model_schema to the records schema
         // as a new record has been created with that schema
         // and we want to keep the current records schema as is
         // $data[ModelType::MODEL_TYPE_SCHEMA] = $record->{ModelType::MODEL_TYPE_SCHEMA};
@@ -96,7 +95,7 @@ class DefaultStrategy implements StrategyInterface
             return $data;
         }
 
-        if (!config('dynamic-models.versioning.update_only_on_schema_change', false)) {
+        if ( ! config('dynamic-models.versioning.update_only_on_schema_change', false)) {
             $data[ModelType::MODEL_TYPE_VERSION] = $this->computeNextVersion($record, $data);
         }
 

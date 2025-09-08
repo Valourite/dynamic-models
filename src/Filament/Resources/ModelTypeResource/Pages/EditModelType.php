@@ -7,7 +7,6 @@ use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
-use Valourite\DynamicModels\Contracts\EditHook;
 use Valourite\DynamicModels\Contracts\StrategyInterface;
 use Valourite\DynamicModels\Filament\Resources\ModelTypeResource\ModelTypeResource;
 use Valourite\DynamicModels\Models\ModelType;
@@ -60,7 +59,7 @@ final class EditModelType extends EditRecord
     }
 
     /**
-     * @param  array<string, mixed>  $data
+     * @param array<string, mixed> $data
      */
     protected function handleRecordUpdate(Model $record, array $data): Model
     {

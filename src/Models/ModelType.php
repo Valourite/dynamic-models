@@ -65,7 +65,7 @@ final class ModelType extends Model
      * =========================.
      */
     protected $casts = [
-        self::CAN_BE_CREATED => 'boolean',
+        self::CAN_BE_CREATED    => 'boolean',
         self::MODEL_TYPE_SCHEMA => 'json',
     ];
 
@@ -137,10 +137,8 @@ final class ModelType extends Model
     /**
      * Both parent and children relationships are used for versioning only
      * The end user will not know about these relationships
-     * The developer shouldn't need to know of these relationships
+     * The developer shouldn't need to know of these relationships.
      */
-
-
     public function parent()
     {
         return $this->belongsTo(self::class, self::PARENT_ID);
@@ -154,11 +152,11 @@ final class ModelType extends Model
     /**
      * =========================
      *    SCOPES
-     * ========================
+     * ========================.
      */
     public function scopeSiblings($query)
     {
         return$query->where(self::PARENT_ID, $this->parent_model_type_id)
-                 ->where(self::PRIMARY_KEY, '!=', $this->getKey());
+            ->where(self::PRIMARY_KEY, '!=', $this->getKey());
     }
 }

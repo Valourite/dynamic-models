@@ -22,14 +22,14 @@ final class ModelTypeSchemaInjector
             //This means that models created without a type will never be able to get a type after creation
             Select::make(ModelType::MODEL_TYPE_ID)
                 ->label('Type')
-                ->visible(fn($context) => $context === 'create')
+                ->visible(fn ($context) => $context === 'create')
                 ->live()
                 ->options(function ($model) {
                     return ModelType::query()
                         ->where(ModelType::MODEL_TYPE_PARENT_MODEL, $model)
                         ->where(ModelType::CAN_BE_CREATED, true)
                         ->get()
-                        ->mapWithKeys(fn($model) => [
+                        ->mapWithKeys(fn ($model) => [
                             $model->{ModelType::MODEL_TYPE_ID} => $model->{ModelType::MODEL_TYPE_NAME} . ' - v' . $model->{ModelType::MODEL_TYPE_VERSION},
                         ])
                         ->toArray();
@@ -44,13 +44,13 @@ final class ModelTypeSchemaInjector
             Group::make()
                 ->schema(function (callable $get, $context) {
                     $modelTypeID = $get(ModelType::MODEL_TYPE_ID);
-                    if (!filled($modelTypeID)) {
+                    if ( ! filled($modelTypeID)) {
                         return []; // return empty schema if no modelType selected
                     }
 
                     return ModelTypeSchemaGenerator::formSchema($modelTypeID, $context);
                 })
-                ->visible(fn(callable $get) => filled($get(ModelType::MODEL_TYPE_ID)))
+                ->visible(fn (callable $get) => filled($get(ModelType::MODEL_TYPE_ID)))
                 ->columnSpanFull(),
         ];
     }
