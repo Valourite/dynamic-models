@@ -13,7 +13,7 @@
 Key Features:
 
 - **Dynamic Model Creation** - Allow the same model to host different values on different instances
-- **Version control** - New version created automatically when the schemas of model types are modified
+- **Version control** - The ability to implement custom version control code when the model type changes, or use the default strategy implemented. 
 - **Response storage** - Separate table for model instance values with schema versioning
 - **Visual builder** - Repeatable model type sections and fields
 - **Type safety** - Strongly typed fields with validation support
@@ -205,9 +205,9 @@ We can display a custom message set inside the model type by making use of the t
 
 1. **Form Creation**:
    - Model Ttpes are created in the Filament admin with versioned schemas
-   - Each schema change creates a new model type with an updated version
-   - All changes to model type data unrelated to the model type schema will not generate a new model type, but rather update the current version
-   - Existing model instance valyes remain linked to their original model type version
+   - Each schema change creates a new model type with an updated version (depends on config settings)
+   - All changes to model type data unrelated to the model type schema will not generate a new model type, but rather update the current version (depends on config settings)
+   - Existing model instance values remain linked to their original model type version
 
 2. **Model Instance Handling**:
    - Model instance values are stored in `model_instances` table when a new model is created from a model type
@@ -228,7 +228,7 @@ No tests have been written as of yet
 
 ---
 
-## 🚧 Roadmap
+## Roadmap
 
 * [x] Core form builder implementation
 * [x] Version control system
@@ -238,6 +238,7 @@ No tests have been written as of yet
 * [x] Add more functionality to sections (non-collapsible)
 * [x] File upload field support
 * [x] More customization on fields and sections
+* [x] Allow users to hook into modelType lifecycle
 * [ ] Allow user to style infolist and form sections
 * [ ] Implementing prefix and suffix icons with colour handling
 * [ ] Advanced validation rules
