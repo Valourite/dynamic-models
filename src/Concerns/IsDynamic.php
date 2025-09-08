@@ -33,7 +33,7 @@ trait IsDynamic
             ModelInstance::class,
             ModelInstance::PARENT_MODEL_ID,
             ModelType::MODEL_TYPE_ID,
-            'id',
+            static::getKeyName(),
             ModelInstance::MODEL_TYPE_ID
         )->where(ModelInstance::PARENT_MODEL_TYPE, static::class);
     }
@@ -51,7 +51,7 @@ trait IsDynamic
             ModelInstance::class,
             ModelInstance::PARENT_MODEL_ID,
             ModelInstanceValue::MODEL_INSTANCE_ID,
-            'id',
+            static::getKeyName(),
             ModelInstance::MODEL_INSTANCE_ID
         )->where(ModelInstance::PARENT_MODEL_TYPE, static::class);
     }
