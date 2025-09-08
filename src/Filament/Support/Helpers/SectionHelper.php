@@ -29,6 +29,11 @@ final class SectionHelper
             ->tooltip('Edit base section options')
             ->color('gray')
             ->slideOver()
+            ->visible(function(array $arguments, Repeater $component) {
+                $state = $component->getState();
+                $itemKey = $arguments['item'];
+                return isset($state[$itemKey]) && ($state[$itemKey]['deleted'] ?? false) === false;
+            })
             ->modalHeading('Configure Section Options')
             ->fillForm(function (array $arguments, Get $get) {
                 $state = $get(ModelType::MODEL_TYPE_SCHEMA);
@@ -36,7 +41,7 @@ final class SectionHelper
                 return $state[$arguments['item']] ?? [];
             })
             ->form(function (Get $get, array $arguments) {
-                $state    = $get(ModelType::MODEL_TYPE_SCHEMA);
+                $state = $get(ModelType::MODEL_TYPE_SCHEMA);
                 $itemData = $state[$arguments['item']] ?? [];
 
                 return array_values(array_filter([
@@ -47,12 +52,61 @@ final class SectionHelper
                 ]));
             })
             ->action(function (array $data, array $arguments, Repeater $component) {
-                $state       = $component->getState();
+                $state = $component->getState();
                 $currentItem = $state[$arguments['item']] ?? [];
 
                 // Merge data with the filtered current item
                 $state[$arguments['item']] = array_merge($currentItem, $data);
                 $component->state($state);
+            });
+    }
+
+    public static function getSoftDeleteAction(): Action
+    {
+        return Action::make('soft_delete')
+            ->label('Mark as Deleted')
+            ->icon('heroicon-m-trash')
+            ->color('danger')
+            ->visible(function (array $arguments, Repeater $component, $context) {
+
+                if($context === 'create') {
+                    return false;
+                }
+
+                $state = $component->getState();
+                $itemKey = $arguments['item'];
+                return isset($state[$itemKey]) && ($state[$itemKey]['deleted'] ?? false) === false;
+            })
+            ->requiresConfirmation()
+            ->action(function (array $arguments, Repeater $component) {
+                $state = $component->getState();
+                $itemKey = $arguments['item'];
+                if (isset($state[$itemKey])) {
+                    $state[$itemKey]['deleted'] = true;
+                    $component->state($state);
+                }
+            });
+    }
+
+    public static function getRestoreAction(): Action
+    {
+        return Action::make('restore')
+            ->label('Restore Field')
+            ->icon('heroicon-m-arrow-uturn-left')
+            ->visible(function (array $arguments, Repeater $component) {
+                $state = $component->getState();
+                $itemKey = $arguments['item'];
+                return isset($state[$itemKey]) && ($state[$itemKey]['deleted'] ?? false) === true;
+            })
+            ->color('success')
+            ->requiresConfirmation()
+            ->action(function (array $arguments, Repeater $component) {
+                $state = $component->getState();
+                $itemKey = $arguments['item'];
+                if (isset($state[$itemKey])) {
+                    $state[$itemKey]['deleted'] = false;
+                    $component->state($state);
+                }
             });
     }
 }

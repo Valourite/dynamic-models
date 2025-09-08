@@ -2,6 +2,7 @@
 
 namespace Valourite\DynamicModels\Filament\Support\Components;
 
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -19,12 +20,14 @@ final class FieldRepeater extends Repeater
             ->grid(2)
             ->minItems(1)
             ->addable(true)
-            ->deletable(true)
+            ->deletable(fn($context) => $context === 'create')
             ->reorderable(true)
             ->columnSpanFull()
             ->schema(static::buildSchema())
             ->extraItemActions([
                 FieldHelper::getBaseOptionsModal(),
+                FieldHelper::getSoftDeleteAction(),
+                FieldHelper::getRestoreAction()
             ]);
     }
 
@@ -37,11 +40,13 @@ final class FieldRepeater extends Repeater
                 ->live(onBlur: true)
                 ->afterStateUpdated(
                     fn (Set $set, ?string $state) => $set('label', str_replace('_', ' ', Str::title(trim($state))))
-                ),
+                )
+                ->disabled(fn ($get) => $get('deleted') === true),
 
             TextInput::make('label')
                 ->label('Label')
-                ->helperText('This is the label of the field'),
+                ->helperText('This is the label of the field')
+                ->disabled(fn ($get) => $get('deleted') === true),
 
             Select::make('type')
                 ->label('Type')
@@ -52,7 +57,8 @@ final class FieldRepeater extends Repeater
                 )
                 ->default(FieldType::TEXT)
                 ->required()
-                ->live(),
+                ->live()
+                ->disabled(fn ($get) => $get('deleted') === true),
 
             FieldHelper::getCustomID('field'),
         ];

@@ -16,12 +16,14 @@ final class SectionRepeater extends Repeater
             // ->collapsed()
             ->minItems(1)
             ->addable(true)
-            ->deletable(true)
+            ->deletable(fn($context) => $context === 'create')
             ->reorderable(true)
             ->columnSpanFull()
             ->schema(static::buildSchema())
             ->extraItemActions([
                 SectionHelper::getBaseOptionsModal(),
+                SectionHelper::getSoftDeleteAction(),
+                SectionHelper::getRestoreAction()
             ]);
     }
 
@@ -30,9 +32,11 @@ final class SectionRepeater extends Repeater
         return [
             TextInput::make('title')
                 ->label('Title')
-                ->required(),
+                ->required()
+                ->disabled(fn ($get) => $get('deleted') === true),
 
-            FieldRepeater::make('Fields'),
+            FieldRepeater::make('Fields')
+                ->disabled(fn ($get) => $get('deleted') === true),
 
             SectionHelper::getCustomID('section'),
         ];
