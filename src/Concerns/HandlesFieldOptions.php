@@ -166,7 +166,7 @@ trait HandlesFieldOptions
                 $sizeInKB = (int) $options['max_file_size'] * 1024;
                 $component->maxSize($sizeInKB);
             }
-            if (isset($options['accepted_file_types']) && method_exists($component, 'acceptedFileTypes')) {
+            if (isset($options['accepted_file_types']) && method_exists($component, 'acceptedFileTypes') && $options['accepted_file_types'] !== []) {
                 $component->acceptedFileTypes(is_array($options['accepted_file_types']) ? $options['accepted_file_types'] : [$options['accepted_file_types']]);
             }
             if (isset($options['max_files']) && method_exists($component, 'maxFiles')) {
