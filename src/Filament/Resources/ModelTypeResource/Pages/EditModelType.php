@@ -5,16 +5,15 @@ namespace Valourite\DynamicModels\Filament\Resources\ModelTypeResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
-use Illuminate\Support\Facades\DB;
-use Valourite\DynamicModels\Concerns\HandlesSchemaChanges;
+use Illuminate\Support\Facades\App;
+use Valourite\DynamicModels\Contracts\EditHook;
+use Valourite\DynamicModels\Contracts\StrategyInterface;
 use Valourite\DynamicModels\Filament\Resources\ModelTypeResource\ModelTypeResource;
 use Valourite\DynamicModels\Models\ModelType;
-use Valourite\DynamicModels\Support\Semver;
+use Valourite\DynamicModels\Support\DefaultStrategy;
 
 final class EditModelType extends EditRecord
 {
-    use HandlesSchemaChanges;
-
     protected static string $resource = ModelTypeResource::class;
 
     protected function getHeaderActions(): array
@@ -33,12 +32,33 @@ final class EditModelType extends EditRecord
 
         $record = $this->getRecord();
 
-        $diff = static::checkForChanges(
-            $record->model_type_schema,
-            $data['model_type_schema']
-        );
+        // Run BEFORE-SAVE HOOKS
+        foreach (config('dynamic-models.hooks.before_save', []) as $hookClass) {
+            /** @var EditHook $hook */
+            $hook = App::make($hookClass);
+            $data = $hook->beforeSave($record, $data);
+        }
 
-        $data = $diff ? static::schemaChanged($record, $data) : static::schemaRemained($record, $data);
+        // determine if versioning is enabled,
+        // if not, allow all changes to be made to record without restriction
+        if (config('dynamic-models.versioning.enabled', true)) {
+            // get the current strategy
+            /** @var StrategyInterface $strategy */
+            $strategy = App::make(config('dynamic-models.versioning.strategy', DefaultStrategy::class));
+
+            // determine if schema has changed
+            $diff = $strategy->hasSchemaChanged(
+                $record->model_type_schema,
+                $data[ModelType::MODEL_TYPE_SCHEMA]
+            );
+
+            $data = $diff ? $strategy->onSchemaChanged($record, $data) : $strategy->onSchemaRemained($record, $data);
+        }
+
+        // Run AFTER-SAVE HOOKS (new version path)
+        foreach (config('dynamic-models.hooks.after_save', []) as $hookClass) {
+            App::make($hookClass)->afterSave($record, $data, true);
+        }
 
         return $data;
     }
