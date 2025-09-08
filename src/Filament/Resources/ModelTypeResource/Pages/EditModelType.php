@@ -5,6 +5,7 @@ namespace Valourite\DynamicModels\Filament\Resources\ModelTypeResource\Pages;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ViewAction;
 use Filament\Resources\Pages\EditRecord;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\App;
 use Valourite\DynamicModels\Contracts\EditHook;
 use Valourite\DynamicModels\Contracts\StrategyInterface;
@@ -34,7 +35,7 @@ final class EditModelType extends EditRecord
 
         // Run BEFORE-SAVE HOOKS
         foreach (config('dynamic-models.hooks.before_save', []) as $hookClass) {
-            /** @var EditHook $hook */
+            /** @var \Valourite\DynamicModels\Contracts\BeforeSaveEditHookInterface $hook */
             $hook = App::make($hookClass);
             $data = $hook->beforeSave($record, $data);
         }
@@ -55,11 +56,23 @@ final class EditModelType extends EditRecord
             $data = $diff ? $strategy->onSchemaChanged($record, $data) : $strategy->onSchemaRemained($record, $data);
         }
 
+        return $data;
+    }
+
+    /**
+     * @param  array<string, mixed>  $data
+     */
+    protected function handleRecordUpdate(Model $record, array $data): Model
+    {
+        $record->update($data);
+
         // Run AFTER-SAVE HOOKS (new version path)
         foreach (config('dynamic-models.hooks.after_save', []) as $hookClass) {
-            App::make($hookClass)->afterSave($record, $data, true);
+            /** @var \Valourite\DynamicModels\Contracts\AfterSaveEditHookInterface $hook */
+            $hook = App::make($hookClass);
+            $hook->afterSave($record, $data, config('dynamic-models.versioning.create_new', true));
         }
 
-        return $data;
+        return $record;
     }
 }

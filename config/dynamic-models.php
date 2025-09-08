@@ -56,6 +56,7 @@ return [
 
         /*
          * The Versioning Strategy class to use
+         * Must implement \Valourite\DynamicModels\Contracts\StrategyInterface
          */
         'strategy' => \Valourite\DynamicModels\Support\DefaultStrategy::class,
 
@@ -71,11 +72,20 @@ return [
 
     ],
 
-    // Hook classes must implement EditHook. Order matters.
+    /**
+     * The hook classes to be executed during model type create/update
+     * Order matters as it determines the sequence of execution
+     */
     'hooks' => [
+        /**
+         * Must implement \Valourite\DynamicModels\Contracts\BeforeSaveEditHookInterface
+         */
         'before_save' => [
             // \App\DynamicModels\Hooks\SanitizeData::class,
         ],
+        /**
+         * Must implement \Valourite\DynamicModels\Contracts\AfterSaveEditHookInterface
+         */
         'after_save' => [
             // \App\DynamicModels\Hooks\AuditLog::class,
         ],
