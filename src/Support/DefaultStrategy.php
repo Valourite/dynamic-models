@@ -72,17 +72,12 @@ final class DefaultStrategy implements StrategyInterface
         // keep current records values as is,
         // as we have copied the values across
         foreach ($data as $key => $value) {
-            if ($key === ModelType::MODEL_TYPE_VERSION) {
+            if ($key === ModelType::MODEL_TYPE_VERSION || $key === ModelType::MODEL_TYPE_SCHEMA) {
                 continue;
             }
 
             $data[$key] = $record->{$key};
         }
-
-        //set the data model_schema to the records schema
-        // as a new record has been created with that schema
-        // and we want to keep the current records schema as is
-        // $data[ModelType::MODEL_TYPE_SCHEMA] = $record->{ModelType::MODEL_TYPE_SCHEMA};
 
         return $data;
     }
