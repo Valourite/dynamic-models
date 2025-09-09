@@ -2,23 +2,26 @@
 
 namespace Valourite\DynamicModels\Filament\Resources\ModelTypeResource\Tables;
 
+use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
+use Valourite\DynamicModels\Concerns\HasTableActions;
 use Valourite\DynamicModels\Models\ModelType;
 
 final class ModelTypeTable
 {
+    use HasTableActions;
+
     public static function configure(Table $table): Table
     {
         return $table
             ->columns([
                 TextColumn::make(ModelType::MODEL_TYPE_NAME)
-                    ->label('Model Type Name')
+                    ->label(config('dynamic-models.navigation.label', 'Model Type') . ' Name')
                     ->searchable()
                     ->sortable(),
 
@@ -60,11 +63,12 @@ final class ModelTypeTable
                     ->label('Model')
                     ->options(collect(config('dynamic-models.parent_models', []))
                         ->mapWithKeys(fn ($model) => [$model => class_basename($model)])),
+
+                TrashedFilter::make(),
             ])
-            ->recordActions([
-                ViewAction::make(),
-                EditAction::make(),
-            ])
+            ->recordActions(
+                ActionGroup::make(static::getTableActions())
+            )
             ->toolbarActions([
                 BulkActionGroup::make([
                     DeleteBulkAction::make(),

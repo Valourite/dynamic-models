@@ -59,9 +59,21 @@ trait HandlesModelInstance
         $values = [];
 
         foreach ($modelTypeSchema as $sectionIndex => $section) {
+            //we skip sections that have been marked as deleted
+            $sectionDeleted = $section['deleted'] ?? false;
+            if ($sectionDeleted) {
+                continue;
+            }
+
             foreach ($section['Fields'] ?? [] as $fieldIndex => $field) {
-                $customId  = $field['custom_id'] ?? null;
-                $fieldType = $field['type'] ?? null;
+                $customId     = $field['custom_id'] ?? null;
+                $fieldType    = $field['type'] ?? null;
+                $fieldDeleted = $field['deleted'] ?? false;
+
+                //we skip fields that have been marked as deleted
+                if ($fieldDeleted) {
+                    continue;
+                }
 
                 // Get the raw value from the form data
                 $value = $this->dynamicModelRawData[$customId] ?? null;

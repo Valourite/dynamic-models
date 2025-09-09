@@ -21,6 +21,7 @@ trait IsDynamic
         return $this->morphOne(ModelInstance::class, ModelInstance::MORPH_NAME);
     }
 
+    //TODO: NOT WORKING
     /**
      * Returns the model type this model uses through the model instance.
      *
@@ -38,6 +39,7 @@ trait IsDynamic
         )->where(ModelInstance::PARENT_MODEL_TYPE, static::class);
     }
 
+    //TODO: NOT WORKING
     /**
      * Returns all the model instance values this model has
      * Essentially returning the values that this model set on creation with a type.

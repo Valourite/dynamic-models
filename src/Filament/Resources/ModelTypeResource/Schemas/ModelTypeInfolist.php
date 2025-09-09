@@ -14,15 +14,26 @@ final class ModelTypeInfolist
     public static function configure(Schema $schema): Schema
     {
         return $schema->components([
-            Section::make('Form Details')
+            Section::make(config('dynamic-models.navigation.label', 'Model Type') . ' Details')
                 ->schema([
-                    TextEntry::make(ModelType::MODEL_TYPE_NAME)->label('Form Name'),
-                    TextEntry::make(ModelType::MODEL_TYPE_DESCRIPTION)->label('Description')->html(),
-                    TextEntry::make(ModelType::MODEL_TYPE_CONFIRMATION_MESSAGE)->label('Confirmation Message')->html(),
-                    TextEntry::make(ModelType::MODEL_TYPE_VERSION)->label('Version'),
+                    TextEntry::make(ModelType::MODEL_TYPE_NAME)
+                        ->label(config('dynamic-models.navigation.label', 'Model Type') . ' Name'),
+
+                    TextEntry::make(ModelType::MODEL_TYPE_DESCRIPTION)
+                        ->label(config('dynamic-models.navigation.label', 'Model Type') . ' Description')
+                        ->markdown(),
+
+                    TextEntry::make(ModelType::MODEL_TYPE_CONFIRMATION_MESSAGE)
+                        ->label('Confirmation Message')
+                        ->html(),
+
+                    TextEntry::make(ModelType::MODEL_TYPE_VERSION)
+                        ->label(config('dynamic-models.navigation.label', 'Model Type') . ' Version'),
+
                     TextEntry::make(ModelType::MODEL_TYPE_PARENT_MODEL)
                         ->label('Parent Model')
                         ->formatStateUsing(fn ($state) => class_basename($state)),
+
                     TextEntry::make(ModelType::CAN_BE_CREATED)
                         ->label('Active')
                         ->badge()
@@ -32,7 +43,7 @@ final class ModelTypeInfolist
                 ->columns(2),
 
             Section::make('Schema Preview')
-                ->schema(function (Get $get, $context) {
+                ->schema(function (Get $get) {
                     $record = $get('record');
 
                     // we return the schema and allow the user to play with it -> enter values, they wont be saved

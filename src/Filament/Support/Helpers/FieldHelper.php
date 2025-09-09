@@ -28,7 +28,19 @@ final class FieldHelper
             ->label('')
             ->tooltip('Edit base field options')
             ->color('gray')
+            ->slideOver()
             ->modalHeading('Configure Field Options')
+            ->visible(function (array $arguments, Repeater $component, $get) {
+                //hide if section has been deleted
+                if ($get('deleted') === true) {
+                    return false;
+                }
+
+                $state   = $component->getState();
+                $itemKey = $arguments['item'];
+
+                return isset($state[$itemKey]) && ($state[$itemKey]['deleted'] ?? false) === false;
+            })
             ->fillForm(function (array $arguments, Get $get) {
                 $state = $get('Fields');
 
@@ -90,6 +102,61 @@ final class FieldHelper
                 // Merge data with the filtered current item
                 $state[$arguments['item']] = array_merge($currentItem, $data);
                 $component->state($state);
+            });
+    }
+
+    public static function getSoftDeleteAction(): Action
+    {
+        return Action::make('soft_delete')
+            ->label('Mark as Deleted')
+            ->icon('heroicon-m-trash')
+            ->color('danger')
+            ->visible(function (array $arguments, Repeater $component, $context, $get) {
+                if ($context === 'create' || $get('deleted') === true) {
+                    return false;
+                }
+
+                $state   = $component->getState();
+                $itemKey = $arguments['item'];
+
+                return isset($state[$itemKey]) && ($state[$itemKey]['deleted'] ?? false) === false;
+            })
+            ->requiresConfirmation()
+            ->action(function (array $arguments, Repeater $component) {
+                $state   = $component->getState();
+                $itemKey = $arguments['item'];
+                if (isset($state[$itemKey])) {
+                    $state[$itemKey]['deleted'] = true;
+                    $component->state($state);
+                }
+            });
+    }
+
+    public static function getRestoreAction(): Action
+    {
+        return Action::make('restore')
+            ->label('Restore Field')
+            ->icon('heroicon-m-arrow-uturn-left')
+            ->visible(function (array $arguments, Repeater $component, $get) {
+                //hide if section has been deleted
+                if ($get('deleted') === true) {
+                    return false;
+                }
+
+                $state   = $component->getState();
+                $itemKey = $arguments['item'];
+
+                return isset($state[$itemKey]) && ($state[$itemKey]['deleted'] ?? false) === true;
+            })
+            ->color('success')
+            ->requiresConfirmation()
+            ->action(function (array $arguments, Repeater $component) {
+                $state   = $component->getState();
+                $itemKey = $arguments['item'];
+                if (isset($state[$itemKey])) {
+                    $state[$itemKey]['deleted'] = false;
+                    $component->state($state);
+                }
             });
     }
 }
