@@ -5,6 +5,7 @@ namespace Valourite\DynamicModels\Concerns;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Valourite\DynamicModels\Models\ModelInstance;
 use Valourite\DynamicModels\Models\ModelInstanceValue;
 use Valourite\DynamicModels\Models\ModelType;
@@ -21,6 +22,7 @@ trait IsDynamic
         return $this->morphOne(ModelInstance::class, ModelInstance::MORPH_NAME);
     }
 
+    //TODO: NOT WORKING
     /**
      * Returns the model type this model uses through the model instance.
      *
@@ -38,6 +40,7 @@ trait IsDynamic
         )->where(ModelInstance::PARENT_MODEL_TYPE, static::class);
     }
 
+    //TODO: NOT WORKING
     /**
      * Returns all the model instance values this model has
      * Essentially returning the values that this model set on creation with a type.

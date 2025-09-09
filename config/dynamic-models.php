@@ -90,6 +90,13 @@ return [
         ],
     ],
 
+    'deleting' => [
+        /**
+         * Allow model types to be force deleted
+         */
+        'allow_force_delete' => false,
+    ],
+
     /*
      * The list of all the models that can be used as based models.
      * When a new model is created using one of the listed models, the new model recieves all the base models attributes

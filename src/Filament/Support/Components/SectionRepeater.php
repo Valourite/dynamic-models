@@ -11,9 +11,9 @@ final class SectionRepeater extends Repeater
     public static function make(?string $name = null): static
     {
         return parent::make($name)
-            ->label('Model Section')
+            ->hiddenLabel()
             ->collapsible()
-            // ->collapsed()
+            ->collapsed(false)
             ->minItems(1)
             ->addable(true)
             ->deletable(fn($context) => $context === 'create')

@@ -25,6 +25,9 @@ final class ModelTypeSchemaInjector
                 ->visible(fn ($context) => $context === 'create')
                 ->live()
                 ->options(function ($model) {
+                    //We do not display is trashed in here as 
+                    // users should not be able to create a model of a type that is trashed
+                    // This only displays on create, not edit
                     return ModelType::query()
                         ->where(ModelType::MODEL_TYPE_PARENT_MODEL, $model)
                         ->where(ModelType::CAN_BE_CREATED, true)

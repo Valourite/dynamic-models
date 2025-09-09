@@ -29,17 +29,17 @@ final class ModelTypeForm
 
     private static function modelTypeDetailSection(): Section
     {
-        return Section::make('Model Type Details')
+        return Section::make(config('dynamic-models.navigation.label', 'Model Type') . ' Details')
             ->columns(2)
             ->schema([
                 TextInput::make(ModelType::MODEL_TYPE_NAME)
-                    ->label('Model Type Name')
+                    ->label(config('dynamic-models.navigation.label', 'Model Type') . ' Name')
                     ->helperText('The unique name of this model.')
                     ->maxLength(255)
                     ->required(),
 
                 RichEditor::make(ModelType::MODEL_TYPE_DESCRIPTION)
-                    ->label('Model Type Description')
+                    ->label(config('dynamic-models.navigation.label', 'Model Type') . ' Description')
                     ->helperText('Enter the optional description of the model type.')
                     ->toolbarButtons([
                         ['bold', 'italic', 'underline', 'strike', 'subscript', 'superscript', 'link'],
@@ -49,9 +49,9 @@ final class ModelTypeForm
                     ]),
 
                 Textarea::make(ModelType::MODEL_TYPE_CONFIRMATION_MESSAGE)
-                    ->label('Record Confirmation Message')
+                    ->label('Confirmation Message')
                     ->default('Your record has been submitted successfully!')
-                    ->helperText('Enter the optional confirmation message of the record.'),
+                    ->helperText('Enter the optional confirmation message of the record when created or updated.'),
 
                 Toggle::make(ModelType::CAN_BE_CREATED)
                     ->default(true)
@@ -64,6 +64,7 @@ final class ModelTypeForm
                     ->required(),
 
                 TextInput::make(ModelType::MODEL_TYPE_VERSION)
+                    ->label(config('dynamic-models.navigation.label', 'Model Type') . ' Version')
                     ->default('1.0.0')
                     ->mask('9.9.9')
                     ->prefix('v')
@@ -74,10 +75,10 @@ final class ModelTypeForm
 
     private static function modelTypeSchemaSection(): Section
     {
-        return Section::make('Model Type Creation')
+        return Section::make(config('dynamic-models.navigation.label', 'Model Type') . ' Creation')
             ->columns(1)
             ->schema([
-                SectionRepeater::make(ModelType::MODEL_TYPE_SCHEMA)->collapsed(),
+                SectionRepeater::make(ModelType::MODEL_TYPE_SCHEMA),
             ]);
     }
 

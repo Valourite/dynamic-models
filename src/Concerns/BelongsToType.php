@@ -2,22 +2,17 @@
 
 namespace Valourite\DynamicModels\Concerns;
 
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Valourite\DynamicModels\Models\ModelType;
 
-//TODO: docblock not picking up?
-/**
- * @propety Form::class $form
- */
 trait BelongsToType
 {
     /**
      * Returns the form this response belongs to.
      *
-     * @return BelongsTo
+     * @return \Illuminate\Database\Eloquent\Builder<ModelType>
      */
     public function modelType()
     {
-        return $this->belongsTo(ModelType::class, ModelType::PRIMARY_KEY);
+        return $this->belongsTo(ModelType::class, ModelType::PRIMARY_KEY)->withTrashed();
     }
 }

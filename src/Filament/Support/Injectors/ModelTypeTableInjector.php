@@ -14,6 +14,7 @@ final class ModelTypeTableInjector
         return [
             TextColumn::make('modelInstance.modelType.model_type_name')
                 ->label('Type')
+                ->default('Type Deleted')
                 ->sortable()
                 ->searchable()
                 ->toggleable()

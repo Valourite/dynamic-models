@@ -16,7 +16,7 @@ final class FieldRepeater extends Repeater
     public static function make(?string $name = null): static
     {
         return parent::make($name)
-            ->label('Model Field')
+            ->hiddenLabel()
             ->grid(2)
             ->minItems(1)
             ->addable(true)

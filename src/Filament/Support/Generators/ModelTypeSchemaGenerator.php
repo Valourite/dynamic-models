@@ -29,7 +29,7 @@ final class ModelTypeSchemaGenerator
      */
     public static function formSchema(int|ModelType $modelType, string $context): array
     {
-        $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::findOrFail($modelType);
+        $modelType       = $modelType instanceof ModelType ? $modelType : ModelType::withTrashed()->findOrFail($modelType);
         $modelTypeSchema = $modelType->model_type_schema ?? [];
 
         $components = [];
