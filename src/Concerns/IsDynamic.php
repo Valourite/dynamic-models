@@ -5,7 +5,6 @@ namespace Valourite\DynamicModels\Concerns;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Valourite\DynamicModels\Models\ModelInstance;
 use Valourite\DynamicModels\Models\ModelInstanceValue;
 use Valourite\DynamicModels\Models\ModelType;

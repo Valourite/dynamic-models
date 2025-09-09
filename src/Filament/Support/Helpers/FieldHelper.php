@@ -30,15 +30,15 @@ final class FieldHelper
             ->color('gray')
             ->slideOver()
             ->modalHeading('Configure Field Options')
-            ->visible(function(array $arguments, Repeater $component, $get) {
-
+            ->visible(function (array $arguments, Repeater $component, $get) {
                 //hide if section has been deleted
-                if($get('deleted') === true) {
+                if ($get('deleted') === true) {
                     return false;
                 }
 
-                $state = $component->getState();
+                $state   = $component->getState();
                 $itemKey = $arguments['item'];
+
                 return isset($state[$itemKey]) && ($state[$itemKey]['deleted'] ?? false) === false;
             })
             ->fillForm(function (array $arguments, Get $get) {
@@ -96,7 +96,7 @@ final class FieldHelper
                 return array_values(array_filter($sections));
             })
             ->action(function (array $data, array $arguments, Repeater $component) {
-                $state = $component->getState();
+                $state       = $component->getState();
                 $currentItem = $state[$arguments['item']] ?? [];
 
                 // Merge data with the filtered current item
@@ -111,19 +111,19 @@ final class FieldHelper
             ->label('Mark as Deleted')
             ->icon('heroicon-m-trash')
             ->color('danger')
-            ->visible(function(array $arguments, Repeater $component, $context, $get) {
-
-                if($context === 'create' || $get('deleted') === true) {
+            ->visible(function (array $arguments, Repeater $component, $context, $get) {
+                if ($context === 'create' || $get('deleted') === true) {
                     return false;
                 }
 
-                $state = $component->getState();
+                $state   = $component->getState();
                 $itemKey = $arguments['item'];
+
                 return isset($state[$itemKey]) && ($state[$itemKey]['deleted'] ?? false) === false;
             })
             ->requiresConfirmation()
             ->action(function (array $arguments, Repeater $component) {
-                $state = $component->getState();
+                $state   = $component->getState();
                 $itemKey = $arguments['item'];
                 if (isset($state[$itemKey])) {
                     $state[$itemKey]['deleted'] = true;
@@ -137,21 +137,21 @@ final class FieldHelper
         return Action::make('restore')
             ->label('Restore Field')
             ->icon('heroicon-m-arrow-uturn-left')
-            ->visible(function(array $arguments, Repeater $component, $get) {
-
+            ->visible(function (array $arguments, Repeater $component, $get) {
                 //hide if section has been deleted
-                if($get('deleted') === true) {
+                if ($get('deleted') === true) {
                     return false;
                 }
-                
-                $state = $component->getState();
+
+                $state   = $component->getState();
                 $itemKey = $arguments['item'];
+
                 return isset($state[$itemKey]) && ($state[$itemKey]['deleted'] ?? false) === true;
             })
             ->color('success')
             ->requiresConfirmation()
             ->action(function (array $arguments, Repeater $component) {
-                $state = $component->getState();
+                $state   = $component->getState();
                 $itemKey = $arguments['item'];
                 if (isset($state[$itemKey])) {
                     $state[$itemKey]['deleted'] = false;

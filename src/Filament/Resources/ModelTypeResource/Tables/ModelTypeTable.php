@@ -4,13 +4,7 @@ namespace Valourite\DynamicModels\Filament\Resources\ModelTypeResource\Tables;
 
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ForceDeleteAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\ViewAction;
-use Filament\Schemas\Components\Group;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
@@ -69,7 +63,6 @@ final class ModelTypeTable
                     ->label('Model')
                     ->options(collect(config('dynamic-models.parent_models', []))
                         ->mapWithKeys(fn ($model) => [$model => class_basename($model)])),
-
 
                 TrashedFilter::make(),
             ])

@@ -91,7 +91,7 @@ return [
     ],
 
     'deleting' => [
-        /**
+        /*
          * Allow model types to be force deleted
          */
         'allow_force_delete' => false,

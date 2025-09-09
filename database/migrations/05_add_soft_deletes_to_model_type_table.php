@@ -10,7 +10,7 @@ return new class () extends Migration {
     {
         $tableName = config('dynamic-models.table_prefix') . ModelType::BASE_TABLE_NAME;
 
-        Schema::table($tableName, function (Blueprint $table) use ($tableName) {
+        Schema::table($tableName, function (Blueprint $table) {
             $table->softDeletes();
         });
     }

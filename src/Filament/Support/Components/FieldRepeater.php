@@ -2,7 +2,6 @@
 
 namespace Valourite\DynamicModels\Filament\Support\Components;
 
-use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -20,14 +19,14 @@ final class FieldRepeater extends Repeater
             ->grid(2)
             ->minItems(1)
             ->addable(true)
-            ->deletable(fn($context) => $context === 'create')
+            ->deletable(fn ($context) => $context === 'create')
             ->reorderable(true)
             ->columnSpanFull()
             ->schema(static::buildSchema())
             ->extraItemActions([
                 FieldHelper::getBaseOptionsModal(),
                 FieldHelper::getSoftDeleteAction(),
-                FieldHelper::getRestoreAction()
+                FieldHelper::getRestoreAction(),
             ]);
     }
 

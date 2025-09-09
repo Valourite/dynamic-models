@@ -35,7 +35,6 @@ final class ModelTypeSchemaGenerator
         $components = [];
 
         foreach ($modelTypeSchema as $section) {
-
             $sectionDeleted = $section['deleted'] ?? false;
 
             //skip entire section if marked as deleted
@@ -46,8 +45,8 @@ final class ModelTypeSchemaGenerator
             $fields = [];
 
             foreach ($section['Fields'] ?? [] as $field) {
-                $fieldID = $field['custom_id'] ?? null;
-                $type    = $field['type'] ?? 'text';
+                $fieldID   = $field['custom_id'] ?? null;
+                $type      = $field['type'] ?? 'text';
                 $isDeleted = $field['deleted'] ?? false;
 
                 //skip if no field ID or is marked as deleted
@@ -200,18 +199,18 @@ final class ModelTypeSchemaGenerator
         $entries = [];
 
         foreach ($modelTypeSchema as $section) {
-            $sectionTitle = $section['title'] ?? 'Section';
+            $sectionTitle   = $section['title'] ?? 'Section';
             $sectionDeleted = $section['deleted'] ?? false;
 
             //skip entire section if marked as deleted
             if ($sectionDeleted) {
                 continue;
             }
-            
-            $fields       = [];
+
+            $fields = [];
 
             foreach ($section['Fields'] ?? [] as $field) {
-                $fieldId = $field['custom_id'] ?? null;
+                $fieldId   = $field['custom_id'] ?? null;
                 $isDeleted = $field['deleted'] ?? false;
 
                 if ( ! $fieldId || $isDeleted) {

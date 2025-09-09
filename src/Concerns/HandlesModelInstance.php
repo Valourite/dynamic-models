@@ -59,7 +59,6 @@ trait HandlesModelInstance
         $values = [];
 
         foreach ($modelTypeSchema as $sectionIndex => $section) {
-
             //we skip sections that have been marked as deleted
             $sectionDeleted = $section['deleted'] ?? false;
             if ($sectionDeleted) {
@@ -67,8 +66,8 @@ trait HandlesModelInstance
             }
 
             foreach ($section['Fields'] ?? [] as $fieldIndex => $field) {
-                $customId  = $field['custom_id'] ?? null;
-                $fieldType = $field['type'] ?? null;
+                $customId     = $field['custom_id'] ?? null;
+                $fieldType    = $field['type'] ?? null;
                 $fieldDeleted = $field['deleted'] ?? false;
 
                 //we skip fields that have been marked as deleted

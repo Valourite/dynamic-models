@@ -15,17 +15,17 @@ trait HasTableActions
 
             Actions\DeleteAction::make()
                 ->requiresConfirmation()
-                ->successNotificationMessage(config('dynamic-models.navigation.label', 'Model Type') . " Deleted"),
+                ->successNotificationMessage(config('dynamic-models.navigation.label', 'Model Type') . ' Deleted'),
 
             Actions\RestoreAction::make()
                 ->requiresConfirmation()
-                ->successNotificationMessage(config('dynamic-models.navigation.label', 'Model Type') . " Restored"),
+                ->successNotificationMessage(config('dynamic-models.navigation.label', 'Model Type') . ' Restored'),
         ];
 
         if (config('dynamic-models.deleting.allow_force_delete', false)) {
             $actions[] = Actions\ForceDeleteAction::make()
                 ->requiresConfirmation()
-                ->successNotificationMessage(config('dynamic-models.navigation.label', 'Model Type') . " Permanently Deleted")
+                ->successNotificationMessage(config('dynamic-models.navigation.label', 'Model Type') . ' Permanently Deleted')
                 ->label('Delete Permanently');
         }
 

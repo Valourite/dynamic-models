@@ -16,14 +16,14 @@ final class SectionRepeater extends Repeater
             ->collapsed(false)
             ->minItems(1)
             ->addable(true)
-            ->deletable(fn($context) => $context === 'create')
+            ->deletable(fn ($context) => $context === 'create')
             ->reorderable(true)
             ->columnSpanFull()
             ->schema(static::buildSchema())
             ->extraItemActions([
                 SectionHelper::getBaseOptionsModal(),
                 SectionHelper::getSoftDeleteAction(),
-                SectionHelper::getRestoreAction()
+                SectionHelper::getRestoreAction(),
             ]);
     }
 
