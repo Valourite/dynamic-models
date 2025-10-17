@@ -59,13 +59,13 @@ This will:
 In your `PanelProvider`:
 
 ```php
-use Valourite\DynamicModels\FormBuilderPlugin;
+use Valourite\DynamicModels\DynamicModelsPlugin;
 
 public function panel(Panel $panel): Panel
 {
     return $panel
         ->plugins([
-            FormBuilderPlugin::make(),
+            DynamicModelsPlugin::make(),
         ]);
 }
 ```
